@@ -28,12 +28,28 @@ To build or run the project, use one of the following tasks:
 | Task                          | Description                                                          |
 |-------------------------------|----------------------------------------------------------------------|
 | `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
+| `./gradlew build`             | Build everything (includes ktlintCheck and detekt)                   |
 | `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
 | `buildImage`                  | Build the docker image to use with the fat JAR                       |
 | `publishImageToLocalRegistry` | Publish the docker image locally                                     |
 | `run`                         | Run the server                                                       |
 | `runDocker`                   | Run using the local docker image                                     |
+
+## Code Quality (ktlint + detekt)
+
+This project enforces code style and basic static analysis using ktlint and detekt.
+
+- Run both checks:
+  - Unix/macOS: `./gradlew ktlintCheck detekt`
+  - Windows: `gradlew.bat ktlintCheck detekt`
+
+- Auto-format Kotlin code with ktlint:
+  - Unix/macOS: `./gradlew ktlintFormat`
+  - Windows: `gradlew.bat ktlintFormat`
+
+Configuration:
+- .editorconfig sets UTF-8, LF line endings, and 4-space indentation. It also enables the official ktlint style.
+- detekt.yml enables essential bug-prone rules and fails the build on violations. Non-critical stylistic rules are disabled to keep signal high.
 
 If the server starts successfully, you'll see the following output:
 

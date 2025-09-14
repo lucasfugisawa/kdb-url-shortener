@@ -5,6 +5,8 @@ plugins {
     kotlin("jvm") version "2.2.20"
     id("io.ktor.plugin") version "3.3.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
 }
 
 group = "dev.kotlinbr"
@@ -12,6 +14,21 @@ version = "0.0.1"
 
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config = files("detekt.yml")
+}
+
+ktlint {
+    ignoreFailures.set(false)
+}
+
+// Ensure code quality checks run with the build
+tasks.named("check") {
+    dependsOn("ktlintCheck", "detekt")
 }
 
 dependencies {

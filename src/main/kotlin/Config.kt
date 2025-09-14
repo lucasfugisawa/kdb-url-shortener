@@ -8,27 +8,27 @@ import io.ktor.util.AttributeKey
 /**
  * Application configuration models
  */
- data class DbConfig(
-     val driver: String,
-     val url: String,
-     val user: String,
-     val password: String,
-     val poolMax: Int,
- )
+data class DbConfig(
+    val driver: String,
+    val url: String,
+    val user: String,
+    val password: String,
+    val poolMax: Int,
+)
 
- data class ServerConfig(
-     val port: Int,
- )
+data class ServerConfig(
+    val port: Int,
+)
 
- data class AppConfig(
-     val env: String,
-     val server: ServerConfig,
-     val db: DbConfig,
- )
+data class AppConfig(
+    val env: String,
+    val server: ServerConfig,
+    val db: DbConfig,
+)
 
- val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
+val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
- fun loadAppConfig(application: Application): AppConfig {
+fun loadAppConfig(application: Application): AppConfig {
      // Determine environment: APP_ENV env var -> system property (for tests) -> application config property -> default "dev"
      val envFromEnv = System.getenv("APP_ENV")
      val envFromSysProp = System.getProperty("APP_ENV")

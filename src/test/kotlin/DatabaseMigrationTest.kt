@@ -1,14 +1,14 @@
 package dev.kotlinbr
 
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
+import io.ktor.client.request.get
+import io.ktor.server.testing.testApplication
 import java.sql.DriverManager
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import io.ktor.server.testing.testApplication
-import io.ktor.client.request.get
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 
 class DatabaseMigrationTest {
     private lateinit var pg: PostgreSQLContainer<*>

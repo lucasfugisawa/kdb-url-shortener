@@ -1,0 +1,39 @@
+detekt:
+  build:
+    maxIssues: 0
+    excludeCorrectable: false
+  config:
+    validation: true
+
+processors:
+  active: true
+
+console-reports:
+  active: true
+  exclude:
+    - 'ComplexityReport'
+    - 'NotificationReport'
+
+comments:
+  active: false
+
+complexity:
+  active: false
+
+style:
+  active: false
+
+naming:
+  active: false
+
+performance:
+  active: true
+
+exceptions:
+  active: true
+
+potential-bugs:
+  active: true
+
+empty-blocks:
+  active: true
