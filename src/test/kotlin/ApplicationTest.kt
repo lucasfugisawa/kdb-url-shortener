@@ -25,6 +25,7 @@ class ApplicationTest {
     @Test
     fun testRoot() = testApplication {
         application {
+            System.setProperty("APP_SKIP_DB", "true")
             module()
         }
         client.get("/").apply {
@@ -35,6 +36,7 @@ class ApplicationTest {
     @Test
     fun testHealth() = testApplication {
         application {
+            System.setProperty("APP_SKIP_DB", "true")
             module()
         }
         val response: HttpResponse = client.get("/health")
@@ -42,6 +44,23 @@ class ApplicationTest {
         assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
         val body = response.bodyAsText().trim()
         assertEquals("{\"status\":\"ok\"}", body)
+        // X-Request-ID must be present in response
+        val respId = response.headers["X-Request-ID"]
+        kotlin.test.assertTrue(!respId.isNullOrBlank(), "X-Request-ID header should be set")
+    }
+
+    @Test
+    fun testXRequestIdPropagation() = testApplication {
+        application {
+            System.setProperty("APP_SKIP_DB", "true")
+            module()
+        }
+        val customId = "test-corr-id-123"
+        val response: HttpResponse = client.get("/health") {
+            header("X-Request-ID", customId)
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(customId, response.headers["X-Request-ID"])
     }
 
     @Test
@@ -52,6 +71,7 @@ class ApplicationTest {
             )
         }
         application {
+            System.setProperty("APP_SKIP_DB", "true")
             module()
         }
         val response = client.get("/env")
@@ -77,6 +97,7 @@ class ApplicationTest {
         // Simulate APP_ENV environment via system property for tests
         System.setProperty("APP_ENV", "test")
         application {
+            System.setProperty("APP_SKIP_DB", "true")
             module()
         }
         val response = client.get("/env")

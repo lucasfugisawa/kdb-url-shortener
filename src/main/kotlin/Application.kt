@@ -13,9 +13,14 @@ fun Application.module() {
     // Log selected environment at startup
     this.environment.log.info("Application starting with env=${appConfig.env}")
 
-    // Initialize database (Hikari + Exposed) and optionally run migrations with Flyway
-    DatabaseFactory.init(appConfig)
-    this.environment.log.info("Database initialized")
+    val skipDb = System.getProperty("APP_SKIP_DB") == "true"
+    if (!skipDb) {
+        // Initialize database (Hikari + Exposed) and optionally run migrations with Flyway
+        DatabaseFactory.init(appConfig)
+        this.environment.log.info("Database initialized")
+    } else {
+        this.environment.log.info("Skipping database initialization due to APP_SKIP_DB=true")
+    }
 
     configureHTTP()
     configureSerialization()

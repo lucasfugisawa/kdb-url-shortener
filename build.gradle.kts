@@ -24,6 +24,8 @@ dependencies {
     implementation("io.ktor:ktor-server-netty")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-config-yaml")
+    // JSON logging encoder
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 
     // Database & Migrations
     implementation("org.flywaydb:flyway-core:9.22.3")
