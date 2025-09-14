@@ -1,15 +1,26 @@
 package dev.kotlinbr
 
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.config.*
 import io.ktor.server.testing.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ApplicationTest {
+
+    @BeforeTest
+    fun clearAppEnvPropertyBefore() {
+        System.clearProperty("APP_ENV")
+    }
+
+    @AfterTest
+    fun clearAppEnvPropertyAfter() {
+        System.clearProperty("APP_ENV")
+    }
 
     @Test
     fun testRoot() = testApplication {
@@ -59,5 +70,18 @@ class ApplicationTest {
         assertEquals(HttpStatusCode.OK, response.status)
         val body = response.bodyAsText().trim()
         assertEquals("{\"env\":\"dev\"}", body)
+    }
+
+    @Test
+    fun testEnvLoadedFromAppEnvSystemProperty() = testApplication {
+        // Simulate APP_ENV environment via system property for tests
+        System.setProperty("APP_ENV", "test")
+        application {
+            module()
+        }
+        val response = client.get("/env")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText().trim()
+        assertEquals("{\"env\":\"test\"}", body)
     }
 }

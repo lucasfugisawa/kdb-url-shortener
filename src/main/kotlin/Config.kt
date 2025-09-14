@@ -13,34 +13,49 @@ import io.ktor.util.AttributeKey
      val url: String,
      val user: String,
      val password: String,
+     val poolMax: Int,
+ )
+
+ data class ServerConfig(
+     val port: Int,
  )
 
  data class AppConfig(
      val env: String,
+     val server: ServerConfig,
      val db: DbConfig,
  )
 
  val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
  fun loadAppConfig(application: Application): AppConfig {
-     // Determine environment: APP_ENV env var -> application config property -> default "dev"
+     // Determine environment: APP_ENV env var -> system property (for tests) -> application config property -> default "dev"
      val envFromEnv = System.getenv("APP_ENV")
+     val envFromSysProp = System.getProperty("APP_ENV")
      val envFromConfig = application.environment.config.propertyOrNull("app.env")?.getString()
-     val env = (envFromEnv ?: envFromConfig ?: "dev").lowercase()
+     val env = (envFromEnv ?: envFromSysProp ?: envFromConfig ?: "dev").lowercase()
 
      // Parse application.conf and pick the matching section if present
      val root: Config = ConfigFactory.parseResources("application.conf").resolve()
      val section: Config = if (root.hasPath(env)) root.getConfig(env) else ConfigFactory.empty()
 
-     fun get(path: String, default: String = ""): String =
+     fun getString(path: String, default: String = ""): String =
          if (section.hasPath(path)) section.getString(path) else default
 
-     val dbCfg = DbConfig(
-         driver = get("db.driver"),
-         url = get("db.url"),
-         user = get("db.user"),
-         password = get("db.password"),
+     fun getInt(path: String, default: Int): Int =
+         if (section.hasPath(path)) section.getInt(path) else default
+
+     val serverCfg = ServerConfig(
+         port = getInt("server.port", 8080)
      )
 
-     return AppConfig(env = env, db = dbCfg)
+     val dbCfg = DbConfig(
+         driver = getString("db.driver"),
+         url = getString("db.url"),
+         user = getString("db.user"),
+         password = getString("db.password"),
+         poolMax = getInt("db.pool.max", 0),
+     )
+
+     return AppConfig(env = env, server = serverCfg, db = dbCfg)
  }
