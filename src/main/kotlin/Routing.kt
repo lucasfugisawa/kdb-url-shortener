@@ -16,9 +16,17 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
-        // Health check route returning JSON {"status":"ok"}
+        // Liveness
         get("/health") {
             call.respond(mapOf("status" to "ok"))
+        }
+        // Readiness: check DB connectivity
+        get("/health/ready") {
+            if (DatabaseFactory.isHealthy()) {
+                call.respond(mapOf("status" to "ready"))
+            } else {
+                call.respond(HttpStatusCode.ServiceUnavailable, mapOf("status" to "not-ready"))
+            }
         }
         // Expose current environment for testing/inspection
         get("/env") {

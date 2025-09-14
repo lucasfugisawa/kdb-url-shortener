@@ -13,6 +13,10 @@ fun Application.module() {
     // Log selected environment at startup
     this.environment.log.info("Application starting with env=${appConfig.env}")
 
+    // Initialize database (Hikari + Exposed) and optionally run migrations with Flyway
+    DatabaseFactory.init(appConfig)
+    this.environment.log.info("Database initialized")
+
     configureHTTP()
     configureSerialization()
     configureRouting()

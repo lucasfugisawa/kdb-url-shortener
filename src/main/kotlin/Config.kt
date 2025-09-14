@@ -49,12 +49,15 @@ import io.ktor.util.AttributeKey
          port = getInt("server.port", 8080)
      )
 
+     // Allow overrides via environment variables or system properties for tests/runtimes
+     fun getEnvOrProp(name: String): String? = System.getenv(name) ?: System.getProperty(name)
+
      val dbCfg = DbConfig(
-         driver = getString("db.driver"),
-         url = getString("db.url"),
-         user = getString("db.user"),
-         password = getString("db.password"),
-         poolMax = getInt("db.pool.max", 0),
+         driver = getString("db.driver").ifEmpty { getEnvOrProp("DB_DRIVER") ?: "org.postgresql.Driver" },
+         url = getEnvOrProp("DB_URL") ?: getString("db.url"),
+         user = getEnvOrProp("DB_USER") ?: getString("db.user"),
+         password = getEnvOrProp("DB_PASSWORD") ?: getString("db.password"),
+         poolMax = (getEnvOrProp("DB_POOL_MAX")?.toIntOrNull()) ?: getInt("db.pool.max", 10),
      )
 
      return AppConfig(env = env, server = serverCfg, db = dbCfg)
