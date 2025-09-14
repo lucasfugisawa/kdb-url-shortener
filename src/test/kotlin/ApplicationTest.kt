@@ -4,6 +4,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.server.config.*
 import io.ktor.server.testing.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,5 +31,33 @@ class ApplicationTest {
         assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
         val body = response.bodyAsText().trim()
         assertEquals("{\"status\":\"ok\"}", body)
+    }
+
+    @Test
+    fun testEnvLoadedFromConfigProperty() = testApplication {
+        environment {
+            config = MapApplicationConfig(
+                "app.env" to "test"
+            )
+        }
+        application {
+            module()
+        }
+        val response = client.get("/env")
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
+        val body = response.bodyAsText().trim()
+        assertEquals("{\"env\":\"test\"}", body)
+    }
+
+    @Test
+    fun testEnvDefaultIsDevWhenNotProvided() = testApplication {
+        application {
+            module()
+        }
+        val response = client.get("/env")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText().trim()
+        assertEquals("{\"env\":\"dev\"}", body)
     }
 }

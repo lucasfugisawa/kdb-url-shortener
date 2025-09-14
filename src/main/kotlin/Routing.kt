@@ -20,5 +20,10 @@ fun Application.configureRouting() {
         get("/health") {
             call.respond(mapOf("status" to "ok"))
         }
+        // Expose current environment for testing/inspection
+        get("/env") {
+            val cfg = this@configureRouting.attributes[AppConfigKey]
+            call.respond(mapOf("env" to cfg.env))
+        }
     }
 }
