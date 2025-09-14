@@ -9,6 +9,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.sql.Connection
 
 object DatabaseFactory {
+    private val logger = org.slf4j.LoggerFactory.getLogger(DatabaseFactory::class.java)
+
     @Volatile
     private var dataSource: HikariDataSource? = null
 
@@ -66,7 +68,11 @@ object DatabaseFactory {
                     if (rs.next()) rs.getInt(1) == 1 else false
                 } ?: false
             }
-        } catch (t: Throwable) {
+        } catch (e: java.sql.SQLException) {
+            logger.debug("DB health check failed due to SQL exception", e)
+            false
+        } catch (e: IllegalStateException) {
+            logger.debug("DB health check failed due to illegal state", e)
             false
         }
     }

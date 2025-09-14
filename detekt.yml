@@ -1,9 +1,8 @@
-detekt:
-  build:
-    maxIssues: 0
-    excludeCorrectable: false
-  config:
-    validation: true
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+config:
+  validation: true
 
 processors:
   active: true
