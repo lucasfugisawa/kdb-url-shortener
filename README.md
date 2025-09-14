@@ -23,17 +23,54 @@ Here's a list of features included in this project:
 
 ## Building & Running
 
-To build or run the project, use one of the following tasks:
+To build or run the project locally using Gradle, use one of the following tasks:
 
-| Task                          | Description                                                          |
-|-------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything (includes ktlintCheck and detekt)                   |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
+| Task                     | Description                                            |
+|--------------------------|--------------------------------------------------------|
+| `./gradlew test`         | Run the tests                                          |
+| `./gradlew build`        | Build everything (includes ktlintCheck and detekt)     |
+| `./gradlew run`          | Run the server locally                                 |
+
+## Run with Docker (DEV = PROD stack)
+
+This project includes a Docker setup to run the same stack locally as in production: Postgres + Redis + App.
+
+Prerequisites:
+- Docker and Docker Compose
+
+Build and start the full stack:
+
+- Unix/macOS:
+  - `docker compose up --build`
+- Windows (PowerShell or CMD):
+  - `docker compose up --build`
+
+Services started:
+- postgres (image: postgres:16)
+- redis (image: redis:7)
+- app (built from Dockerfile using Eclipse Temurin 21)
+
+Environment used by the app container:
+- `APP_ENV=prod`
+- `APP_RUN_MIGRATIONS=true`
+- `DB_URL=jdbc:postgresql://postgres:5432/shortener`
+- `DB_USER=shortener`
+- `DB_PASSWORD=shortener`
+
+Health check:
+- After the services are up, test the health endpoint:
+  - `GET http://localhost:8080/health` → should return HTTP 200 with `{ "status": "ok" }`.
+  - Readiness (DB connectivity): `GET http://localhost:8080/health/ready` → should return HTTP 200 once the DB is ready.
+
+Migrations:
+- On startup, the app runs Flyway migrations (controlled by `APP_RUN_MIGRATIONS=true`).
+- You should see log lines indicating migrations were applied, e.g., `Successfully applied ... migrations`.
+
+Stopping the stack:
+- Press Ctrl+C to stop, then `docker compose down` to remove containers.
+
+Data persistence:
+- Postgres data is stored in the `pgdata` Docker volume.
 
 ## Code Quality (ktlint + detekt)
 
