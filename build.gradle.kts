@@ -1,5 +1,5 @@
-val kotlin_version: String by project
-val logback_version: String by project
+val kotlinVersion: String by project
+val logbackVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.2.20"
@@ -19,7 +19,7 @@ application {
 detekt {
     buildUponDefaultConfig = true
     allRules = false
-    config = files("detekt.yml")
+    config.setFrom(files("detekt.yml"))
 }
 
 ktlint {
@@ -39,7 +39,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-netty")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("io.ktor:ktor-server-config-yaml")
     // JSON logging encoder
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
@@ -54,7 +54,7 @@ dependencies {
 
     // Tests
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
     testImplementation("org.testcontainers:testcontainers:1.20.3")
     testImplementation("org.testcontainers:postgresql:1.20.3")
 }

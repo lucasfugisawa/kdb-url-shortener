@@ -34,24 +34,26 @@ object DatabaseFactory {
     }
 
     private fun runMigrations(ds: HikariDataSource) {
-        val flyway = Flyway.configure()
-            .dataSource(ds)
-            .locations("classpath:db/migration")
-            .baselineOnMigrate(true)
-            .load()
+        val flyway =
+            Flyway.configure()
+                .dataSource(ds)
+                .locations("classpath:db/migration")
+                .baselineOnMigrate(true)
+                .load()
         flyway.migrate()
     }
 
     private fun hikari(config: AppConfig): HikariDataSource {
         val db = config.db
-        val cfg = HikariConfig().apply {
-            jdbcUrl = db.url
-            username = db.user
-            password = db.password
-            maximumPoolSize = if (db.poolMax > 0) db.poolMax else 10
-            driverClassName = db.driver
-            validate()
-        }
+        val cfg =
+            HikariConfig().apply {
+                jdbcUrl = db.url
+                username = db.user
+                password = db.password
+                maximumPoolSize = if (db.poolMax > 0) db.poolMax else 10
+                driverClassName = db.driver
+                validate()
+            }
         return HikariDataSource(cfg)
     }
 

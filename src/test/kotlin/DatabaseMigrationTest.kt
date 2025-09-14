@@ -2,13 +2,13 @@ package dev.kotlinbr
 
 import io.ktor.client.request.get
 import io.ktor.server.testing.testApplication
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 import java.sql.DriverManager
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
 
 class DatabaseMigrationTest {
     private lateinit var pg: PostgreSQLContainer<*>
@@ -29,7 +29,10 @@ class DatabaseMigrationTest {
 
     @AfterTest
     fun tearDown() {
-        try { pg.stop() } catch (_: Throwable) {}
+        try {
+            pg.stop()
+        } catch (_: Throwable) {
+        }
         System.clearProperty("APP_ENV")
         System.clearProperty("DB_URL")
         System.clearProperty("DB_USER")
@@ -39,23 +42,24 @@ class DatabaseMigrationTest {
     }
 
     @Test
-    fun `migration runs on startup and creates hello table`() = testApplication {
-        application { module() }
+    fun `migration runs on startup and creates hello table`() =
+        testApplication {
+            application { module() }
 
-        // Ensure readiness endpoint reports ready
-        val resp = client.get("/health/ready")
-        kotlin.test.assertEquals(200, resp.status.value)
+            // Ensure readiness endpoint reports ready
+            val resp = client.get("/health/ready")
+            kotlin.test.assertEquals(200, resp.status.value)
 
-        // Verify table exists by querying it via JDBC
-        DriverManager.getConnection(pg.jdbcUrl, pg.username, pg.password).use { conn ->
-            conn.createStatement().use { st ->
-                st.executeQuery("select count(*) from hello").use { rs ->
-                    rs.next()
-                    val count = rs.getInt(1)
-                    // If table exists, count is an integer (possibly 0)
-                    assertEquals(true, count >= 0)
+            // Verify table exists by querying it via JDBC
+            DriverManager.getConnection(pg.jdbcUrl, pg.username, pg.password).use { conn ->
+                conn.createStatement().use { st ->
+                    st.executeQuery("select count(*) from hello").use { rs ->
+                        rs.next()
+                        val count = rs.getInt(1)
+                        // If table exists, count is an integer (possibly 0)
+                        assertEquals(true, count >= 0)
+                    }
                 }
             }
         }
-    }
 }
