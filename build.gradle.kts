@@ -1,5 +1,14 @@
 val kotlinVersion: String by project
 val logbackVersion: String by project
+val ktorVersion: String by project
+val flywayVersion = "11.12.0"
+val exposedVersion = "0.61.0"
+val hikariVersion = "7.0.2"
+val postgresDriverVersion = "42.7.7"
+val logstashEncoderVersion = "8.1"
+val testcontainersVersion = "1.21.3"
+val ktlintVersion = "13.1.0"
+val detektVersion = "1.23.8"
 
 plugins {
     kotlin("jvm") version "2.2.20"
@@ -43,23 +52,20 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("io.ktor:ktor-server-config-yaml")
 
-    // JSON logging encoder
-    implementation("net.logstash.logback:logstash-logback-encoder:8.1")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
-    // Database & Migrations
-    implementation("org.flywaydb:flyway-core:11.12.0")
-    implementation("org.flywaydb:flyway-database-postgresql:11.12.0")
-    implementation("com.zaxxer:HikariCP:7.0.2")
-    implementation("org.postgresql:postgresql:42.7.7")
-    implementation("org.jetbrains.exposed:exposed-core:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-java-time:0.61.0")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("org.postgresql:postgresql:$postgresDriverVersion")
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
-    // Tests
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
-    testImplementation("org.testcontainers:testcontainers:1.21.3")
-    testImplementation("org.testcontainers:postgresql:1.21.3")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
 flyway {
@@ -71,57 +77,40 @@ flyway {
 }
 
 // --- Docker Compose helper tasks (for local dependencies) ---
-val dockerComposeFile = project.rootProject.file("docker-compose.yml").absolutePath
+val dockerComposeFile: String = project.rootProject.file("docker-compose.yml").absolutePath
 
-fun execDocker(vararg args: String) = exec {
-    commandLine("docker", *arrayOf("compose", "-f", dockerComposeFile) + args)
-}
-
-tasks.register("dockerDepsUp") {
+tasks.register<Exec>("dockerDepsUp") {
     group = "local dev environment"
     description = "Start local dependencies (Postgres, Redis) in background"
-    doLast {
-        // Use profile to ensure only deps are started
-        execDocker("--profile", "deps", "up", "-d")
-    }
+    commandLine("docker", "compose", "-f", dockerComposeFile, "--profile", "deps", "up", "-d")
 }
 
-tasks.register("dockerDepsStop") {
+tasks.register<Exec>("dockerDepsStop") {
     group = "local dev environment"
     description = "Stop local dependencies containers (keeps volumes)"
-    doLast {
-        execDocker("stop", "kdb-url-shortener-postgres", "kdb-url-shortener-redis")
-    }
+    commandLine("docker", "compose", "-f", dockerComposeFile, "stop", "postgres", "redis")
 }
 
-tasks.register("dockerDepsDown") {
+tasks.register<Exec>("dockerDepsDown") {
     group = "local dev environment"
     description = "Stop and remove local dependencies containers (keeps volumes)"
-    doLast {
-        execDocker("down")
-    }
+    commandLine("docker", "compose", "-f", dockerComposeFile, "down")
 }
 
-tasks.register("dockerDepsRecreate") {
+tasks.register<Exec>("dockerDepsRecreate") {
     group = "local dev environment"
     description = "Recreate (force) dependency containers without touching volumes"
-    doLast {
-        execDocker("--profile", "deps", "up", "-d", "--force-recreate")
-    }
+    commandLine("docker", "compose", "-f", dockerComposeFile, "--profile", "deps", "up", "-d", "--force-recreate")
 }
 
-tasks.register("dockerDepsPull") {
+tasks.register<Exec>("dockerDepsPull") {
     group = "local dev environment"
     description = "Pull images for dependencies"
-    doLast {
-        execDocker("--profile", "deps", "pull")
-    }
+    commandLine("docker", "compose", "-f", dockerComposeFile, "--profile", "deps", "pull")
 }
 
-tasks.register("dockerDbReset") {
+tasks.register<Exec>("dockerDbReset") {
     group = "local dev environment"
     description = "Reset Postgres by removing containers and volumes (database wiped)"
-    doLast {
-        execDocker("down", "-v")
-    }
+    commandLine("docker", "compose", "-f", dockerComposeFile, "down", "-v")
 }
