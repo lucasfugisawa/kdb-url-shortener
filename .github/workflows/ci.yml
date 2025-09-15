@@ -31,7 +31,8 @@ jobs:
 
     env:
       # Point the app/tests to the Postgres service running on the runner host
-      APP_ENV: test
+      # Leave APP_ENV empty so unit tests can verify defaulting behavior reliably
+      APP_ENV: ""
       APP_RUN_MIGRATIONS: "true"
       DB_URL: jdbc:postgresql://localhost:5432/shortener
       DB_USER: shortener
