@@ -104,6 +104,10 @@ Um **URL Shortener** (encurtador de links) é um serviço que transforma um ende
 - Java 21 (JDK) instalado
 - Docker (para subir dependências como Postgres/Redis)
 
+Nota para Windows:
+- Recomenda-se usar o Windows PowerShell nas instruções abaixo, pois ele suporta invocar o wrapper do Gradle como `./gradlew`.
+- Alternativamente, no CMD use `gradlew.bat` (sem `./`). No Git Bash também é possível usar `./gradlew`.
+
 ### Comandos úteis
 - Rodar testes: `./gradlew test`
 - Build completo: `./gradlew build` (inclui `ktlintCheck` e `detekt`)
@@ -177,6 +181,21 @@ Observações e dicas:
 - Checagens: `./gradlew ktlintCheck detekt`
 - Formatação automática: `./gradlew ktlintFormat`
 
+## Hook do Git: pre-push (checagens antes de enviar código)
+
+Por que instalar:
+- Evita enviar código que quebra o build/testes/análises estáticas. O hook executa a tarefa `check`, que já inclui `ktlintCheck` e `detekt` configurados no projeto.
+
+Como instalar o hook neste repositório:
+- Execute: `./gradlew installGitHookPrePush`
+  - Isso cria/atualiza o arquivo `.git/hooks/pre-push` com um script que roda `./gradlew check` antes do push.
+  - Se a checagem falhar, o push é abortado (você verá uma mensagem explicando o motivo).
+
+Observações:
+- O hook é instalado localmente (não vai para o repositório remoto). Cada colaborador precisa instalá-lo uma vez.
+- Caso o diretório `.git` não exista (por exemplo, se você baixou um zip), o task avisará e não fará nada.
+- Para remover, apague o arquivo `.git/hooks/pre-push`.
+- No Windows, o Git para Windows executa hooks como scripts sh. O comando `./gradlew` funciona no PowerShell e no Git Bash; no CMD use `gradlew.bat`.
 
 ## Contribuição
 

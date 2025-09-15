@@ -114,3 +114,42 @@ tasks.register<Exec>("dockerDbReset") {
     description = "Reset Postgres by removing containers and volumes (database wiped)"
     commandLine("docker", "compose", "-f", dockerComposeFile, "down", "-v")
 }
+
+// --- Git hooks ---
+val installGitHookPrePush by tasks.registering {
+    group = "git hooks"
+    description = "Install a pre-push git hook that runs './gradlew check' before pushing"
+
+    doLast {
+        val gitDir = project.rootDir.resolve(".git")
+        if (!gitDir.exists()) {
+            logger.warn(".git directory not found. Is this project a Git repository?")
+            return@doLast
+        }
+        val hooksDir = gitDir.resolve("hooks")
+        if (!hooksDir.exists()) hooksDir.mkdirs()
+        val hookFile = hooksDir.resolve("pre-push")
+
+        val script = """
+            |#!/bin/sh
+            |# Git pre-push hook to run Gradle 'check' before pushing
+            |# Aborts the push if checks fail.
+            |
+            |# Ensure we run from repo root
+            |cd "$(git rev-parse --show-toplevel)" || exit 1
+            |
+            |echo "[pre-push] Running Gradle check..."
+            |./gradlew check
+            |status=$?
+            |if [ $status -ne 0 ]; then
+            |  echo "[pre-push] Gradle check failed. Aborting push." >&2
+            |  exit $status
+            |fi
+            |exit 0
+        """.trimMargin()
+
+        hookFile.writeText(script)
+        hookFile.setExecutable(true)
+        logger.lifecycle("Installed pre-push hook at: ${hookFile.absolutePath}")
+    }
+}
