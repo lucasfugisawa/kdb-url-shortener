@@ -1,7 +1,8 @@
-package dev.kotlinbr.interfaces.http.dto
+package dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto
 
-import dev.kotlinbr.domain.Link
+import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
 import kotlinx.serialization.Serializable
+import java.time.OffsetDateTime
 
 @Serializable
 data class LinkResponse(
@@ -29,7 +30,7 @@ fun LinkResponse.toDomain(): Link =
         id = this.id,
         slug = this.slug,
         targetUrl = this.targetUrl,
-        createdAt = java.time.OffsetDateTime.parse(this.createdAt),
+        createdAt = OffsetDateTime.parse(this.createdAt),
         isActive = this.isActive,
-        expiresAt = this.expiresAt?.let { java.time.OffsetDateTime.parse(it) },
+        expiresAt = this.expiresAt?.let { OffsetDateTime.parse(it) },
     )

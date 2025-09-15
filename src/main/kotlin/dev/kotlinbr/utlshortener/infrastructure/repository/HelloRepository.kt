@@ -1,6 +1,6 @@
-package dev.kotlinbr.infrastructure.repository
+package dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.repository
 
-import dev.kotlinbr.infrastructure.db.tables.HelloTable
+import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.tables.HelloTable
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction

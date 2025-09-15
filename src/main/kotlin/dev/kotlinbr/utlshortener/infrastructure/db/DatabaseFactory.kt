@@ -1,16 +1,18 @@
-package dev.kotlinbr.infrastructure.db
+package dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.kotlinbr.app.config.AppConfig
+import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.slf4j.LoggerFactory
 import java.sql.Connection
+import java.sql.SQLException
 
 object DatabaseFactory {
-    private val logger = org.slf4j.LoggerFactory.getLogger(DatabaseFactory::class.java)
+    private val logger = LoggerFactory.getLogger(DatabaseFactory::class.java)
 
     @Volatile
     private var dataSource: HikariDataSource? = null
@@ -72,7 +74,7 @@ object DatabaseFactory {
                     if (rs.next()) rs.getInt(1) == 1 else false
                 } ?: false
             }
-        } catch (e: java.sql.SQLException) {
+        } catch (e: SQLException) {
             logger.debug("DB health check failed due to SQL exception", e)
             false
         } catch (e: IllegalStateException) {

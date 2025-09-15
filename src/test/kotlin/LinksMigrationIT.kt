@@ -1,6 +1,6 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.infrastructure.db.tables.LinksTable
+import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert

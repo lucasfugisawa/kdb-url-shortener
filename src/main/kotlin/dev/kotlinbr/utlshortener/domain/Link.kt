@@ -1,4 +1,4 @@
-package dev.kotlinbr.domain
+package dev.kotlinbr.dev.kotlinbr.utlshortener.domain
 
 import java.time.OffsetDateTime
 

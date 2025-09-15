@@ -1,6 +1,6 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.infrastructure.db.tables.LinksTable
+import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText

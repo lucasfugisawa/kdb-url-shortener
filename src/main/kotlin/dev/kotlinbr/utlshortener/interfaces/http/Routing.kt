@@ -1,9 +1,9 @@
-package dev.kotlinbr.interfaces.http
+package dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.app.config.AppConfigKey
-import dev.kotlinbr.infrastructure.db.DatabaseFactory
-import dev.kotlinbr.infrastructure.repository.LinksRepository
-import dev.kotlinbr.interfaces.http.dto.toResponse
+import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
+import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
+import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install

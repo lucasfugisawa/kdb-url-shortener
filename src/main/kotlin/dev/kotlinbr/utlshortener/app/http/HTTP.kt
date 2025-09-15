@@ -1,4 +1,4 @@
-package dev.kotlinbr.app.http
+package dev.kotlinbr.dev.kotlinbr.utlshortener.app.http
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCallPipeline
