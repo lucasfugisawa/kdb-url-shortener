@@ -9,12 +9,13 @@ import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import org.slf4j.MDC
 import java.util.UUID
+import kotlin.time.TimeSource
 
 fun Application.configureHTTP() {
     install(Compression)
 
     intercept(ApplicationCallPipeline.Monitoring) {
-        val startNs = System.nanoTime()
+        val mark = TimeSource.Monotonic.markNow()
         val requestId = call.request.headers["X-Request-ID"] ?: UUID.randomUUID().toString()
         val path = call.request.path()
         val method = call.request.httpMethod.value
@@ -34,7 +35,7 @@ fun Application.configureHTTP() {
                     .status()
                     ?.value
                     ?.toString() ?: "0"
-            val latencyMs = (System.nanoTime() - startNs) / 1_000_000
+            val latencyMs = mark.elapsedNow().inWholeMilliseconds
             MDC.put("status", statusCode)
             MDC.put("latencyMs", latencyMs.toString())
 
