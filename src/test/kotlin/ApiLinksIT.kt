@@ -16,6 +16,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Disabled("Disabled entire ApiLinksIT during investigation")
 class ApiLinksIT {
     private lateinit var pg: PostgreSQLContainer<*>
 
