@@ -1,5 +1,7 @@
-package dev.kotlinbr
+package dev.kotlinbr.interfaces.http
 
+import dev.kotlinbr.app.config.AppConfigKey
+import dev.kotlinbr.infrastructure.db.DatabaseFactory
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*

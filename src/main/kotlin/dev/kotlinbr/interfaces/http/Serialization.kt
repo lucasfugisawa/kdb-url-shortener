@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.interfaces.http
 
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*

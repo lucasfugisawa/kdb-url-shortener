@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.app.http
 
 import io.ktor.http.*
 import io.ktor.server.application.*

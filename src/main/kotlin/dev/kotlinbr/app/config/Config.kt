@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.app.config
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -8,7 +8,7 @@ import io.ktor.util.AttributeKey
 /**
  * Application configuration models
  */
-data class DbConfig(
+ data class DbConfig(
     val driver: String,
     val url: String,
     val user: String,
@@ -16,19 +16,19 @@ data class DbConfig(
     val poolMax: Int,
 )
 
-data class ServerConfig(
+ data class ServerConfig(
     val port: Int,
 )
 
-data class AppConfig(
+ data class AppConfig(
     val env: String,
     val server: ServerConfig,
     val db: DbConfig,
 )
 
-val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
+ val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
-fun loadAppConfig(application: Application): AppConfig {
+ fun loadAppConfig(application: Application): AppConfig {
     // Determine environment with precedence: system property -> application config -> environment variable -> default "dev"
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 

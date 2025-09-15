@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.infrastructure.db.tables
 
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestampWithTimeZone

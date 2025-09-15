@@ -1,7 +1,8 @@
-package dev.kotlinbr
+package dev.kotlinbr.infrastructure.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.kotlinbr.app.config.AppConfig
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
