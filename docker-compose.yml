@@ -3,25 +3,25 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16
-    container_name: kdb-postgres
+    container_name: kdb-url-shortener-postgres
     profiles: ["deps"]
     environment:
-      POSTGRES_USER: shortener
-      POSTGRES_PASSWORD: shortener
-      POSTGRES_DB: shortener
+      POSTGRES_USER: kdb_url_shortener
+      POSTGRES_PASSWORD: kdb-url-shortener-pwd
+      POSTGRES_DB: kdb_url_shortener
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shortener -d shortener"]
+      test: ["CMD-SHELL", "pg_isready -U kdb_url_shortener -d kdb_url_shortener"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7
-    container_name: kdb-redis
+    container_name: kdb-url-shortener-redis
     profiles: ["deps"]
     ports:
       - "6379:6379"
@@ -35,21 +35,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: kdb-app
+    container_name: kdb-url-shortener-app
     profiles: ["app"]
     environment:
       APP_ENV: prod
       APP_RUN_MIGRATIONS: "true"
-      DB_URL: jdbc:postgresql://postgres:5432/shortener
-      DB_USER: shortener
-      DB_PASSWORD: shortener
+      DB_URL: jdbc:postgresql://postgres:5432/kdb_url_shortener
+      DB_USER: kdb_url_shortener
+      DB_PASSWORD: kdb-url-shortener-pwd
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "8080:8080"
-    # If your network is slow, increase startup timeout by adding restart policy
-    # restart: unless-stopped
+    # restart: unless-stopped # If the network is slow, increase startup timeout by adding the restart policy
 
 volumes:
   pgdata:

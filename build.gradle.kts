@@ -90,7 +90,7 @@ tasks.register("dockerDepsStop") {
     group = "local dev environment"
     description = "Stop local dependencies containers (keeps volumes)"
     doLast {
-        execDocker("stop", "kdb-postgres", "kdb-redis")
+        execDocker("stop", "kdb-url-shortener-postgres", "kdb-url-shortener-redis")
     }
 }
 

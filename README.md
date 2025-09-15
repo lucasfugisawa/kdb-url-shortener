@@ -43,7 +43,7 @@ Run the app on the host (IntelliJ/Gradle) while Postgres/Redis run in Docker. Th
   - Windows: `gradlew.bat dockerDepsUp`
 - Run the app from IntelliJ:
   - Run configuration main class: `io.ktor.server.netty.EngineMain`
-  - Environment: `APP_ENV=dev` (default). Dev DB config points to `jdbc:postgresql://localhost:5432/shortener` with user/password `shortener`.
+  - Environment: `APP_ENV=dev` (default). Dev DB config points to `jdbc:postgresql://localhost:5432/kdb_url_shortener` with user `kdb_url_shortener` and password `kdb-url-shortener-pwd`.
   - Optionally set env vars `DB_URL`, `DB_USER`, `DB_PASSWORD` to override.
 - Stop dependencies (keep data):
   - `./gradlew dockerDepsStop` or `gradlew.bat dockerDepsStop`
@@ -81,9 +81,9 @@ Services started:
 Environment used by the app container:
 - `APP_ENV=prod`
 - `APP_RUN_MIGRATIONS=true`
-- `DB_URL=jdbc:postgresql://postgres:5432/shortener`
-- `DB_USER=shortener`
-- `DB_PASSWORD=shortener`
+- `DB_URL=jdbc:postgresql://postgres:5432/kdb_url_shortener`
+- `DB_USER=kdb_url_shortener`
+- `DB_PASSWORD=kdb-url-shortener-pwd`
 
 Health check:
 - After the services are up, test the health endpoint:
