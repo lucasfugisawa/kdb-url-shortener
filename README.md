@@ -64,23 +64,36 @@ Um **URL Shortener** (encurtador de links) é um serviço que transforma um ende
 │  ├─ main
 │  │  ├─ kotlin
 │  │  │  ├─ Application.kt        # Ponto de entrada (EngineMain) + module()
-│  │  │  ├─ dev/kotlinbr/app
-│  │  │  │  ├─ config/Config.kt   # Carrega AppConfig (env, server, db)
-│  │  │  │  └─ http/HTTP.kt       # Middleware HTTP: compressão, logs, X-Request-ID
-│  │  │  ├─ dev/kotlinbr/domain   # Entidades de domínio (ex.: Link)
-│  │  │  ├─ dev/kotlinbr/infrastructure
-│  │  │  │  ├─ db/DatabaseFactory.kt  # Hikari + Flyway + health check
-│  │  │  │  └─ db/tables          # Tabelas Exposed (LinksTable etc.)
-│  │  │  └─ dev/kotlinbr/interfaces/http
-│  │  │     ├─ Routing.kt         # Rotas HTTP (/health, /health/ready, /env, /)
-│  │  │     └─ Serialization.kt   # ContentNegotiation + JSON
+│  │  │  └─ dev/kotlinbr/utlshortener
+│  │  │     ├─ app
+│  │  │     │  ├─ config/Config.kt     # Carrega AppConfig (env, server, db)
+│  │  │     │  └─ http/HTTP.kt         # Middleware HTTP: compressão, logs, X-Request-ID
+│  │  │     ├─ domain
+│  │  │     │  └─ Link.kt              # Entidade de domínio
+│  │  │     ├─ infrastructure
+│  │  │     │  ├─ db/DatabaseFactory.kt    # Hikari + Flyway + health check
+│  │  │     │  └─ db/tables
+│  │  │     │     ├─ HelloTable.kt         # Tabela de exemplo
+│  │  │     │     └─ LinksTable.kt         # Tabela de links
+│  │  │     │  
+│  │  │     │  └─ repository
+│  │  │     │     ├─ HelloRepository.kt    # Repositório de exemplo
+│  │  │     │     └─ LinksRepository.kt    # Repositório de links
+│  │  │     └─ interfaces/http
+│  │  │        ├─ Routing.kt               # Rotas HTTP (/health, /health/ready, /env, /)
+│  │  │        ├─ Serialization.kt         # ContentNegotiation + JSON
+│  │  │        └─ dto/LinkResponse.kt      # DTO de resposta para links
 │  │  └─ resources
-│  │     ├─ application.conf      # Configurações baseadas em env (dev/prod/test)
-│  │     ├─ application.yaml      # Suporte YAML (opcional)
-│  │     ├─ db/migration          # Migrações Flyway (V1__create_links.sql)
-│  │     └─ logback.xml           # Configuração de logs
+│  │     ├─ application.conf               # Configurações baseadas em env (dev/prod/test)
+│  │     ├─ application.yaml               # Suporte YAML (opcional)
+│  │     ├─ db/migration                   # Migrações Flyway (V1__create_links.sql)
+│  │     └─ logback.xml                    # Configuração de logs
 │  └─ test
-│     └─ kotlin                   # Testes unitários e de integração
+│     └─ kotlin                            # Testes unitários e de integração
+│        ├─ ApiLinksIT.kt                  # Teste de integração dos endpoints de links
+│        ├─ ApplicationTest.kt             # Testes do módulo principal
+│        ├─ ErrorFormatTest.kt             # Teste de formato de erros
+│        └─ LinksMigrationIT.kt            # Teste de migrações Flyway
 └─ README.md
 ```
 
