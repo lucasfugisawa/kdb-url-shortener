@@ -1,125 +1,129 @@
 # kdb-url-shortener
 
-[![CI](https://github.com/kotlin-br/kdb-url-shortener/actions/workflows/ci.yml/badge.svg)](https://github.com/kotlin-br/kdb-url-shortener/actions/workflows/ci.yml)
+Encurtador de URLs escrito em Kotlin/Ktor. 
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Este repositório será utilizado como projeto de aprendizado colaborativo na comunidade Kotlin Devs Brasil (KDB). 
 
-Here are some useful links to get you started:
+A iniciativa visa ajudar pessoas desenvolvedoras iniciantes (ou em transição) a praticar backend com Kotlin em um cenário próximo ao de uma empresa real, desenvolvendo habilidades técnicas (Kotlin, Ktor, bancos de dados, testes, Docker, boas práticas) e comportamentais (comunicação, colaboração, revisão de código, gestão de tarefas), além de adquirir experiência prática e portfólio.
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
 
-## Features
+## Visão geral
 
-Here's a list of features included in this project:
+- Stack principal: Kotlin (JVM 21), Ktor (Netty), Exposed (SQL), PostgreSQL, Flyway (migrações), Redis (futuro uso), Logback (logs).
+- Endpoints iniciais:
+  - `GET /` → retorno simples "Hello World!" (placeholder).
+  - `GET /health` → `{ "status": "ok" }` para verificação básica.
+  - `GET /health/ready` → checa conectividade com o banco; retorna 200 quando a aplicação está pronta para receber tráfego.
+  - `GET /env` → expõe o ambiente atual (dev, prod, test).
+- Observabilidade simples: cabeçalho `X-Request-ID`, logs estruturados com informações de requisição e latência.
 
-| Name                                                                   | Description                                                                        |
-|------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [Compression](https://start.ktor.io/p/compression)                     | Compresses responses using encoding algorithms like GZIP                           |
-| [Routing](https://start.ktor.io/p/routing)                             | Provides a structured routing DSL                                                  |
-| [Status Pages](https://start.ktor.io/p/status-pages)                   | Provides exception handling for routes                                             |
-| [Content Negotiation](https://start.ktor.io/p/content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [kotlinx.serialization](https://start.ktor.io/p/kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
 
-## Building & Running
+## Estrutura do projeto
 
-To build or run the project locally using Gradle, use one of the following tasks:
+```
+.
+├─ Dockerfile                      # Build multi-stage e imagem de runtime (JRE 21)
+├─ docker-compose.yml              # Postgres, Redis e App (perfis: deps/app)
+├─ build.gradle.kts                # Dependências, plugins e tasks auxiliares
+├─ settings.gradle.kts             # Nome do projeto
+├─ detekt.yml                      # Regras de análise estática
+├─ gradle*                         # Wrapper do Gradle
+├─ src
+│  ├─ main
+│  │  ├─ kotlin
+│  │  │  ├─ Application.kt        # Ponto de entrada (EngineMain) + module()
+│  │  │  ├─ dev/kotlinbr/app
+│  │  │  │  ├─ config/Config.kt   # Carrega AppConfig (env, server, db)
+│  │  │  │  └─ http/HTTP.kt       # Middleware HTTP: compressão, logs, X-Request-ID
+│  │  │  ├─ dev/kotlinbr/domain   # Entidades de domínio (ex.: Link)
+│  │  │  ├─ dev/kotlinbr/infrastructure
+│  │  │  │  ├─ db/DatabaseFactory.kt  # Hikari + Flyway + health check
+│  │  │  │  └─ db/tables          # Tabelas Exposed (LinksTable etc.)
+│  │  │  └─ dev/kotlinbr/interfaces/http
+│  │  │     ├─ Routing.kt         # Rotas HTTP (/health, /health/ready, /env, /)
+│  │  │     └─ Serialization.kt   # ContentNegotiation + JSON
+│  │  └─ resources
+│  │     ├─ application.conf      # Configurações baseadas em env (dev/prod/test)
+│  │     ├─ application.yaml      # Suporte YAML (opcional)
+│  │     ├─ db/migration          # Migrações Flyway (V1__create_links.sql)
+│  │     └─ logback.xml           # Configuração de logs
+│  └─ test
+│     └─ kotlin                   # Testes unitários e de integração
+└─ README.md
+```
 
-| Task                     | Description                                            |
-|--------------------------|--------------------------------------------------------|
-| `./gradlew test`         | Run the tests                                          |
-| `./gradlew build`        | Build everything (includes ktlintCheck and detekt)     |
-| `./gradlew run`          | Run the server locally                                 |
 
-## Local development (IntelliJ + Docker Compose deps)
+## Como rodar/desenvolver localmente (Gradle)
 
-Run the app on the host (IntelliJ/Gradle) while Postgres/Redis run in Docker. The app connects to dependencies via localhost.
+**Pré-requisitos:**
+- Java 21 (JDK) instalado
+- Docker (para subir dependências como Postgres/Redis)
 
-- Prerequisites: Docker Desktop (or Docker Engine) installed and running
-- Start dependencies:
-  - Unix/macOS: `./gradlew dockerDepsUp`
-  - Windows: `gradlew.bat dockerDepsUp`
-- Run the app from IntelliJ:
-  - Run configuration main class: `io.ktor.server.netty.EngineMain`
-  - Environment: `APP_ENV=dev` (default). Dev DB config points to `jdbc:postgresql://localhost:5432/kdb_url_shortener` with user `kdb_url_shortener` and password `kdb-url-shortener-pwd`.
-  - Optionally set env vars `DB_URL`, `DB_USER`, `DB_PASSWORD` to override.
-- Stop dependencies (keep data):
-  - `./gradlew dockerDepsStop` or `gradlew.bat dockerDepsStop`
-- Remove containers (keep data):
-  - `./gradlew dockerDepsDown`
-- Recreate (force) deps:
-  - `./gradlew dockerDepsRecreate`
-- Pull images:
-  - `./gradlew dockerDepsPull`
-- Reset database (wipe data volume):
-  - `./gradlew dockerDbReset`
+**Comandos úteis:**
+- Rodar testes: `./gradlew test`
+- Build completo: `./gradlew build` (inclui `ktlintCheck` e `detekt`)
+- Executar o servidor: `./gradlew run`
 
-Health:
-- When the DB is up, `GET http://localhost:8080/health/ready` should return OK when the app is connected.
+**Dependências via Docker (Postgres e Redis):**
+- Subir dependências: `./gradlew dockerDepsUp`
+- Parar containers (mantém dados): `./gradlew dockerDepsStop`
+- Remover containers (mantém dados): `./gradlew dockerDepsDown`
+- Recriar deps: `./gradlew dockerDepsRecreate`
+- Atualizar imagens: `./gradlew dockerDepsPull`
+- Resetar banco (apaga volume): `./gradlew dockerDbReset`
 
-## Run with Docker (DEV = PROD stack)
+**Configuração padrão (dev):**
+- Ambiente: `APP_ENV=dev` (padrão)
+- Banco (localhost): `jdbc:postgresql://localhost:5432/kdb_url_shortener` com user `kdb_url_shortener` e senha `kdb-url-shortener-pwd`
+- Para sobrescrever via ambiente: `DB_URL`, `DB_USER`, `DB_PASSWORD`
+- Para pular o banco temporariamente (ex.: demos rápidas): definir propriedade do sistema `-DAPP_SKIP_DB=true` (não recomendável para desenvolvimento real)
 
-This project includes a Docker setup to run the same stack locally as in production: Postgres + Redis + App.
+**Health checks locais:**
+- `GET http://localhost:8080/health` → `{ "status": "ok" }`
+- `GET http://localhost:8080/health/ready` → 200 quando a app conectou no banco
 
-Prerequisites:
-- Docker and Docker Compose
 
-Build and start the full stack:
+## Rodando tudo com Docker (stack semelhante ao prod)
 
-- Unix/macOS:
-  - `docker compose up --build`
-- Windows (PowerShell or CMD):
-  - `docker compose up --build`
+**Pré-requisitos:** Docker e Docker Compose.
 
-Services started:
-- postgres (image: postgres:16)
-- redis (image: redis:7)
-- app (built from Dockerfile using Eclipse Temurin 21)
+**Subir a stack completa (Postgres + Redis + App):**
+- `docker compose up --build`
 
-Environment used by the app container:
+**Serviços:**
+- postgres (imagem: `postgres:16`)
+- redis (imagem: `redis:7`)
+- app (build a partir do Dockerfile usando Eclipse Temurin 21)
+
+**Variáveis usadas pelo container da aplicação (definidas no compose):**
 - `APP_ENV=prod`
-- `APP_RUN_MIGRATIONS=true`
+- `APP_RUN_MIGRATIONS=true` (roda migrações Flyway no startup)
 - `DB_URL=jdbc:postgresql://postgres:5432/kdb_url_shortener`
 - `DB_USER=kdb_url_shortener`
 - `DB_PASSWORD=kdb-url-shortener-pwd`
 
-Health check:
-- After the services are up, test the health endpoint:
-  - `GET http://localhost:8080/health` → should return HTTP 200 with `{ "status": "ok" }`.
-  - Readiness (DB connectivity): `GET http://localhost:8080/health/ready` → should return HTTP 200 once the DB is ready.
+**Verificando saúde:**
+- `GET http://localhost:8080/health` → 200 `{ "status": "ok" }`
+- `GET http://localhost:8080/health/ready` → 200 quando o Postgres estiver pronto e a app conectada
 
-Migrations:
-- On startup, the app runs Flyway migrations (controlled by `APP_RUN_MIGRATIONS=true`).
-- You should see log lines indicating migrations were applied, e.g., `Successfully applied ... migrations`.
+**Parar/remover:**
+- Ctrl+C para parar; depois `docker compose down` para remover containers. Dados do Postgres ficam no volume `pgdata`.
 
-Stopping the stack:
-- Press Ctrl+C to stop, then `docker compose down` to remove containers.
 
-Data persistence:
-- Postgres data is stored in the `pgdata` Docker volume.
+## Qualidade de código
 
-## Code Quality (ktlint + detekt)
+- Checagens: `./gradlew ktlintCheck detekt`
+- Formatação automática: `./gradlew ktlintFormat`
 
-This project enforces code style and basic static analysis using ktlint and detekt.
 
-- Run both checks:
-  - Unix/macOS: `./gradlew ktlintCheck detekt`
-  - Windows: `gradlew.bat ktlintCheck detekt`
+## Contribuição
 
-- Auto-format Kotlin code with ktlint:
-  - Unix/macOS: `./gradlew ktlintFormat`
-  - Windows: `gradlew.bat ktlintFormat`
 
-Configuration:
-- .editorconfig sets UTF-8, LF line endings, and 4-space indentation. It also enables the official ktlint style.
-- detekt.yml enables essential bug-prone rules and fails the build on violations. Non-critical stylistic rules are disabled to keep signal high.
+- **Issues e PRs:** Prefira mensagens e commits em inglês (código), mas descrições podem ser em pt-BR. Se mensagens de commit em inglês estiverem gerando atrito relevante, fique à vontade para escrevê-las em pt-BR.
+- **Padrões desejáveis:** pequenas PRs, descrição clara, testes cobrindo alterações, logs/erros amigáveis, atenção à observabilidade e ao desempenho.
 
-If the server starts successfully, you'll see the following output:
 
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
-```
+## Licença
+
+Este projeto utiliza a licença MIT. Veja o arquivo LICENSE para detalhes.
 
