@@ -1,10 +1,13 @@
 package dev.kotlinbr
 
 import dev.kotlinbr.infrastructure.db.tables.LinksTable
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.testing.*
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.server.testing.testApplication
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -94,7 +97,10 @@ class ApiLinksIT {
                 "Expected a JSON array with seeded links",
             )
             val first = json.first()
-            kotlin.test.assertTrue(first is kotlinx.serialization.json.JsonObject, "Expected array elements to be JSON objects")
+            kotlin.test.assertTrue(
+                first is kotlinx.serialization.json.JsonObject,
+                "Expected array elements to be JSON objects",
+            )
             kotlin.test.assertTrue("slug" in first.keys, "Missing 'slug' field")
             kotlin.test.assertTrue("targetUrl" in first.keys, "Missing 'targetUrl' field")
         }

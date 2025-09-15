@@ -1,12 +1,14 @@
 package dev.kotlinbr.app.http
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.compression.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.plugins.compression.Compression
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.path
 import org.slf4j.MDC
-import java.util.*
+import java.util.UUID
 
 fun Application.configureHTTP() {
     install(Compression)

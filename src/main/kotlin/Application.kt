@@ -1,12 +1,10 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.app.config.AppConfigKey
-import dev.kotlinbr.app.config.loadAppConfig
 import dev.kotlinbr.app.http.configureHTTP
 import dev.kotlinbr.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.interfaces.http.configureRouting
 import dev.kotlinbr.interfaces.http.configureSerialization
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain

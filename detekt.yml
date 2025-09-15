@@ -20,7 +20,9 @@ complexity:
   active: false
 
 style:
-  active: false
+  active: true
+  WildcardImport:
+    active: true
 
 naming:
   active: false
