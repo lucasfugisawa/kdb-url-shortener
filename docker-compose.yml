@@ -4,6 +4,7 @@ services:
   postgres:
     image: postgres:16
     container_name: kdb-postgres
+    profiles: ["deps"]
     environment:
       POSTGRES_USER: shortener
       POSTGRES_PASSWORD: shortener
@@ -21,6 +22,7 @@ services:
   redis:
     image: redis:7
     container_name: kdb-redis
+    profiles: ["deps"]
     ports:
       - "6379:6379"
     healthcheck:
@@ -34,6 +36,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: kdb-app
+    profiles: ["app"]
     environment:
       APP_ENV: prod
       APP_RUN_MIGRATIONS: "true"

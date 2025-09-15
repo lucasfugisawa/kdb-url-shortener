@@ -33,6 +33,32 @@ To build or run the project locally using Gradle, use one of the following tasks
 | `./gradlew build`        | Build everything (includes ktlintCheck and detekt)     |
 | `./gradlew run`          | Run the server locally                                 |
 
+## Local development (IntelliJ + Docker Compose deps)
+
+Run the app on the host (IntelliJ/Gradle) while Postgres/Redis run in Docker. The app connects to dependencies via localhost.
+
+- Prerequisites: Docker Desktop (or Docker Engine) installed and running
+- Start dependencies:
+  - Unix/macOS: `./gradlew dockerDepsUp`
+  - Windows: `gradlew.bat dockerDepsUp`
+- Run the app from IntelliJ:
+  - Run configuration main class: `io.ktor.server.netty.EngineMain`
+  - Environment: `APP_ENV=dev` (default). Dev DB config points to `jdbc:postgresql://localhost:5432/shortener` with user/password `shortener`.
+  - Optionally set env vars `DB_URL`, `DB_USER`, `DB_PASSWORD` to override.
+- Stop dependencies (keep data):
+  - `./gradlew dockerDepsStop` or `gradlew.bat dockerDepsStop`
+- Remove containers (keep data):
+  - `./gradlew dockerDepsDown`
+- Recreate (force) deps:
+  - `./gradlew dockerDepsRecreate`
+- Pull images:
+  - `./gradlew dockerDepsPull`
+- Reset database (wipe data volume):
+  - `./gradlew dockerDbReset`
+
+Health:
+- When the DB is up, `GET http://localhost:8080/health/ready` should return OK when the app is connected.
+
 ## Run with Docker (DEV = PROD stack)
 
 This project includes a Docker setup to run the same stack locally as in production: Postgres + Redis + App.

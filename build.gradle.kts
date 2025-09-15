@@ -69,3 +69,59 @@ flyway {
     password = System.getProperty("DB_PASSWORD") ?: System.getenv("DB_PASSWORD") ?: "postgres"
     locations = arrayOf("classpath:db/migration")
 }
+
+// --- Docker Compose helper tasks (for local dependencies) ---
+val dockerComposeFile = project.rootProject.file("docker-compose.yml").absolutePath
+
+fun execDocker(vararg args: String) = exec {
+    commandLine("docker", *arrayOf("compose", "-f", dockerComposeFile) + args)
+}
+
+tasks.register("dockerDepsUp") {
+    group = "local dev environment"
+    description = "Start local dependencies (Postgres, Redis) in background"
+    doLast {
+        // Use profile to ensure only deps are started
+        execDocker("--profile", "deps", "up", "-d")
+    }
+}
+
+tasks.register("dockerDepsStop") {
+    group = "local dev environment"
+    description = "Stop local dependencies containers (keeps volumes)"
+    doLast {
+        execDocker("stop", "kdb-postgres", "kdb-redis")
+    }
+}
+
+tasks.register("dockerDepsDown") {
+    group = "local dev environment"
+    description = "Stop and remove local dependencies containers (keeps volumes)"
+    doLast {
+        execDocker("down")
+    }
+}
+
+tasks.register("dockerDepsRecreate") {
+    group = "local dev environment"
+    description = "Recreate (force) dependency containers without touching volumes"
+    doLast {
+        execDocker("--profile", "deps", "up", "-d", "--force-recreate")
+    }
+}
+
+tasks.register("dockerDepsPull") {
+    group = "local dev environment"
+    description = "Pull images for dependencies"
+    doLast {
+        execDocker("--profile", "deps", "pull")
+    }
+}
+
+tasks.register("dockerDbReset") {
+    group = "local dev environment"
+    description = "Reset Postgres by removing containers and volumes (database wiped)"
+    doLast {
+        execDocker("down", "-v")
+    }
+}
