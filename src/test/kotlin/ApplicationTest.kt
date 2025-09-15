@@ -44,7 +44,7 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
             val body = response.bodyAsText().trim()
-            assertEquals("{\"status\":\"ok\"}", body)
+            assertEquals("""{"status":"ok"}""", body)
             // X-Request-ID must be present in response
             val respId = response.headers["X-Request-ID"]
             kotlin.test.assertTrue(!respId.isNullOrBlank(), "X-Request-ID header should be set")
@@ -83,7 +83,7 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, response.status)
             assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
             val body = response.bodyAsText().trim()
-            assertEquals("{\"env\":\"test\"}", body)
+            assertEquals("""{"env":"test"}""", body)
         }
 
     @Test
@@ -95,7 +95,7 @@ class ApplicationTest {
             val response = client.get("/env")
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText().trim()
-            assertEquals("{\"env\":\"dev\"}", body)
+            assertEquals("""{"env":"dev"}""", body)
         }
 
     @Test
@@ -110,6 +110,6 @@ class ApplicationTest {
             val response = client.get("/env")
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText().trim()
-            assertEquals("{\"env\":\"test\"}", body)
+            assertEquals("""{"env":"test"}""", body)
         }
 }
