@@ -20,9 +20,7 @@ object DatabaseFactory {
 
         val ds = hikari(config)
         dataSource = ds
-        // Connect Exposed
         Database.connect(ds)
-        // Exposed defaults to repeatable read; we can keep defaults
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_COMMITTED
 
         if (shouldRunMigrations(config)) {
@@ -65,7 +63,6 @@ object DatabaseFactory {
         val ds = dataSource ?: return false
         return try {
             transaction {
-                // Simple DB ping
                 exec("SELECT 1") { rs ->
                     if (rs.next()) rs.getInt(1) == 1 else false
                 } ?: false

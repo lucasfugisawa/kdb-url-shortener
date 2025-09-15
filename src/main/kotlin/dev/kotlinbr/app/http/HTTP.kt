@@ -17,14 +17,11 @@ fun Application.configureHTTP() {
         val path = call.request.path()
         val method = call.request.httpMethod.value
 
-        // Put initial MDC values
         MDC.put("correlationId", requestId)
         MDC.put("path", path)
         MDC.put("method", method)
-        // Propagate header to response
         call.response.headers.append("X-Request-ID", requestId)
 
-        // Log start of request handling
         this@configureHTTP.environment.log.info("request_started")
 
         try {
@@ -39,10 +36,8 @@ fun Application.configureHTTP() {
             MDC.put("status", statusCode)
             MDC.put("latencyMs", latencyMs.toString())
 
-            // Log end of request handling
             this@configureHTTP.environment.log.info("request_completed")
 
-            // Clear MDC to avoid leaking to next calls
             MDC.clear()
         }
     }

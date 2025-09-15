@@ -45,7 +45,6 @@ class ApplicationTest {
             assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
             val body = response.bodyAsText().trim()
             assertEquals("""{"status":"ok"}""", body)
-            // X-Request-ID must be present in response
             val respId = response.headers["X-Request-ID"]
             kotlin.test.assertTrue(!respId.isNullOrBlank(), "X-Request-ID header should be set")
         }

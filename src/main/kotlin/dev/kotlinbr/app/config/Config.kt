@@ -5,9 +5,6 @@ import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.Application
 import io.ktor.util.AttributeKey
 
-/**
- * Application configuration models
- */
  data class DbConfig(
     val driver: String,
     val url: String,
@@ -29,7 +26,6 @@ import io.ktor.util.AttributeKey
  val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
  fun loadAppConfig(application: Application): AppConfig {
-    // Determine environment with precedence: system property -> application config -> environment variable -> default "dev"
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
     val envFromSysProp = System.getProperty("APP_ENV").normalizedOrNull()
@@ -42,7 +38,6 @@ import io.ktor.util.AttributeKey
 
     val env = (envFromSysProp ?: envFromConfig ?: envFromEnv ?: "dev")
 
-    // Parse application.conf and pick the matching section if present
     val root: Config = ConfigFactory.parseResources("application.conf").resolve()
     val section: Config = if (root.hasPath(env)) root.getConfig(env) else ConfigFactory.empty()
 
@@ -61,7 +56,6 @@ import io.ktor.util.AttributeKey
             port = getInt("server.port", 8080),
         )
 
-    // Allow overrides via environment variables or system properties for tests/runtimes
     fun getEnvOrProp(name: String): String? = System.getenv(name) ?: System.getProperty(name)
 
     val dbCfg =
