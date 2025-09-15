@@ -95,8 +95,6 @@ class LinksMigrationIT {
 
         // Insert
         transaction {
-            org.jetbrains.exposed.sql.SchemaUtils
-                .createMissingTablesAndColumns() // no-op for existing
             LinksTable.insert { row ->
                 row[LinksTable.slug] = slug
                 row[LinksTable.targetUrl] = target
