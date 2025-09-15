@@ -1,7 +1,6 @@
 package dev.kotlinbr
 
 import dev.kotlinbr.infrastructure.db.tables.LinksTable
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -15,7 +14,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class ApiLinksIT {
     private lateinit var pg: PostgreSQLContainer<*>
@@ -92,10 +90,9 @@ class ApiLinksIT {
                 json is kotlinx.serialization.json.JsonArray && json.size >= 3,
                 "Expected a JSON array with seeded links",
             )
-            val first = (json as kotlinx.serialization.json.JsonArray).first()
+            val first = json.first()
             kotlin.test.assertTrue(first is kotlinx.serialization.json.JsonObject, "Expected array elements to be JSON objects")
-            val obj = first as kotlinx.serialization.json.JsonObject
-            kotlin.test.assertTrue("slug" in obj.keys, "Missing 'slug' field")
-            kotlin.test.assertTrue("targetUrl" in obj.keys, "Missing 'targetUrl' field")
+            kotlin.test.assertTrue("slug" in first.keys, "Missing 'slug' field")
+            kotlin.test.assertTrue("targetUrl" in first.keys, "Missing 'targetUrl' field")
         }
 }
