@@ -14,7 +14,9 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    val appConfig = _root_ide_package_.dev.kotlinbr.app.config.loadAppConfig(this)
+    val appConfig =
+        _root_ide_package_.dev.kotlinbr.app.config
+            .loadAppConfig(this)
     this.attributes.put(_root_ide_package_.dev.kotlinbr.app.config.AppConfigKey, appConfig)
     this.environment.log.info("Application starting with env=${appConfig.env}")
 

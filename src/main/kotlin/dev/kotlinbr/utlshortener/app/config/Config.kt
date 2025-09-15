@@ -5,7 +5,7 @@ import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.Application
 import io.ktor.util.AttributeKey
 
- data class DbConfig(
+data class DbConfig(
     val driver: String,
     val url: String,
     val user: String,
@@ -13,19 +13,19 @@ import io.ktor.util.AttributeKey
     val poolMax: Int,
 )
 
- data class ServerConfig(
+data class ServerConfig(
     val port: Int,
 )
 
- data class AppConfig(
+data class AppConfig(
     val env: String,
     val server: ServerConfig,
     val db: DbConfig,
 )
 
- val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
+val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
- fun loadAppConfig(application: Application): AppConfig {
+fun loadAppConfig(application: Application): AppConfig {
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
     val envFromSysProp = System.getProperty("APP_ENV").normalizedOrNull()
