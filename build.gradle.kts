@@ -139,13 +139,13 @@ val installGitHookPrePush by tasks.registering {
             |cd "$(git rev-parse --show-toplevel)" || exit 1
             |
             |echo "[pre-push] Running Gradle check..."
-            |./gradlew check
-            |status=$?
-            |if [ $status -ne 0 ]; then
+            |if ./gradlew check; then
+            |  echo "[pre-push] Gradle check passed."
+            |  exit 0
+            |else
             |  echo "[pre-push] Gradle check failed. Aborting push." >&2
-            |  exit $status
+            |  exit 1
             |fi
-            |exit 0
         """.trimMargin()
 
         hookFile.writeText(script)
