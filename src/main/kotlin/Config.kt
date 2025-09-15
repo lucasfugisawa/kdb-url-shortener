@@ -29,11 +29,14 @@ data class AppConfig(
 val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
 fun loadAppConfig(application: Application): AppConfig {
-    // Determine environment: APP_ENV env var -> system property (for tests) -> application config property -> default "dev"
-    val envFromEnv = System.getenv("APP_ENV")
-    val envFromSysProp = System.getProperty("APP_ENV")
-    val envFromConfig = application.environment.config.propertyOrNull("app.env")?.getString()
-    val env = (envFromEnv ?: envFromSysProp ?: envFromConfig ?: "dev").lowercase()
+    // Determine environment with precedence: system property -> application config -> environment variable -> default "dev"
+    fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
+
+    val envFromSysProp = System.getProperty("APP_ENV").normalizedOrNull()
+    val envFromConfig = application.environment.config.propertyOrNull("app.env")?.getString().normalizedOrNull()
+    val envFromEnv = System.getenv("APP_ENV").normalizedOrNull()
+
+    val env = (envFromSysProp ?: envFromConfig ?: envFromEnv ?: "dev")
 
     // Parse application.conf and pick the matching section if present
     val root: Config = ConfigFactory.parseResources("application.conf").resolve()
