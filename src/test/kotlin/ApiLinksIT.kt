@@ -85,8 +85,13 @@ class ApiLinksIT {
             assertEquals(ContentType.Application.Json, response.contentType()?.withoutParameters())
             val body = response.bodyAsText()
             // Parse JSON to avoid brittle string matching across environments
-            val json = kotlinx.serialization.json.Json.parseToJsonElement(body)
-            kotlin.test.assertTrue(json is kotlinx.serialization.json.JsonArray && json.size >= 3, "Expected a JSON array with seeded links")
+            val json =
+                kotlinx.serialization.json.Json
+                    .parseToJsonElement(body)
+            kotlin.test.assertTrue(
+                json is kotlinx.serialization.json.JsonArray && json.size >= 3,
+                "Expected a JSON array with seeded links",
+            )
             val first = (json as kotlinx.serialization.json.JsonArray).first()
             kotlin.test.assertTrue(first is kotlinx.serialization.json.JsonObject, "Expected array elements to be JSON objects")
             val obj = first as kotlinx.serialization.json.JsonObject
