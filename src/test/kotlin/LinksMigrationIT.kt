@@ -24,7 +24,8 @@ class LinksMigrationIT {
         pg.start()
 
         // Run Flyway migrations against the Testcontainers database
-        Flyway.configure()
+        Flyway
+            .configure()
             .dataSource(pg.jdbcUrl, pg.username, pg.password)
             .locations("classpath:db/migration")
             .baselineOnMigrate(true)
@@ -53,33 +54,35 @@ class LinksMigrationIT {
         DriverManager.getConnection(pg.jdbcUrl, pg.username, pg.password).use { conn ->
             conn.createStatement().use { st ->
                 // Verify columns
-                st.executeQuery(
-                    """
-                    SELECT column_name
-                    FROM information_schema.columns
-                    WHERE table_name='links'
-                    ORDER BY column_name
-                    """.trimIndent(),
-                ).use { rs ->
-                    val cols = mutableListOf<String>()
-                    while (rs.next()) cols += rs.getString(1)
-                    val expected = setOf("id", "slug", "target_url", "created_at", "is_active", "expires_at")
-                    assertEquals(expected, cols.toSet(), "links table should have expected columns")
-                }
+                st
+                    .executeQuery(
+                        """
+                        SELECT column_name
+                        FROM information_schema.columns
+                        WHERE table_name='links'
+                        ORDER BY column_name
+                        """.trimIndent(),
+                    ).use { rs ->
+                        val cols = mutableListOf<String>()
+                        while (rs.next()) cols += rs.getString(1)
+                        val expected = setOf("id", "slug", "target_url", "created_at", "is_active", "expires_at")
+                        assertEquals(expected, cols.toSet(), "links table should have expected columns")
+                    }
 
                 // Verify unique index by name and uniqueness
-                st.executeQuery(
-                    """
-                    SELECT indexname, indexdef
-                    FROM pg_indexes
-                    WHERE tablename='links' AND indexname='links_slug_uindex'
-                    """.trimIndent(),
-                ).use { rs ->
-                    assertTrue(rs.next(), "Expected unique index links_slug_uindex to exist")
-                    val def = rs.getString("indexdef")
-                    assertNotNull(def)
-                    assertTrue(def.contains("UNIQUE", ignoreCase = true), "Index should be UNIQUE: $def")
-                }
+                st
+                    .executeQuery(
+                        """
+                        SELECT indexname, indexdef
+                        FROM pg_indexes
+                        WHERE tablename='links' AND indexname='links_slug_uindex'
+                        """.trimIndent(),
+                    ).use { rs ->
+                        assertTrue(rs.next(), "Expected unique index links_slug_uindex to exist")
+                        val def = rs.getString("indexdef")
+                        assertNotNull(def)
+                        assertTrue(def.contains("UNIQUE", ignoreCase = true), "Index should be UNIQUE: $def")
+                    }
             }
         }
     }
@@ -91,7 +94,8 @@ class LinksMigrationIT {
 
         // Insert
         transaction {
-            org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns() // no-op for existing
+            org.jetbrains.exposed.sql.SchemaUtils
+                .createMissingTablesAndColumns() // no-op for existing
             LinksTable.insert { row ->
                 row[LinksTable.slug] = slug
                 row[LinksTable.targetUrl] = target

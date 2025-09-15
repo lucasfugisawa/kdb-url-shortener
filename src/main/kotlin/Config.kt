@@ -33,7 +33,11 @@ fun loadAppConfig(application: Application): AppConfig {
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
     val envFromSysProp = System.getProperty("APP_ENV").normalizedOrNull()
-    val envFromConfig = application.environment.config.propertyOrNull("app.env")?.getString().normalizedOrNull()
+    val envFromConfig =
+        application.environment.config
+            .propertyOrNull("app.env")
+            ?.getString()
+            .normalizedOrNull()
     val envFromEnv = System.getenv("APP_ENV").normalizedOrNull()
 
     val env = (envFromSysProp ?: envFromConfig ?: envFromEnv ?: "dev")

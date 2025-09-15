@@ -30,7 +30,11 @@ fun Application.configureHTTP() {
         try {
             proceed()
         } finally {
-            val statusCode = call.response.status()?.value?.toString() ?: "0"
+            val statusCode =
+                call.response
+                    .status()
+                    ?.value
+                    ?.toString() ?: "0"
             val latencyMs = (System.nanoTime() - startNs) / 1_000_000
             MDC.put("status", statusCode)
             MDC.put("latencyMs", latencyMs.toString())

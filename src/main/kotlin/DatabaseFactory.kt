@@ -37,7 +37,8 @@ object DatabaseFactory {
 
     private fun runMigrations(ds: HikariDataSource) {
         val flyway =
-            Flyway.configure()
+            Flyway
+                .configure()
                 .dataSource(ds)
                 .locations("classpath:db/migration")
                 .baselineOnMigrate(true)
