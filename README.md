@@ -18,6 +18,38 @@ A iniciativa visa ajudar pessoas desenvolvedoras iniciantes (ou em transição) 
 - Observabilidade simples: cabeçalho `X-Request-ID`, logs estruturados com informações de requisição e latência.
 
 
+## O que é e como funciona um URL Shortener
+
+Um **URL Shortener** (encurtador de links) é um serviço que transforma um endereço longo, difícil de compartilhar, em um link curto e simples. Exemplo:
+- Longo: https://www.exemplo.com/artigos/ktor-introducao?utm_source=newsletter&utm_medium=email
+- Curto: https://sho.rt/abc123
+
+**Por que usar:**
+- Facilita o compartilhamento em redes sociais, mensagens e materiais impressos.
+- Melhora a estética dos links e reduz erros de digitação.
+- Possibilita coleta de métricas (cliques, origem, dispositivo) e aplicação de regras como expiração do link.
+
+**Como funciona (alto nível):**
+1) Criação do link curto
+   - O cliente envia a URL original para o serviço.
+   - A aplicação gera um código curto (ex.: "abc123") ou usa um alias personalizado (ex.: "kdb").
+   - O par código → URL original é salvo no banco de dados.
+   - A API retorna a URL curta completa (ex.: https://sho.rt/abc123).
+2) Redirecionamento
+   - Quando alguém acessa https://sho.rt/abc123, o servidor procura o código no banco e responde com um redirecionamento HTTP (geralmente 302) para a URL original.
+3) Métricas e regras (opcionais)
+   - Cada clique pode ser registrado para gerar relatórios.
+   - É possível definir expiração (TTL), limites de uso, proteção por senha, entre outras políticas.
+
+**Exemplo prático (ilustrativo):**
+- **Criar** um link curto:
+  - `POST /links`
+    - Body JSON: `{ "url": "https://kotlinlang.org/docs/home.html", "alias": "kotlin-docs" }`
+    - Resposta: `{ "code": "kotlin-docs", "shortUrl": "https://sho.rt/kotlin-docs" }`
+- **Acessar** o link curto:
+  - `GET /kotlin-docs` → `302 Location: https://kotlinlang.org/docs/home.html`
+
+
 ## Estrutura do projeto
 
 ```
