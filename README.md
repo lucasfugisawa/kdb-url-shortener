@@ -87,22 +87,39 @@ Um **URL Shortener** (encurtador de links) é um serviço que transforma um ende
 
 ## Como rodar/desenvolver localmente (Gradle)
 
-**Pré-requisitos:**
+### Pré-requisitos
 - Java 21 (JDK) instalado
 - Docker (para subir dependências como Postgres/Redis)
 
-**Comandos úteis:**
+### Comandos úteis
 - Rodar testes: `./gradlew test`
 - Build completo: `./gradlew build` (inclui `ktlintCheck` e `detekt`)
 - Executar o servidor: `./gradlew run`
 
-**Dependências via Docker (Postgres e Redis):**
+### Dependências via Docker (Postgres e Redis)
 - Subir dependências: `./gradlew dockerDepsUp`
 - Parar containers (mantém dados): `./gradlew dockerDepsStop`
 - Remover containers (mantém dados): `./gradlew dockerDepsDown`
 - Recriar deps: `./gradlew dockerDepsRecreate`
 - Atualizar imagens: `./gradlew dockerDepsPull`
 - Resetar banco (apaga volume): `./gradlew dockerDbReset`
+
+### Ordem e pré-requisitos (importante)
+- **Pré-requisito:** Docker Desktop/Engine em execução e com Docker Compose v2 disponível (comando `docker compose`).
+- **Primeira vez (ou após longo tempo):** rode `dockerDepsPull` para baixar as imagens e depois `dockerDepsUp`.
+- **Ciclo típico de desenvolvimento:**
+  1) `dockerDepsUp` — cria/sobe Postgres e Redis em background (perfil deps). Se já existirem, apenas inicia.
+  2) Desenvolva e rode a aplicação: `./gradlew run` (a aplicação aponta por padrão para o Postgres em localhost).
+  3) `dockerDepsStop` — pausa os containers, mantendo os dados no volume.
+- **Quando algo "quebrar" nos containers sem alterar dados:** use `dockerDepsRecreate` para forçar a recriação dos containers (mantém volumes e dados).
+- **Para limpar containers e rede (mantendo os volumes):** use `dockerDepsDown`.
+- **Para reset total do banco (apagando volume do Postgres):** use `dockerDbReset`. Atenção: isso apaga todos os dados.
+
+Observações e dicas:
+- Healthcheck: o Postgres tem healthcheck no docker-compose. Após `dockerDepsUp`, aguarde alguns segundos até o serviço ficar saudável. Você pode checar com `docker compose -f docker-compose.yml ps`.
+- Perfis: usamos o perfil `deps` no Compose para subir apenas Postgres e Redis. Os comandos Gradle já passam `--profile deps` quando necessário.
+- Sobre migrações: por padrão, ao iniciar a aplicação local (Gradle run), as migrações do Flyway são executadas automaticamente para garantir que a tabela `links` exista.
+- Parar tudo manualmente: se você tiver subido a stack completa via Compose (incluindo `app`), `dockerDepsDown` também derruba os serviços do perfil atual do projeto. Para um reset completo com remoção de volume, prefira `dockerDbReset`. 
 
 **Configuração padrão (dev):**
 - Ambiente: `APP_ENV=dev` (padrão)
