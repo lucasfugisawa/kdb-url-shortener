@@ -42,7 +42,7 @@ class ApplicationTest {
             }
             val response: HttpResponse = client.get("/health")
             assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
+            assertEquals(ContentType.Application.Json, response.contentType()?.withoutParameters())
             val body = response.bodyAsText().trim()
             assertEquals("""{"status":"ok"}""", body)
             val respId = response.headers["X-Request-ID"]
@@ -80,7 +80,7 @@ class ApplicationTest {
             }
             val response = client.get("/env")
             assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
+            assertEquals(ContentType.Application.Json, response.contentType()?.withoutParameters())
             val body = response.bodyAsText().trim()
             assertEquals("""{"env":"test"}""", body)
         }

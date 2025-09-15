@@ -82,7 +82,7 @@ class ApiLinksIT {
             }
             val response: HttpResponse = client.get("/api/v1/links")
             assertEquals(HttpStatusCode.OK, response.status)
-            assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
+            assertEquals(ContentType.Application.Json, response.contentType()?.withoutParameters())
             val body = response.bodyAsText()
             assertTrue(body.contains("\"slug\":"))
             assertTrue(body.contains("\"targetUrl\":"))

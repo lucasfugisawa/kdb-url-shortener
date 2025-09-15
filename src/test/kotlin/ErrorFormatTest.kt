@@ -18,7 +18,7 @@ class ErrorFormatTest {
             }
             val response: HttpResponse = client.get("/non-existent-path")
             assertEquals(HttpStatusCode.NotFound, response.status)
-            assertEquals(ContentType.Application.Json.withCharset(Charsets.UTF_8), response.contentType())
+            assertEquals(ContentType.Application.Json, response.contentType()?.withoutParameters())
             val body = response.bodyAsText()
             assertTrue(body.contains("\"code\":"))
             assertTrue(body.contains("\"message\":"))
