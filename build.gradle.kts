@@ -129,7 +129,8 @@ val installGitHookPrePush by tasks.registering {
         if (!hooksDir.exists()) hooksDir.mkdirs()
         val hookFile = hooksDir.resolve("pre-push")
 
-        val script = """
+        val script =
+            """
             |#!/bin/sh
             |# Git pre-push hook to run Gradle 'check' before pushing
             |# Aborts the push if checks fail.
@@ -145,7 +146,7 @@ val installGitHookPrePush by tasks.registering {
             |  echo "[pre-push] Gradle check failed. Aborting push." >&2
             |  exit 1
             |fi
-        """.trimMargin()
+            """.trimMargin()
 
         hookFile.writeText(script)
         hookFile.setExecutable(true)

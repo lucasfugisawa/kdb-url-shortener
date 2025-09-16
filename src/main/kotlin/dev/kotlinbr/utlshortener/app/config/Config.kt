@@ -5,6 +5,9 @@ import com.typesafe.config.ConfigFactory
 import io.ktor.server.application.Application
 import io.ktor.util.AttributeKey
 
+const val DEFAULT_SERVER_PORT: Int = 8080
+const val DEFAULT_DB_POOL_MAX: Int = 10
+
 data class DbConfig(
     val driver: String,
     val url: String,
@@ -64,7 +67,7 @@ fun loadAppConfig(application: Application): AppConfig {
 
     val serverCfg =
         ServerConfig(
-            port = getInt("server.port", 8080),
+            port = getInt("server.port", DEFAULT_SERVER_PORT),
         )
 
     val dbCfg =
@@ -73,7 +76,7 @@ fun loadAppConfig(application: Application): AppConfig {
             url = getString("db.url"),
             user = getString("db.user"),
             password = getString("db.password"),
-            poolMax = getInt("db.pool.max", 10),
+            poolMax = getInt("db.pool.max", DEFAULT_DB_POOL_MAX),
         )
 
     val flags =

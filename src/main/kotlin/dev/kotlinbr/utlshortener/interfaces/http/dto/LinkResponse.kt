@@ -14,7 +14,6 @@ data class LinkResponse(
     val expiresAt: String? = null,
 )
 
-// Conversion extensions defined in the DTO layer to avoid leaking interface concerns into the domain or repository layers.
 fun Link.toResponse(): LinkResponse =
     LinkResponse(
         id = this.id,

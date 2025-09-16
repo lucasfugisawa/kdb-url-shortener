@@ -3,6 +3,7 @@ package dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
+import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DEFAULT_DB_POOL_MAX
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
@@ -30,9 +31,7 @@ object DatabaseFactory {
         }
     }
 
-    private fun shouldRunMigrations(config: AppConfig): Boolean {
-        return config.flags.runMigrations
-    }
+    private fun shouldRunMigrations(config: AppConfig): Boolean = config.flags.runMigrations
 
     private fun runMigrations(ds: HikariDataSource) {
         val flyway =
@@ -52,7 +51,7 @@ object DatabaseFactory {
                 jdbcUrl = db.url
                 username = db.user
                 password = db.password
-                maximumPoolSize = if (db.poolMax > 0) db.poolMax else 10
+                maximumPoolSize = if (db.poolMax > 0) db.poolMax else DEFAULT_DB_POOL_MAX
                 driverClassName = db.driver
                 validate()
             }
@@ -60,7 +59,7 @@ object DatabaseFactory {
     }
 
     fun isHealthy(): Boolean {
-        val ds = dataSource ?: return false
+        dataSource ?: return false
         return try {
             transaction {
                 exec("SELECT 1") { rs ->

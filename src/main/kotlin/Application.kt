@@ -1,8 +1,8 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.http.configureHTTP
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfigKey
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.loadAppConfig
+import dev.kotlinbr.dev.kotlinbr.utlshortener.app.http.configureHTTP
 import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.configureRouting
 import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.configureSerialization
