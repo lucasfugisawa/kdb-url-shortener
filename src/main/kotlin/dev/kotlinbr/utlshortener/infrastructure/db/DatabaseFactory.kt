@@ -18,6 +18,9 @@ object DatabaseFactory {
     @Volatile
     private var dataSource: HikariDataSource? = null
 
+    @Volatile
+    private var currentSignature: String? = null
+
     // Testing-visible accessor and reset to support integration tests
     internal fun getDataSourceForTesting(): HikariDataSource? = dataSource
 
@@ -28,19 +31,43 @@ object DatabaseFactory {
             // ignore
         } finally {
             dataSource = null
+            currentSignature = null
         }
     }
 
     fun init(config: AppConfig) {
-        if (dataSource != null) return
+        synchronized(this) {
+            val newSignature = signatureFor(config)
+            val ds = dataSource
+            if (ds != null) {
+                val sameConfig = (currentSignature == newSignature)
+                val valid = try {
+                    // Try to validate by getting a connection quickly
+                    ds.connection.use { true }
+                } catch (_: Exception) {
+                    false
+                }
+                if (sameConfig && valid) {
+                    return
+                }
+                // Config changed or datasource invalid: rebuild
+                try {
+                    ds.close()
+                } catch (_: Exception) {
+                    // ignore
+                }
+                dataSource = null
+            }
 
-        val ds = hikari(config)
-        dataSource = ds
-        Database.connect(ds)
-        TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_COMMITTED
+            val created = hikari(config)
+            dataSource = created
+            currentSignature = newSignature
+            Database.connect(created)
+            TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_COMMITTED
 
-        if (shouldRunMigrations(config)) {
-            runMigrations(ds)
+            if (shouldRunMigrations(config)) {
+                runMigrations(created)
+            }
         }
     }
 
@@ -55,6 +82,11 @@ object DatabaseFactory {
                 .baselineOnMigrate(true)
                 .load()
         flyway.migrate()
+    }
+
+    private fun signatureFor(config: AppConfig): String {
+        val db = config.db
+        return listOf(db.url, db.user, db.password, db.poolMax.toString(), db.driver).joinToString("|")
     }
 
     private fun hikari(config: AppConfig): HikariDataSource {
