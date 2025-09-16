@@ -41,10 +41,11 @@ fun loadAppConfig(application: Application): AppConfig {
 
     // 1) sysprop/env, 2) application.conf's app.env, 3) default
     val envFromSys = sysOrEnv("APP_ENV")?.lowercase()
-    val envFromConfig = application.environment.config
-        .propertyOrNull("app.env")
-        ?.getString()
-        ?.normalizedOrNull()
+    val envFromConfig =
+        application.environment.config
+            .propertyOrNull("app.env")
+            ?.getString()
+            ?.normalizedOrNull()
 
     val env = envFromSys ?: envFromConfig ?: "dev"
 

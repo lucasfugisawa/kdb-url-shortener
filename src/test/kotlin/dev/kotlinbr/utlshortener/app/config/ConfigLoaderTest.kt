@@ -68,7 +68,8 @@ class ConfigLoaderTest {
             }
         }
 
-    @Test @Disabled("Temporarily disabled; needs to be fixed")
+    @Test
+    @Disabled("Temporarily disabled; needs to be fixed")
     fun `APP_ENV override to test`() =
         testApplication {
             setProp("APP_ENV", "test")
