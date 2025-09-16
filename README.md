@@ -54,47 +54,61 @@ Um **URL Shortener** (encurtador de links) é um serviço que transforma um ende
 
 ```
 .
-├─ Dockerfile                      # Build multi-stage e imagem de runtime (JRE 21)
-├─ docker-compose.yml              # Postgres, Redis e App (perfis: deps/app)
-├─ build.gradle.kts                # Dependências, plugins e tasks auxiliares
-├─ settings.gradle.kts             # Nome do projeto
-├─ detekt.yml                      # Regras de análise estática
-├─ gradle*                         # Wrapper do Gradle
+├─ Dockerfile
+├─ LICENSE
+├─ README.md
+├─ build.gradle.kts
+├─ detekt.yml
+├─ docker-compose.yml
+├─ gradle.properties
+├─ gradle/
+│  └─ wrapper/
+│     ├─ gradle-wrapper.jar
+│     └─ gradle-wrapper.properties
+├─ gradlew
+├─ gradlew.bat
+├─ settings.gradle.kts
 ├─ src
 │  ├─ main
 │  │  ├─ kotlin
-│  │  │  ├─ Application.kt        # Ponto de entrada (EngineMain) + module()
+│  │  │  ├─ Application.kt                  # Ponto de entrada (EngineMain) + module()
 │  │  │  └─ dev/kotlinbr/utlshortener
 │  │  │     ├─ app
-│  │  │     │  ├─ config/Config.kt     # Carrega AppConfig (env, server, db)
-│  │  │     │  └─ http/HTTP.kt         # Middleware HTTP: compressão, logs, X-Request-ID
+│  │  │     │  ├─ config/Config.kt          # Configuração da aplicação (env, server, db)
+│  │  │     │  └─ http/HTTP.kt              # Pipeline/middlewares HTTP
 │  │  │     ├─ domain
-│  │  │     │  └─ Link.kt              # Entidade de domínio
+│  │  │     │  └─ Link.kt                   # Entidade de domínio
 │  │  │     ├─ infrastructure
-│  │  │     │  ├─ db/DatabaseFactory.kt    # Hikari + Flyway + health check
-│  │  │     │  └─ db/tables
-│  │  │     │     ├─ HelloTable.kt         # Tabela de exemplo
-│  │  │     │     └─ LinksTable.kt         # Tabela de links
-│  │  │     │  
-│  │  │     │  └─ repository
-│  │  │     │     ├─ HelloRepository.kt    # Repositório de exemplo
-│  │  │     │     └─ LinksRepository.kt    # Repositório de links
+│  │  │     │  ├─ db/DatabaseFactory.kt     # Inicialização do DB + Flyway
+│  │  │     │  ├─ db/tables/LinksTable.kt   # Tabela de links
+│  │  │     │  └─ repository/LinksRepository.kt # Repositório de links
 │  │  │     └─ interfaces/http
-│  │  │        ├─ Routing.kt               # Rotas HTTP (/health, /health/ready, /env, /)
-│  │  │        ├─ Serialization.kt         # ContentNegotiation + JSON
-│  │  │        └─ dto/LinkResponse.kt      # DTO de resposta para links
+│  │  │        ├─ ApiRoutes.kt              # Endpoints da API (ex.: GET /api/v1/links)
+│  │  │        ├─ FrontendRoutes.kt         # Rotas de frontend/redirecionamento
+│  │  │        ├─ InfraRoutes.kt            # Rotas de infraestrutura (/health, /env)
+│  │  │        ├─ Routing.kt                # Registro de todas as rotas
+│  │  │        ├─ Serialization.kt          # Configuração de JSON/ContentNegotiation
+│  │  │        └─ dto/LinkResponse.kt       # DTOs de resposta
 │  │  └─ resources
-│  │     ├─ application.conf               # Configurações baseadas em env (dev/prod/test)
-│  │     ├─ application.yaml               # Suporte YAML (opcional)
-│  │     ├─ db/migration                   # Migrações Flyway (V1__create_links.sql)
-│  │     └─ logback.xml                    # Configuração de logs
+│  │     ├─ application.conf                # Configurações por ambiente
+│  │     ├─ db/migration/V1__create_links.sql
+│  │     └─ logback.xml                     # Configuração de logs
 │  └─ test
-│     └─ kotlin                            # Testes unitários e de integração
-│        ├─ ApiLinksIT.kt                  # Teste de integração dos endpoints de links
-│        ├─ ApplicationTest.kt             # Testes do módulo principal
-│        ├─ ErrorFormatTest.kt             # Teste de formato de erros
-│        └─ LinksMigrationIT.kt            # Teste de migrações Flyway
-└─ README.md
+│     └─ kotlin
+│        ├─ dev/kotlinbr/ApplicationModuleTest.kt
+│        ├─ dev/kotlinbr/BuildSanityTest.kt
+│        ├─ dev/kotlinbr/SchemaValidationTest.kt
+│        ├─ dev/kotlinbr/utlshortener/app/config/ConfigLoaderTest.kt
+│        ├─ dev/kotlinbr/utlshortener/infrastructure/db/DatabaseFactoryTest.kt
+│        ├─ dev/kotlinbr/utlshortener/infrastructure/db/DatabaseFactoryUnitTest.kt
+│        ├─ dev/kotlinbr/utlshortener/infrastructure/repository/LinksRepositoryTest.kt
+│        ├─ dev/kotlinbr/utlshortener/interfaces/http/HttpPipelineTest.kt
+│        ├─ dev/kotlinbr/utlshortener/interfaces/http/RoutesTest.kt
+│        ├─ dev/kotlinbr/utlshortener/interfaces/http/SerializationMappingTest.kt
+│        └─ dev/kotlinbr/utlshortener/testutils/
+│           ├─ BaseIntegrationTest.kt
+│           ├─ TestClockUtils.kt
+│           └─ TestDataFactory.kt
 ```
 
 
