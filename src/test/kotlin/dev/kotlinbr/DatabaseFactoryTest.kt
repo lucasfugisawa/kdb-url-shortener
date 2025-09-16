@@ -98,14 +98,15 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
 
         val idxExists =
             transaction {
-                val sql = """
+                val sql =
+                    """
                     SELECT 1
                     FROM pg_indexes
                     WHERE schemaname='$schema'
                       AND tablename='links'
                       AND indexname='links_slug_uindex'
                     LIMIT 1
-                """.trimIndent()
+                    """.trimIndent()
                 exec(sql) { rs ->
                     rs.next()
                 } ?: false

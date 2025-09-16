@@ -41,12 +41,13 @@ object DatabaseFactory {
             val ds = dataSource
             if (ds != null) {
                 val sameConfig = (currentSignature == newSignature)
-                val valid = try {
-                    // Try to validate by getting a connection quickly
-                    ds.connection.use { true }
-                } catch (_: Exception) {
-                    false
-                }
+                val valid =
+                    try {
+                        // Try to validate by getting a connection quickly
+                        ds.connection.use { true }
+                    } catch (_: Exception) {
+                        false
+                    }
                 if (sameConfig && valid) {
                     return
                 }
