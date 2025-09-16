@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
@@ -25,8 +26,8 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Tag("integration")
 @Testcontainers
 @TestInstance(Lifecycle.PER_CLASS)
-abstract class BaseIntegrationTest {
-    protected val logger = LoggerFactory.getLogger(BaseIntegrationTest::class.java)
+open class BaseIntegrationTest {
+    protected val logger: Logger = LoggerFactory.getLogger(BaseIntegrationTest::class.java)
 
     companion object {
         @JvmStatic

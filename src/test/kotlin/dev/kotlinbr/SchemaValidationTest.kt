@@ -97,10 +97,10 @@ class SchemaValidationTest : BaseIntegrationTest() {
         assertEquals("NO", id.isNullable, "id should be NOT NULL")
         // In PG, bigserial shows data_type = 'bigint'
         assertEquals("bigint", id.dataType)
-        assertNotNull(id.columnDefault, "id should have nextval default (serial)")
+        val idDefault = requireNotNull(id.columnDefault) { "id should have nextval default (serial)" }
         assertTrue(
-            id.columnDefault!!.contains("nextval"),
-            "id default should reference nextval: ${'$'}{id.columnDefault}",
+            idDefault.contains("nextval"),
+            "id default should reference nextval: ${'$'}idDefault",
         )
 
         // slug VARCHAR(32) NOT NULL
@@ -118,18 +118,18 @@ class SchemaValidationTest : BaseIntegrationTest() {
         val createdAt = loadColumn("created_at")
         assertEquals("timestamp with time zone", createdAt.dataType)
         assertEquals("NO", createdAt.isNullable)
-        assertNotNull(createdAt.columnDefault)
+        val createdDefault = requireNotNull(createdAt.columnDefault)
         assertTrue(
-            createdAt.columnDefault!!.contains("now"),
-            "created_at default should reference now(): ${'$'}{createdAt.columnDefault}",
+            createdDefault.contains("now"),
+            "created_at default should reference now(): ${'$'}createdDefault",
         )
 
         // is_active BOOLEAN NOT NULL DEFAULT TRUE
         val isActive = loadColumn("is_active")
         assertEquals("boolean", isActive.dataType)
         assertEquals("NO", isActive.isNullable)
-        assertNotNull(isActive.columnDefault)
-        assertTrue(isActive.columnDefault!!.contains("true", ignoreCase = true))
+        val isActiveDefault = requireNotNull(isActive.columnDefault)
+        assertTrue(isActiveDefault.contains("true", ignoreCase = true))
 
         // expires_at TIMESTAMPTZ NULL
         val expiresAt = loadColumn("expires_at")

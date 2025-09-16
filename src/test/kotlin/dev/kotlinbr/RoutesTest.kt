@@ -45,7 +45,7 @@ class RoutesUnitTest {
 
             val res = client.get("/")
             assertEquals(HttpStatusCode.OK, res.status)
-            val ct = res.headers[HttpHeaders.ContentType] ?: ""
+            val ct = res.headers[HttpHeaders.ContentType].orEmpty()
             assertContains(ct.lowercase(), "text/plain")
             assertEquals("Hello World!", res.bodyAsText())
         }
@@ -178,7 +178,7 @@ class RoutesIntegrationTest {
             application { module() }
             val res = client.get("/api/v1/links")
             assertEquals(HttpStatusCode.OK, res.status)
-            val ct = res.headers[HttpHeaders.ContentType] ?: ""
+            val ct = res.headers[HttpHeaders.ContentType].orEmpty()
             assertTrue(ct.lowercase().contains("application/json"))
             assertEquals("[]", res.bodyAsText())
         }
@@ -211,8 +211,8 @@ class RoutesIntegrationTest {
             val ids = list.map { it.id }.toSet()
             assertTrue(ids.containsAll(listOf(id1, id2)))
             val byId = list.associateBy { it.id }
-            val r1 = byId[id1]!!
-            val r2 = byId[id2]!!
+            val r1 = requireNotNull(byId[id1]) { "Response for id=$id1 not found" }
+            val r2 = requireNotNull(byId[id2]) { "Response for id=$id2 not found" }
             assertEquals(link1.slug, r1.slug)
             assertEquals(link1.targetUrl, r1.targetUrl)
             assertEquals(link1.createdAt.toString(), r1.createdAt)
