@@ -197,8 +197,51 @@ Observações:
 - Para remover, apague o arquivo `.git/hooks/pre-push`.
 - No Windows, o Git para Windows executa hooks como scripts sh. O comando `./gradlew` funciona no PowerShell e no Git Bash; no CMD use `gradlew.bat`.
 
-## Contribuição
+## Testes: como rodar e como funcionam
 
+Este projeto separa testes unitários (rápidos) de testes de integração (mais lentos) que usam Testcontainers (PostgreSQL).
+
+### Resumo de comandos
+- Unit tests (padrão): `./gradlew test`
+  - Executa JUnit 5 com `@Tag("integration")` excluído.
+- Integration tests apenas: `./gradlew integrationTest`
+  - Executa somente testes anotados com `@Tag("integration")`.
+- Todos os testes (recomendado antes de push): `./gradlew check`
+  - Executa unit (test) e integration (integrationTest), além das checagens estáticas (ktlint, detekt).
+
+### Convenção de tags
+- Qualquer teste que necessite de recursos externos (ex.: Docker/Testcontainers) deve ser anotado com `@Tag("integration")`.
+- Testes puramente de JVM/unidade não são tagueados e rodam por padrão no `test`.
+
+### Como o ambiente é controlado nos testes
+- Os testes evitam depender de variáveis de ambiente reais do SO. Em vez disso, usam propriedades do sistema (JVM) para emular as variáveis esperadas pelo loader de configuração da app:
+  - `APP_ENV`, `APP_SKIP_DB`, `APP_RUN_MIGRATIONS`
+  - `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_DRIVER`, `DB_POOL_MAX`
+- Exemplos aparecem ao longo dos testes, por exemplo: `System.setProperty("APP_SKIP_DB", "true")` para pular o DB no bootstrap, ou a `BaseIntegrationTest` que injeta `DB_URL/USER/PASSWORD` a partir do container em execução.
+- O carregador de config (`loadAppConfig`) lê primeiro do `ApplicationConfig` (overrides em memória via `testApplication`) e depois de propriedades do sistema/variáveis reais, permitindo testes determinísticos.
+
+### Infra de testes
+- `src/test/kotlin/dev/kotlinbr/utlshortener/testutils`
+  - `BaseIntegrationTest.kt`: classe base JUnit que inicia um container PostgreSQL (Testcontainers) reutilizável e configura propriedades do sistema para a app (`APP_ENV=test`, `APP_RUN_MIGRATIONS=true`, credenciais `DB_*`). Marca testes com `@Tag("integration")`.
+  - `TestDataFactory.kt`: builders e helpers com Exposed para inserir/selecionar links.
+  - `TestClockUtils.kt`: utilitários de relógio fixo para timestamps determinísticos.
+- Testes unitários ficam em `src/test/kotlin/dev/kotlinbr` e espelham a estrutura de pacotes do main.
+
+### Testcontainers em CI
+- Requisitos: um daemon Docker deve estar disponível ao runner. Modo privilegiado NÃO é obrigatório; Docker-in-Docker padrão ou socket do host são suficientes.
+- Não é necessária config Gradle especial. Testes anotados com `@Tag("integration")` iniciarão containers PostgreSQL sob demanda.
+- Reuse para velocidade (opcional, local): crie `~/.testcontainers.properties` com `testcontainers.reuse.enable=true` para permitir reuso entre execuções. Não faça commit desse arquivo.
+- Se o CI limitar egress de rede, garanta que o Docker pode baixar `postgres:16-alpine`.
+
+### Solução de problemas
+- "Cannot connect to Docker": garanta que o Docker está instalado e que o usuário/runner atual tem acesso ao daemon.
+- Testes de integração travam na primeira execução: o pull de imagens pode levar tempo em cache frio. Faça pre-pull das imagens ou use o helper `dockerDepsPull`.
+- Para pular testes de integração temporariamente no CI, rode apenas `./gradlew test`. Para exigir ambos, use `./gradlew check`.
+
+### Referências
+- O filtro por tags do JUnit Platform está configurado no `build.gradle.kts`: a task `test` exclui `@Tag("integration")`, e a task `integrationTest` inclui somente essa tag.
+
+## Contribuição
 
 - **Issues e PRs:** Prefira mensagens e commits em inglês (código), mas descrições podem ser em pt-BR. Se mensagens de commit em inglês estiverem gerando atrito relevante, fique à vontade para escrevê-las em pt-BR.
 - **Padrões desejáveis:** pequenas PRs, descrição clara, testes cobrindo alterações, logs/erros amigáveis, atenção à observabilidade e ao desempenho.

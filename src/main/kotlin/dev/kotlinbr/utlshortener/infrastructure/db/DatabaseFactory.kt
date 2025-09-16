@@ -18,6 +18,19 @@ object DatabaseFactory {
     @Volatile
     private var dataSource: HikariDataSource? = null
 
+    // Testing-visible accessor and reset to support integration tests
+    internal fun getDataSourceForTesting(): HikariDataSource? = dataSource
+
+    internal fun resetForTesting() {
+        try {
+            dataSource?.close()
+        } catch (_: Exception) {
+            // ignore
+        } finally {
+            dataSource = null
+        }
+    }
+
     fun init(config: AppConfig) {
         if (dataSource != null) return
 
@@ -52,7 +65,8 @@ object DatabaseFactory {
                 username = db.user
                 password = db.password
                 maximumPoolSize = if (db.poolMax > 0) db.poolMax else DEFAULT_DB_POOL_MAX
-                driverClassName = db.driver
+                // Fallback driver if blank
+                driverClassName = if (db.driver.isBlank()) "org.postgresql.Driver" else db.driver
                 validate()
             }
         return HikariDataSource(cfg)

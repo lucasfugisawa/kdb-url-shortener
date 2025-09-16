@@ -26,6 +26,33 @@ application {
     mainClass = "io.ktor.server.netty.EngineMain"
 }
 
+tasks.test {
+    // By default, run only unit tests (exclude integration)
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
+    systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
+// Separate task to run only integration tests (tagged with @Tag("integration"))
+val integrationTest by tasks.registering(Test::class) {
+    description = "Runs integration tests (@Tag(\"integration\"))"
+    group = "verification"
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    shouldRunAfter(tasks.test)
+    testLogging { events("passed", "skipped", "failed") }
+}
+
+// Make `check` depend on both unit tests and integration tests
+tasks.named("check") {
+    dependsOn(tasks.test, integrationTest)
+}
+
 detekt {
     buildUponDefaultConfig = true
     allRules = false
@@ -61,10 +88,15 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
 
+    // --- Test dependencies ---
     testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
+    testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
 }
 
 flyway {

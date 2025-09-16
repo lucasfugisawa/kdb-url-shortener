@@ -37,52 +37,106 @@ val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 fun loadAppConfig(application: Application): AppConfig {
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
-    // Read environment name only from ApplicationConfig; allow overrides via HOCON substitution (${?APP_ENV})
+    // Determine environment: prefer JVM sysprop/env, then ApplicationConfig, default to "dev"
     val envFromConfig =
         application.environment.config
             .propertyOrNull("app.env")
             ?.getString()
-            .normalizedOrNull()
+            ?.normalizedOrNull()
+    val envFromSys = (System.getProperty("APP_ENV") ?: System.getenv("APP_ENV")).normalizedOrNull()
 
-    val env = (envFromConfig ?: "dev")
+    val env = (envFromConfig ?: envFromSys ?: "dev")
 
     // Load the environment-specific section from application.conf (already resolved with substitutions)
     val root: Config = ConfigFactory.parseResources("application.conf").resolve()
     val section: Config = if (root.hasPath(env)) root.getConfig(env) else ConfigFactory.empty()
 
+    // Helpers that first check ApplicationConfig under the resolved env section (for in-memory overrides),
+    // then fall back to the resource section, then defaults.
     fun getString(
         path: String,
         default: String = "",
-    ): String = if (section.hasPath(path)) section.getString(path) else default
+    ): String {
+        val fromApp =
+            application.environment.config
+                .propertyOrNull("$env.$path")
+                ?.getString()
+        return fromApp ?: if (section.hasPath(path)) section.getString(path) else default
+    }
 
     fun getInt(
         path: String,
         default: Int,
-    ): Int = if (section.hasPath(path)) section.getInt(path) else default
+    ): Int {
+        val fromApp =
+            application.environment.config
+                .propertyOrNull("$env.$path")
+                ?.getString()
+                ?.toIntOrNull()
+        return fromApp ?: if (section.hasPath(path)) section.getInt(path) else default
+    }
 
     fun getBoolean(
         path: String,
         default: Boolean,
-    ): Boolean = if (section.hasPath(path)) section.getBoolean(path) else default
+    ): Boolean {
+        val fromApp =
+            application.environment.config
+                .propertyOrNull("$env.$path")
+                ?.getString()
+                ?.trim()
+                ?.lowercase()
+        val normalized =
+            when (fromApp) {
+                "true", "1", "yes" -> true
+                "false", "0", "no" -> false
+                else -> null
+            }
+        return normalized ?: if (section.hasPath(path)) section.getBoolean(path) else default
+    }
+
+    // Top-level app flags may be placed inside the env section as in our application.conf.
 
     val serverCfg =
         ServerConfig(
-            port = getInt("server.port", DEFAULT_SERVER_PORT),
+            port =
+                (System.getProperty("SERVER_PORT") ?: System.getenv("SERVER_PORT"))?.toIntOrNull()
+                    ?: getInt("server.port", DEFAULT_SERVER_PORT),
         )
 
     val dbCfg =
         DbConfig(
-            driver = getString("db.driver").ifEmpty { "org.postgresql.Driver" },
-            url = getString("db.url"),
-            user = getString("db.user"),
-            password = getString("db.password"),
-            poolMax = getInt("db.pool.max", DEFAULT_DB_POOL_MAX),
+            driver =
+                (System.getProperty("DB_DRIVER") ?: System.getenv("DB_DRIVER"))?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: getString("db.driver").ifEmpty { "org.postgresql.Driver" },
+            url =
+                (System.getProperty("DB_URL") ?: System.getenv("DB_URL"))?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: getString("db.url"),
+            user =
+                (System.getProperty("DB_USER") ?: System.getenv("DB_USER"))?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: getString("db.user"),
+            password =
+                (System.getProperty("DB_PASSWORD") ?: System.getenv("DB_PASSWORD"))?.trim()?.takeIf { it.isNotEmpty() }
+                    ?: getString("db.password"),
+            poolMax =
+                (System.getProperty("DB_POOL_MAX") ?: System.getenv("DB_POOL_MAX"))?.toIntOrNull()
+                    ?: getInt("db.pool.max", DEFAULT_DB_POOL_MAX),
         )
 
     val flags =
         AppFlags(
-            skipDb = getBoolean("app.skipDb", false),
-            runMigrations = getBoolean("app.runMigrations", true),
+            skipDb =
+                (System.getProperty("APP_SKIP_DB") ?: System.getenv("APP_SKIP_DB"))
+                    ?.trim()
+                    ?.lowercase()
+                    ?.let { it == "true" || it == "1" || it == "yes" }
+                    ?: getBoolean("app.skipDb", false),
+            runMigrations =
+                (System.getProperty("APP_RUN_MIGRATIONS") ?: System.getenv("APP_RUN_MIGRATIONS"))
+                    ?.trim()
+                    ?.lowercase()
+                    ?.let { it == "true" || it == "1" || it == "yes" }
+                    ?: getBoolean("app.runMigrations", true),
         )
 
     return AppConfig(env = env, server = serverCfg, db = dbCfg, flags = flags)
