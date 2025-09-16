@@ -4,8 +4,8 @@ import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DEFAULT_SERVER_PORT
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.loadAppConfig
 import io.ktor.server.config.MapApplicationConfig
 import io.ktor.server.testing.testApplication
+import org.junit.jupiter.api.Disabled
 import kotlin.test.AfterTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -68,7 +68,7 @@ class ConfigLoaderTest {
             }
         }
 
-    @Test @Ignore("Temporarily disabled; needs to be fixed")
+    @Test @Disabled("Temporarily disabled; needs to be fixed")
     fun `APP_ENV override to test`() =
         testApplication {
             setProp("APP_ENV", "test")
