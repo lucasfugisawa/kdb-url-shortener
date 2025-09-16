@@ -37,15 +37,14 @@ val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 private fun sysOrEnv(key: String): String? = System.getProperty(key) ?: System.getenv(key)
 
 fun loadAppConfig(application: Application): AppConfig {
-    fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
+    fun String?.normalizedOrNull() = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
-    // Prefer JVM sysprop / env var over application.conf
-    val envFromSys = sysOrEnv("APP_ENV").normalizedOrNull()
-    val envFromConfig =
-        application.environment.config
-            .propertyOrNull("app.env")
-            ?.getString()
-            ?.normalizedOrNull()
+    // 1) sysprop/env, 2) application.conf's app.env, 3) default
+    val envFromSys = sysOrEnv("APP_ENV")?.lowercase()
+    val envFromConfig = application.environment.config
+        .propertyOrNull("app.env")
+        ?.getString()
+        ?.normalizedOrNull()
 
     val env = envFromSys ?: envFromConfig ?: "dev"
 

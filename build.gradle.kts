@@ -31,6 +31,9 @@ tasks.test {
     useJUnitPlatform {
         excludeTags("integration")
     }
+    // Ensure isolation between classes so sysprops/env set by one test don't affect others
+    maxParallelForks = 1
+    forkEvery = 1
     systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
     testLogging {
         events("passed", "skipped", "failed")
