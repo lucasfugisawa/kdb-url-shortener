@@ -128,13 +128,15 @@ fun loadAppConfig(application: Application): AppConfig {
     val flags =
         AppFlags(
             skipDb =
-                System.getProperty("APP_SKIP_DB")
+                System
+                    .getProperty("APP_SKIP_DB")
                     ?.trim()
                     ?.lowercase()
                     ?.let { it == "true" || it == "1" || it == "yes" }
                     ?: getBoolean("app.skipDb", false),
             runMigrations =
-                System.getProperty("APP_RUN_MIGRATIONS")
+                System
+                    .getProperty("APP_RUN_MIGRATIONS")
                     ?.trim()
                     ?.lowercase()
                     ?.let { it == "true" || it == "1" || it == "yes" }
