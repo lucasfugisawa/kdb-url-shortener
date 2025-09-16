@@ -1,9 +1,9 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
-import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.toDomain
-import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
+import dev.kotlinbr.utlshortener.domain.Link
+import dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
+import dev.kotlinbr.utlshortener.interfaces.http.dto.toDomain
+import dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject

@@ -1,7 +1,7 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.repository
+package dev.kotlinbr.utlshortener.infrastructure.repository
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
+import dev.kotlinbr.utlshortener.domain.Link
+import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction

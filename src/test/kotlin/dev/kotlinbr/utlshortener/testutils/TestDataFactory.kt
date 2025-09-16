@@ -1,7 +1,7 @@
 package dev.kotlinbr.utlshortener.testutils
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
+import dev.kotlinbr.utlshortener.domain.Link
+import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll

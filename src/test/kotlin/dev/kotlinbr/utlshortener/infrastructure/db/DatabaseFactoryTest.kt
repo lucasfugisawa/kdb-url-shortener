@@ -1,11 +1,11 @@
 package dev.kotlinbr.utlshortener.infrastructure.db
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppFlags
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DEFAULT_DB_POOL_MAX
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DbConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.ServerConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
+import dev.kotlinbr.utlshortener.app.config.AppConfig
+import dev.kotlinbr.utlshortener.app.config.AppFlags
+import dev.kotlinbr.utlshortener.app.config.DEFAULT_DB_POOL_MAX
+import dev.kotlinbr.utlshortener.app.config.DbConfig
+import dev.kotlinbr.utlshortener.app.config.ServerConfig
+import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Tag

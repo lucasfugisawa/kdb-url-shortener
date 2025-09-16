@@ -1,9 +1,9 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db
+package dev.kotlinbr.utlshortener.infrastructure.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DEFAULT_DB_POOL_MAX
+import dev.kotlinbr.utlshortener.app.config.AppConfig
+import dev.kotlinbr.utlshortener.app.config.DEFAULT_DB_POOL_MAX
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager

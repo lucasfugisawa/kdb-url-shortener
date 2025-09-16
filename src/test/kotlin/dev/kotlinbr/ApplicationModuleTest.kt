@@ -1,6 +1,6 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.utlshortener.app.config.AppConfigKey
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode

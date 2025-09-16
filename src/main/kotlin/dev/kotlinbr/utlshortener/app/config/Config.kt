@@ -1,4 +1,4 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.app.config
+package dev.kotlinbr.utlshortener.app.config
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory

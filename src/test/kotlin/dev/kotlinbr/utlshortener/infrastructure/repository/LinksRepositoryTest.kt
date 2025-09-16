@@ -1,13 +1,13 @@
 package dev.kotlinbr.utlshortener.infrastructure.repository
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppFlags
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DbConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.ServerConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
+import dev.kotlinbr.utlshortener.app.config.AppConfig
+import dev.kotlinbr.utlshortener.app.config.AppFlags
+import dev.kotlinbr.utlshortener.app.config.DbConfig
+import dev.kotlinbr.utlshortener.app.config.ServerConfig
+import dev.kotlinbr.utlshortener.domain.Link
+import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
+import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
+import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import dev.kotlinbr.utlshortener.testutils.TestClockUtils
 import org.jetbrains.exposed.sql.insert

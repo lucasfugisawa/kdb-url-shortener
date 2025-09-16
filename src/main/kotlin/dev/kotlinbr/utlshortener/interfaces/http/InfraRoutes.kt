@@ -1,7 +1,7 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http
+package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfigKey
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
+import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.response.respond

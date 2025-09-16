@@ -1,6 +1,6 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto
+package dev.kotlinbr.utlshortener.interfaces.http.dto
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
+import dev.kotlinbr.utlshortener.domain.Link
 import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 

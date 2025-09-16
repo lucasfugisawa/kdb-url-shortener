@@ -1,8 +1,8 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
 import dev.kotlinbr.module
+import dev.kotlinbr.utlshortener.domain.Link
+import dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
 import dev.kotlinbr.utlshortener.testutils.TestClockUtils
 import dev.kotlinbr.utlshortener.testutils.TestDataFactory
 import io.ktor.client.request.get

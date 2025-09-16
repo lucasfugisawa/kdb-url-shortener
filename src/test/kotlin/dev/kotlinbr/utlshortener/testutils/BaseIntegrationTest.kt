@@ -1,10 +1,10 @@
 package dev.kotlinbr.utlshortener.testutils
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppFlags
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DbConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.ServerConfig
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
+import dev.kotlinbr.utlshortener.app.config.AppConfig
+import dev.kotlinbr.utlshortener.app.config.AppFlags
+import dev.kotlinbr.utlshortener.app.config.DbConfig
+import dev.kotlinbr.utlshortener.app.config.ServerConfig
+import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag

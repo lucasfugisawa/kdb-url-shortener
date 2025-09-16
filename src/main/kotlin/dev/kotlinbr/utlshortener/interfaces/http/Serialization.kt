@@ -1,4 +1,4 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http
+package dev.kotlinbr.utlshortener.interfaces.http
 
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application

@@ -1,7 +1,7 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http
+package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
-import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
+import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
+import dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
 import io.ktor.server.application.Application
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
