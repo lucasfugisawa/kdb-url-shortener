@@ -34,25 +34,24 @@ data class AppConfig(
 
 val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 
+private fun sysOrEnv(key: String): String? = System.getProperty(key) ?: System.getenv(key)
+
 fun loadAppConfig(application: Application): AppConfig {
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
-    // Determine environment: prefer JVM sysprop/env, then ApplicationConfig, default to "dev"
+    // Prefer JVM sysprop / env var over application.conf
+    val envFromSys = sysOrEnv("APP_ENV").normalizedOrNull()
     val envFromConfig =
         application.environment.config
             .propertyOrNull("app.env")
             ?.getString()
             ?.normalizedOrNull()
-    val envFromSys = (System.getProperty("APP_ENV") ?: System.getenv("APP_ENV")).normalizedOrNull()
 
-    val env = (envFromConfig ?: envFromSys ?: "dev")
+    val env = envFromSys ?: envFromConfig ?: "dev"
 
-    // Load the environment-specific section from application.conf (already resolved with substitutions)
     val root: Config = ConfigFactory.parseResources("application.conf").resolve()
     val section: Config = if (root.hasPath(env)) root.getConfig(env) else ConfigFactory.empty()
 
-    // Helpers that first check ApplicationConfig under the resolved env section (for in-memory overrides),
-    // then fall back to the resource section, then defaults.
     fun getString(
         path: String,
         default: String = "",
@@ -95,47 +94,29 @@ fun loadAppConfig(application: Application): AppConfig {
         return normalized ?: if (section.hasPath(path)) section.getBoolean(path) else default
     }
 
-    // Top-level app flags may be placed inside the env section as in our application.conf.
-
     val serverCfg =
         ServerConfig(
-            port =
-                (System.getProperty("SERVER_PORT") ?: System.getenv("SERVER_PORT"))?.toIntOrNull()
-                    ?: getInt("server.port", DEFAULT_SERVER_PORT),
+            port = (sysOrEnv("SERVER_PORT"))?.toIntOrNull() ?: getInt("server.port", DEFAULT_SERVER_PORT),
         )
 
     val dbCfg =
         DbConfig(
             driver =
-                (System.getProperty("DB_DRIVER") ?: System.getenv("DB_DRIVER"))?.trim()?.takeIf { it.isNotEmpty() }
+                sysOrEnv("DB_DRIVER")?.trim()?.takeIf { it.isNotEmpty() }
                     ?: getString("db.driver").ifEmpty { "org.postgresql.Driver" },
-            url =
-                (System.getProperty("DB_URL") ?: System.getenv("DB_URL"))?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: getString("db.url"),
-            user =
-                (System.getProperty("DB_USER") ?: System.getenv("DB_USER"))?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: getString("db.user"),
-            password =
-                (System.getProperty("DB_PASSWORD") ?: System.getenv("DB_PASSWORD"))?.trim()?.takeIf { it.isNotEmpty() }
-                    ?: getString("db.password"),
-            poolMax =
-                (System.getProperty("DB_POOL_MAX") ?: System.getenv("DB_POOL_MAX"))?.toIntOrNull()
-                    ?: getInt("db.pool.max", DEFAULT_DB_POOL_MAX),
+            url = sysOrEnv("DB_URL")?.trim()?.takeIf { it.isNotEmpty() } ?: getString("db.url"),
+            user = sysOrEnv("DB_USER")?.trim()?.takeIf { it.isNotEmpty() } ?: getString("db.user"),
+            password = sysOrEnv("DB_PASSWORD")?.trim()?.takeIf { it.isNotEmpty() } ?: getString("db.password"),
+            poolMax = sysOrEnv("DB_POOL_MAX")?.toIntOrNull() ?: getInt("db.pool.max", DEFAULT_DB_POOL_MAX),
         )
 
     val flags =
         AppFlags(
             skipDb =
-                (System.getProperty("APP_SKIP_DB") ?: System.getenv("APP_SKIP_DB"))
-                    ?.trim()
-                    ?.lowercase()
-                    ?.let { it == "true" || it == "1" || it == "yes" }
+                sysOrEnv("APP_SKIP_DB")?.trim()?.lowercase()?.let { it == "true" || it == "1" || it == "yes" }
                     ?: getBoolean("app.skipDb", false),
             runMigrations =
-                (System.getProperty("APP_RUN_MIGRATIONS") ?: System.getenv("APP_RUN_MIGRATIONS"))
-                    ?.trim()
-                    ?.lowercase()
-                    ?.let { it == "true" || it == "1" || it == "yes" }
+                sysOrEnv("APP_RUN_MIGRATIONS")?.trim()?.lowercase()?.let { it == "true" || it == "1" || it == "yes" }
                     ?: getBoolean("app.runMigrations", true),
         )
 
