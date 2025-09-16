@@ -50,7 +50,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-netty")
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("io.ktor:ktor-server-config-yaml")
 
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 

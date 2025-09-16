@@ -19,12 +19,11 @@ fun Application.module() {
     this.attributes.put(AppConfigKey, appConfig)
     this.environment.log.info("Application starting with env=${appConfig.env}")
 
-    val skipDb = System.getProperty("APP_SKIP_DB") == "true"
-    if (!skipDb) {
+    if (!appConfig.flags.skipDb) {
         DatabaseFactory.init(appConfig)
         this.environment.log.info("Database initialized")
     } else {
-        this.environment.log.info("Skipping database initialization due to APP_SKIP_DB=true")
+        this.environment.log.info("Skipping database initialization due to app.skipDb=true")
     }
 
     configureHTTP()

@@ -31,14 +31,7 @@ object DatabaseFactory {
     }
 
     private fun shouldRunMigrations(config: AppConfig): Boolean {
-        val env = System.getenv("APP_RUN_MIGRATIONS")?.lowercase()
-        val prop = System.getProperty("APP_RUN_MIGRATIONS")?.lowercase()
-        val flag = prop ?: env
-        return when (flag) {
-            "false" -> false
-            "true" -> true
-            else -> true // run migrations by default to ensure schema exists
-        }
+        return config.flags.runMigrations
     }
 
     private fun runMigrations(ds: HikariDataSource) {

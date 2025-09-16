@@ -17,10 +17,16 @@ data class ServerConfig(
     val port: Int,
 )
 
+data class AppFlags(
+    val skipDb: Boolean,
+    val runMigrations: Boolean,
+)
+
 data class AppConfig(
     val env: String,
     val server: ServerConfig,
     val db: DbConfig,
+    val flags: AppFlags,
 )
 
 val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
@@ -28,16 +34,16 @@ val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
 fun loadAppConfig(application: Application): AppConfig {
     fun String?.normalizedOrNull(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.lowercase()
 
-    val envFromSysProp = System.getProperty("APP_ENV").normalizedOrNull()
+    // Read environment name only from ApplicationConfig; allow overrides via HOCON substitution (${?APP_ENV})
     val envFromConfig =
         application.environment.config
             .propertyOrNull("app.env")
             ?.getString()
             .normalizedOrNull()
-    val envFromEnv = System.getenv("APP_ENV").normalizedOrNull()
 
-    val env = (envFromSysProp ?: envFromConfig ?: envFromEnv ?: "dev")
+    val env = (envFromConfig ?: "dev")
 
+    // Load the environment-specific section from application.conf (already resolved with substitutions)
     val root: Config = ConfigFactory.parseResources("application.conf").resolve()
     val section: Config = if (root.hasPath(env)) root.getConfig(env) else ConfigFactory.empty()
 
@@ -51,21 +57,30 @@ fun loadAppConfig(application: Application): AppConfig {
         default: Int,
     ): Int = if (section.hasPath(path)) section.getInt(path) else default
 
+    fun getBoolean(
+        path: String,
+        default: Boolean,
+    ): Boolean = if (section.hasPath(path)) section.getBoolean(path) else default
+
     val serverCfg =
         ServerConfig(
             port = getInt("server.port", 8080),
         )
 
-    fun getEnvOrProp(name: String): String? = System.getenv(name) ?: System.getProperty(name)
-
     val dbCfg =
         DbConfig(
-            driver = getString("db.driver").ifEmpty { getEnvOrProp("DB_DRIVER") ?: "org.postgresql.Driver" },
-            url = getEnvOrProp("DB_URL") ?: getString("db.url"),
-            user = getEnvOrProp("DB_USER") ?: getString("db.user"),
-            password = getEnvOrProp("DB_PASSWORD") ?: getString("db.password"),
-            poolMax = (getEnvOrProp("DB_POOL_MAX")?.toIntOrNull()) ?: getInt("db.pool.max", 10),
+            driver = getString("db.driver").ifEmpty { "org.postgresql.Driver" },
+            url = getString("db.url"),
+            user = getString("db.user"),
+            password = getString("db.password"),
+            poolMax = getInt("db.pool.max", 10),
         )
 
-    return AppConfig(env = env, server = serverCfg, db = dbCfg)
+    val flags =
+        AppFlags(
+            skipDb = getBoolean("app.skipDb", false),
+            runMigrations = getBoolean("app.runMigrations", true),
+        )
+
+    return AppConfig(env = env, server = serverCfg, db = dbCfg, flags = flags)
 }
