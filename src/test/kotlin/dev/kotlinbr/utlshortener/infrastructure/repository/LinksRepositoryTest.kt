@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.utlshortener.infrastructure.repository
 
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppConfig
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.AppFlags

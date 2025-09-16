@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.utlshortener.infrastructure.db
 
 import dev.kotlinbr.dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import kotlin.test.AfterTest

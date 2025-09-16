@@ -1,6 +1,8 @@
-package dev.kotlinbr
+package dev.kotlinbr.utlshortener.interfaces.http
 
+import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
+import dev.kotlinbr.module
 import dev.kotlinbr.utlshortener.testutils.TestClockUtils
 import dev.kotlinbr.utlshortener.testutils.TestDataFactory
 import io.ktor.client.request.get
@@ -189,8 +191,8 @@ class RoutesIntegrationTest {
             setDbProps()
             var id1: Long = 0
             var id2: Long = 0
-            lateinit var link1: dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
-            lateinit var link2: dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
+            lateinit var link1: Link
+            lateinit var link2: Link
             application {
                 module()
                 // Seed data after migrations

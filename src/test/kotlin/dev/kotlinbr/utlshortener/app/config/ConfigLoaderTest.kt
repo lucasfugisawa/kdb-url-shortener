@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.utlshortener.app.config
 
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.DEFAULT_SERVER_PORT
 import dev.kotlinbr.dev.kotlinbr.utlshortener.app.config.loadAppConfig

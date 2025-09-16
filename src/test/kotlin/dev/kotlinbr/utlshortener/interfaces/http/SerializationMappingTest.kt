@@ -1,4 +1,4 @@
-package dev.kotlinbr
+package dev.kotlinbr.utlshortener.interfaces.http
 
 import dev.kotlinbr.dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse

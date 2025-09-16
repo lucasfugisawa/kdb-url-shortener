@@ -1,5 +1,6 @@
-package dev.kotlinbr
+package dev.kotlinbr.utlshortener.interfaces.http
 
+import dev.kotlinbr.module
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
@@ -7,6 +8,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.MissingApplicationPluginException
 import io.ktor.server.application.plugin
+import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +27,7 @@ class HttpPipelineTest {
                 module()
                 // Assert Compression plugin is installed on the Application
                 try {
-                    plugin(io.ktor.server.plugins.compression.Compression)
+                    plugin(Compression)
                 } catch (e: MissingApplicationPluginException) {
                     throw AssertionError("Compression plugin should be installed", e)
                 }
