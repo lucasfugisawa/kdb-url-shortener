@@ -76,39 +76,24 @@ Um **URL Shortener** (encurtador de links) é um serviço que transforma um ende
 │  │  │     ├─ app
 │  │  │     │  ├─ config/Config.kt          # Configuração da aplicação (env, server, db)
 │  │  │     │  └─ http/HTTP.kt              # Pipeline/middlewares HTTP
-│  │  │     ├─ domain
-│  │  │     │  └─ Link.kt                   # Entidade de domínio
+│  │  │     ├─ domain/                      # Entidades e regras de negócio (variam por domínio)
 │  │  │     ├─ infrastructure
 │  │  │     │  ├─ db/DatabaseFactory.kt     # Inicialização do DB + Flyway
-│  │  │     │  ├─ db/tables/LinksTable.kt   # Tabela de links
-│  │  │     │  └─ repository/LinksRepository.kt # Repositório de links
+│  │  │     │  ├─ db/tables/                # Tabelas (Exposed) — mapeamentos SQL do domínio
+│  │  │     │  └─ repository/               # Repositórios — acesso a dados (varia por domínio)
 │  │  │     └─ interfaces/http
 │  │  │        ├─ ApiRoutes.kt              # Endpoints da API (ex.: GET /api/v1/links)
 │  │  │        ├─ FrontendRoutes.kt         # Rotas de frontend/redirecionamento
 │  │  │        ├─ InfraRoutes.kt            # Rotas de infraestrutura (/health, /env)
 │  │  │        ├─ Routing.kt                # Registro de todas as rotas
 │  │  │        ├─ Serialization.kt          # Configuração de JSON/ContentNegotiation
-│  │  │        └─ dto/LinkResponse.kt       # DTOs de resposta
+│  │  │        └─ dto/                      # DTOs (mapeamentos de entrada/saída) — variam por caso de uso
 │  │  └─ resources
 │  │     ├─ application.conf                # Configurações por ambiente
-│  │     ├─ db/migration/V1__create_links.sql
+│  │     ├─ db/migration/                   # Migrações Flyway (scripts versionados)
 │  │     └─ logback.xml                     # Configuração de logs
 │  └─ test
-│     └─ kotlin
-│        ├─ dev/kotlinbr/ApplicationModuleTest.kt
-│        ├─ dev/kotlinbr/BuildSanityTest.kt
-│        ├─ dev/kotlinbr/SchemaValidationTest.kt
-│        ├─ dev/kotlinbr/utlshortener/app/config/ConfigLoaderTest.kt
-│        ├─ dev/kotlinbr/utlshortener/infrastructure/db/DatabaseFactoryTest.kt
-│        ├─ dev/kotlinbr/utlshortener/infrastructure/db/DatabaseFactoryUnitTest.kt
-│        ├─ dev/kotlinbr/utlshortener/infrastructure/repository/LinksRepositoryTest.kt
-│        ├─ dev/kotlinbr/utlshortener/interfaces/http/HttpPipelineTest.kt
-│        ├─ dev/kotlinbr/utlshortener/interfaces/http/RoutesTest.kt
-│        ├─ dev/kotlinbr/utlshortener/interfaces/http/SerializationMappingTest.kt
-│        └─ dev/kotlinbr/utlshortener/testutils/
-│           ├─ BaseIntegrationTest.kt
-│           ├─ TestClockUtils.kt
-│           └─ TestDataFactory.kt
+│     └─ kotlin/                            # Testes (unitários e de integração); não listado individualmente
 ```
 
 
