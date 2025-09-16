@@ -43,7 +43,7 @@ fun loadAppConfig(application: Application): AppConfig {
             .propertyOrNull("app.env")
             ?.getString()
             ?.normalizedOrNull()
-    val envFromSys = (System.getProperty("APP_ENV") ?: System.getenv("APP_ENV")).normalizedOrNull()
+    val envFromSys = System.getProperty("APP_ENV").normalizedOrNull()
 
     val env = (envFromConfig ?: envFromSys ?: "dev")
 
@@ -102,39 +102,39 @@ fun loadAppConfig(application: Application): AppConfig {
     val serverCfg =
         ServerConfig(
             port =
-                (System.getProperty("SERVER_PORT") ?: System.getenv("SERVER_PORT"))?.toIntOrNull()
+                System.getProperty("SERVER_PORT")?.toIntOrNull()
                     ?: getInt("server.port", DEFAULT_SERVER_PORT),
         )
 
     val dbCfg =
         DbConfig(
             driver =
-                (System.getProperty("DB_DRIVER") ?: System.getenv("DB_DRIVER"))?.trim()?.takeIf { it.isNotEmpty() }
+                System.getProperty("DB_DRIVER")?.trim()?.takeIf { it.isNotEmpty() }
                     ?: getString("db.driver").ifEmpty { "org.postgresql.Driver" },
             url =
-                (System.getProperty("DB_URL") ?: System.getenv("DB_URL"))?.trim()?.takeIf { it.isNotEmpty() }
+                System.getProperty("DB_URL")?.trim()?.takeIf { it.isNotEmpty() }
                     ?: getString("db.url"),
             user =
-                (System.getProperty("DB_USER") ?: System.getenv("DB_USER"))?.trim()?.takeIf { it.isNotEmpty() }
+                System.getProperty("DB_USER")?.trim()?.takeIf { it.isNotEmpty() }
                     ?: getString("db.user"),
             password =
-                (System.getProperty("DB_PASSWORD") ?: System.getenv("DB_PASSWORD"))?.trim()?.takeIf { it.isNotEmpty() }
+                System.getProperty("DB_PASSWORD")?.trim()?.takeIf { it.isNotEmpty() }
                     ?: getString("db.password"),
             poolMax =
-                (System.getProperty("DB_POOL_MAX") ?: System.getenv("DB_POOL_MAX"))?.toIntOrNull()
+                System.getProperty("DB_POOL_MAX")?.toIntOrNull()
                     ?: getInt("db.pool.max", DEFAULT_DB_POOL_MAX),
         )
 
     val flags =
         AppFlags(
             skipDb =
-                (System.getProperty("APP_SKIP_DB") ?: System.getenv("APP_SKIP_DB"))
+                System.getProperty("APP_SKIP_DB")
                     ?.trim()
                     ?.lowercase()
                     ?.let { it == "true" || it == "1" || it == "yes" }
                     ?: getBoolean("app.skipDb", false),
             runMigrations =
-                (System.getProperty("APP_RUN_MIGRATIONS") ?: System.getenv("APP_RUN_MIGRATIONS"))
+                System.getProperty("APP_RUN_MIGRATIONS")
                     ?.trim()
                     ?.lowercase()
                     ?.let { it == "true" || it == "1" || it == "yes" }
