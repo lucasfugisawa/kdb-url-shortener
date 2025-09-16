@@ -47,10 +47,8 @@ fun loadAppConfig(application: Application): AppConfig {
 
     val env = (envFromConfig ?: envFromSys ?: "dev")
 
-    // Load the environment-specific section from the full merged configuration on the classpath.
-    // Using ConfigFactory.load() ensures resources, system properties, and reference.conf are considered,
-    // which is more robust across different environments/CI.
-    val root: Config = ConfigFactory.load()
+    // Load the environment-specific section from application.conf (already resolved with substitutions)
+    val root: Config = ConfigFactory.parseResources("application.conf").resolve()
     val section: Config = if (root.hasPath(env)) root.getConfig(env) else ConfigFactory.empty()
 
     // Helpers that first check ApplicationConfig under the resolved env section (for in-memory overrides),
