@@ -36,7 +36,7 @@ class RoutesUnitTest {
     }
 
     @Test
-    fun `5_1 frontend GET root`() =
+    fun `frontend GET root`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -51,7 +51,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `5_2 infra GET health`() =
+    fun `infra GET health`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -62,7 +62,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `5_3 infra GET readiness not healthy when DB skipped`() =
+    fun `infra GET readiness not healthy when DB skipped`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -73,7 +73,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `5_5 infra GET env returns current env`() =
+    fun `infra GET env returns current env`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -85,7 +85,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `5_8 unknown route returns JSON 404`() =
+    fun `unknown route returns JSON 404`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -96,7 +96,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `5_9 internal error handler returns JSON`() =
+    fun `internal error handler returns JSON`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -112,7 +112,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `5_10 bad request handler returns JSON`() =
+    fun `bad request handler returns JSON`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
@@ -162,7 +162,7 @@ class RoutesIntegrationTest {
     }
 
     @Test
-    fun `5_4 readiness healthy when DB initialized`() =
+    fun `readiness healthy when DB initialized`() =
         testApplication {
             setDbProps()
             application { module() }
@@ -172,7 +172,7 @@ class RoutesIntegrationTest {
         }
 
     @Test
-    fun `5_6 api GET links returns empty array on empty DB`() =
+    fun `api GET links returns empty array on empty DB`() =
         testApplication {
             setDbProps()
             application { module() }
@@ -184,7 +184,7 @@ class RoutesIntegrationTest {
         }
 
     @Test
-    fun `5_7 api GET links returns data with ISO-8601 dates`() =
+    fun `api GET links returns data with ISO-8601 dates`() =
         testApplication {
             setDbProps()
             var id1: Long = 0

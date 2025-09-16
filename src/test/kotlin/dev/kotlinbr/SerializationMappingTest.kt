@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 
 class SerializationMappingTest {
     @Test
-    fun `6_1 Link_toResponse mapping preserves fields and ISO strings`() {
+    fun `Link_toResponse mapping preserves fields and ISO strings`() {
         val created: OffsetDateTime = OffsetDateTime.of(2023, 5, 1, 12, 34, 56, 0, ZoneOffset.UTC)
         val expires: OffsetDateTime = created.plusDays(30)
         val link =
@@ -48,7 +48,7 @@ class SerializationMappingTest {
     }
 
     @Test
-    fun `6_2 LinkResponse_toDomain parses ISO-8601 strings including nullable expiresAt`() {
+    fun `LinkResponse_toDomain parses ISO-8601 strings including nullable expiresAt`() {
         val created = "2024-02-03T04:05:06Z"
         val expires = "2024-03-04T05:06:07+02:00"
 
@@ -77,7 +77,7 @@ class SerializationMappingTest {
     }
 
     @Test
-    fun `6_3 JSON serialization of LinkResponse and round-trip`() {
+    fun `JSON serialization of LinkResponse and round-trip`() {
         val created = "2025-01-02T03:04:05Z"
         val resp =
             LinkResponse(

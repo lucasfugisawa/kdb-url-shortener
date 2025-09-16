@@ -52,7 +52,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_2 isHealthy true when DB reachable after init`() {
+    fun `isHealthy true when DB reachable after init`() {
         DatabaseFactory.resetForTesting()
         val cfg = configWith(schema = "s_health_ok", runMigrations = true)
         DatabaseFactory.init(cfg)
@@ -60,7 +60,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_3 Hikari configuration defaults when poolMax_le_0 and driver empty`() {
+    fun `Hikari configuration defaults when poolMax_le_0 and driver empty`() {
         DatabaseFactory.resetForTesting()
         val cfg = configWith(schema = "s_hikari_defaults", runMigrations = false, poolMax = 0, driver = "")
         DatabaseFactory.init(cfg)
@@ -81,7 +81,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_4 Flyway migrations executed when runMigrations=true`() {
+    fun `Flyway migrations executed when runMigrations=true`() {
         DatabaseFactory.resetForTesting()
         val schema = "s_migrate_true"
         val cfg = configWith(schema = schema, runMigrations = true)
@@ -115,7 +115,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_5 Migrations skipped when runMigrations=false`() {
+    fun `Migrations skipped when runMigrations=false`() {
         DatabaseFactory.resetForTesting()
         val schema = "s_migrate_false"
         val cfg = configWith(schema = schema, runMigrations = false)
@@ -132,7 +132,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_6 Exception handling in isHealthy returns false when datasource closed`() {
+    fun `Exception handling in isHealthy returns false when datasource closed`() {
         DatabaseFactory.resetForTesting()
         val cfg = configWith(schema = "s_health_exception", runMigrations = true)
         DatabaseFactory.init(cfg)

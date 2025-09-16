@@ -52,7 +52,7 @@ class LinksRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_7 findAll returns rows mapped correctly`() {
+    fun `findAll returns rows mapped correctly`() {
         val schema = "s_repo_findall"
         initDbInSchema(schema)
 
@@ -94,7 +94,7 @@ class LinksRepositoryTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `4_8 unique slug constraint enforced`() {
+    fun `unique slug constraint enforced`() {
         val schema = "s_repo_unique"
         initDbInSchema(schema)
 

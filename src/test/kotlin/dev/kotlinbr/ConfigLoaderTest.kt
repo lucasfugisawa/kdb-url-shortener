@@ -38,7 +38,7 @@ class ConfigLoaderTest {
     }
 
     @Test
-    fun `2_1 defaults and environment selection`() =
+    fun `defaults and environment selection`() =
         testApplication {
             // Ensure no overrides
             clearProp("APP_ENV")
@@ -68,7 +68,7 @@ class ConfigLoaderTest {
         }
 
     @Test
-    fun `2_2 APP_ENV override to test`() =
+    fun `APP_ENV override to test`() =
         testApplication {
             setProp("APP_ENV", "test")
             environment {
@@ -86,7 +86,7 @@ class ConfigLoaderTest {
         }
 
     @Test
-    fun `2_3 environment variable overrides for nested values`() =
+    fun `environment variable overrides for nested values`() =
         testApplication {
             // We'll use JVM system properties in tests (loader treats them equivalently to env vars)
             setProp("APP_ENV", "dev")
@@ -111,7 +111,7 @@ class ConfigLoaderTest {
         }
 
     @Test
-    fun `2_4 string normalization of env name`() =
+    fun `string normalization of env name`() =
         testApplication {
             // Assert that APP_ENV is normalized (trimmed, lowercased)
             setProp("APP_ENV", "PROD")
@@ -123,7 +123,7 @@ class ConfigLoaderTest {
         }
 
     @Test
-    fun `2_5 db driver fallback and pool stays zero`() =
+    fun `db driver fallback and pool stays zero`() =
         testApplication {
             // Simulate custom env with empty driver and poolMax=0 via in-memory config
             clearProp("APP_ENV")

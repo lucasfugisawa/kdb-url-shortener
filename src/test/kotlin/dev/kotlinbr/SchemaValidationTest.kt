@@ -56,7 +56,7 @@ class SchemaValidationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `7_1 links table columns and types from migration`() {
+    fun `links table columns and types from migration`() {
         val schema = "s_schema_validate_cols"
         initDbInSchema(schema)
 
@@ -177,7 +177,7 @@ class SchemaValidationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `7_2 unique index on slug exists with specific name`() {
+    fun `unique index on slug exists with specific name`() {
         val schema = "s_schema_validate_index"
         initDbInSchema(schema)
 

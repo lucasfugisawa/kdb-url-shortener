@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
  */
 class BuildSanityTest {
     @Test
-    fun `9_1 application main module wiring is resolvable`() {
+    fun `application main module wiring is resolvable`() {
         // Reflection: top-level function module(Application) is compiled into ApplicationKt class
         val clazz = Class.forName("dev.kotlinbr.ApplicationKt")
         val method =
@@ -27,7 +27,7 @@ class BuildSanityTest {
     }
 
     @Test
-    fun `9_1 application_conf declares EngineMain module`() {
+    fun `application_conf declares EngineMain module`() {
         val cfg = ConfigFactory.parseResources("application.conf").resolve()
         // Path: ktor.application.modules is a list; assert it contains our module reference
         val modulesPath = "ktor.application.modules"

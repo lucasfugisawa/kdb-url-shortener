@@ -13,7 +13,7 @@ class DatabaseFactoryUnitTest {
     }
 
     @Test
-    fun `4_1 isHealthy returns false when not initialized`() {
+    fun `isHealthy returns false when not initialized`() {
         // Ensure not initialized
         DatabaseFactory.resetForTesting()
         val healthy = DatabaseFactory.isHealthy()
