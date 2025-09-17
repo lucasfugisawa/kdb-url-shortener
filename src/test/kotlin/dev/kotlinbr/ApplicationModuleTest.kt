@@ -56,7 +56,7 @@ class ApplicationModuleTest {
             assertEquals("Hello World!", root.bodyAsText())
 
             // JSON sample endpoint installed by Serialization.kt
-            val json = client.get("/json/kotlinx-serialization-test")
+            val json = client.get("/json/kotlinx-serialization-teste")
             assertEquals(HttpStatusCode.OK, json.status)
             assertEquals("{\"hello\":\"world\"}", json.bodyAsText())
 
