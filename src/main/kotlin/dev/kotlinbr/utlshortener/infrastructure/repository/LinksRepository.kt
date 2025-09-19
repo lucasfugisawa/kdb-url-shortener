@@ -3,6 +3,7 @@ package dev.kotlinbr.utlshortener.infrastructure.repository
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -12,6 +13,14 @@ class LinksRepository {
             LinksTable
                 .selectAll()
                 .map { it.toDomain() }
+        }
+    fun existsBySlug(slug: String): Boolean =
+        transaction {
+            LinksTable
+                .selectAll()
+                .andWhere { LinksTable.slug eq slug }
+                .limit(1)
+                .any()
         }
 }
 
