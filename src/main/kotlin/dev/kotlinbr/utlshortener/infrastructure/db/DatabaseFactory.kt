@@ -100,9 +100,35 @@ object DatabaseFactory {
                 maximumPoolSize = if (db.poolMax > 0) db.poolMax else DEFAULT_DB_POOL_MAX
                 // Fallback driver if blank
                 driverClassName = if (db.driver.isBlank()) "org.postgresql.Driver" else db.driver
+
+                // Ensure each new connection has the intended search_path when currentSchema is present in JDBC URL
+                parseCurrentSchema(db.url)?.let { schema ->
+                    connectionInitSql = "SET search_path TO \"$schema\""
+                }
+
                 validate()
             }
         return HikariDataSource(cfg)
+    }
+
+    // Extracts the value of currentSchema=... from a JDBC URL (case-sensitive key as used by PostgreSQL driver)
+    @Suppress("ReturnCount")
+    private fun parseCurrentSchema(jdbcUrl: String): String? {
+        val qIndex = jdbcUrl.indexOf('?')
+        if (qIndex == -1 || qIndex == jdbcUrl.lastIndex) return null
+        val query = jdbcUrl.substring(qIndex + 1)
+        // split on '&' and ';' to be safe
+        val pairs = query.split('&', ';')
+        for (p in pairs) {
+            val eq = p.indexOf('=')
+            if (eq <= 0) continue
+            val key = p.substring(0, eq)
+            if (key == "currentSchema") {
+                val value = p.substring(eq + 1)
+                return value.takeIf { it.isNotBlank() }
+            }
+        }
+        return null
     }
 
     fun isHealthy(): Boolean {
