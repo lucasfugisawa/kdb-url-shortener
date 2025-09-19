@@ -7,7 +7,6 @@ import dev.kotlinbr.utlshortener.app.config.ServerConfig
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
-import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import dev.kotlinbr.utlshortener.testutils.TestClockUtils
 import org.jetbrains.exposed.sql.insert
@@ -18,6 +17,7 @@ import java.sql.DriverManager
 import java.time.OffsetDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertTrue
 
 @Tag("integration")
 class LinksRepositoryTest : BaseIntegrationTest() {
@@ -121,5 +121,36 @@ class LinksRepositoryTest : BaseIntegrationTest() {
                 }
             }
         }
+    }
+
+    @Test
+    fun `existsBySlug returns true when slug exists`() {
+        val schema = "s_repo_existsBySlug_true"
+        initDbInSchema(schema)
+
+        val created1: OffsetDateTime = TestClockUtils.now()
+        val created2: OffsetDateTime = TestClockUtils.now().plusDays(1)
+
+        transaction {
+            LinksTable.insert {
+                it[slug] = "a1"
+                it[targetUrl] = "https://a.example/1"
+                it[createdAt] = created1
+                it[isActive] = true
+                it[expiresAt] = null
+            }
+            LinksTable.insert {
+                it[slug] = "b2"
+                it[targetUrl] = "https://b.example/2"
+                it[createdAt] = created2
+                it[isActive] = false
+                it[expiresAt] = created2.plusDays(30)
+            }
+        }
+
+        val repo = LinksRepository()
+        val exists = repo.existsBySlug("a1")
+
+        assertTrue(exists)
     }
 }
