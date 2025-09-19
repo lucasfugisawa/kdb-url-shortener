@@ -14,6 +14,7 @@ class LinksRepository {
                 .selectAll()
                 .map { it.toDomain() }
         }
+
     fun existsBySlug(slug: String): Boolean =
         transaction {
             LinksTable
