@@ -1,16 +1,10 @@
 package dev.kotlinbr.utlshortener.infrastructure.db
 
-import dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.utlshortener.app.config.AppFlags
 import dev.kotlinbr.utlshortener.app.config.DEFAULT_DB_POOL_MAX
-import dev.kotlinbr.utlshortener.app.config.DbConfig
-import dev.kotlinbr.utlshortener.app.config.ServerConfig
-import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import java.sql.DriverManager
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -18,43 +12,10 @@ import kotlin.test.assertTrue
 
 @Tag("integration")
 class DatabaseFactoryTest : BaseIntegrationTest() {
-    private fun createSchemaIfNeeded(schema: String) {
-        DriverManager.getConnection(jdbcUrl(), username(), password()).use { conn ->
-            conn.createStatement().use { st ->
-                st.execute("CREATE SCHEMA IF NOT EXISTS \"$schema\"")
-            }
-        }
-    }
-
-    private fun configWith(
-        schema: String,
-        runMigrations: Boolean,
-        poolMax: Int = 5,
-        driver: String = "org.postgresql.Driver",
-    ): AppConfig {
-        createSchemaIfNeeded(schema)
-        val base = jdbcUrl()
-        val sep = if (base.contains("?")) "&" else "?"
-        val url = "$base${sep}currentSchema=$schema"
-        return AppConfig(
-            env = "test",
-            server = ServerConfig(port = 0),
-            db =
-                DbConfig(
-                    driver = driver,
-                    url = url,
-                    user = username(),
-                    password = password(),
-                    poolMax = poolMax,
-                ),
-            flags = AppFlags(skipDb = false, runMigrations = runMigrations),
-        )
-    }
-
     @Test
     fun `isHealthy true when DB reachable after init`() {
         DatabaseFactory.resetForTesting()
-        val cfg = configWith(schema = "s_health_ok", runMigrations = true)
+        val cfg = createAppConfigForSchema(schema = "s_health_ok", runMigrations = true)
         DatabaseFactory.init(cfg)
         assertTrue(DatabaseFactory.isHealthy(), "Database should be healthy after init + migrations")
     }
@@ -62,7 +23,8 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     @Test
     fun `Hikari configuration defaults when poolMax_le_0 and driver empty`() {
         DatabaseFactory.resetForTesting()
-        val cfg = configWith(schema = "s_hikari_defaults", runMigrations = false, poolMax = 0, driver = "")
+        val cfg =
+            createAppConfigForSchema(schema = "s_hikari_defaults", runMigrations = false, poolMax = 0, driver = "")
         DatabaseFactory.init(cfg)
         val ds = DatabaseFactory.getDataSourceForTesting()
         assertNotNull(ds, "HikariDataSource should be initialized")
@@ -84,7 +46,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     fun `Flyway migrations executed when runMigrations=true`() {
         DatabaseFactory.resetForTesting()
         val schema = "s_migrate_true"
-        val cfg = configWith(schema = schema, runMigrations = true)
+        val cfg = createAppConfigForSchema(schema = schema, runMigrations = true)
         DatabaseFactory.init(cfg)
         // Assert links table exists and unique index name exists
         val tableExists =
@@ -118,7 +80,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     fun `Migrations skipped when runMigrations=false`() {
         DatabaseFactory.resetForTesting()
         val schema = "s_migrate_false"
-        val cfg = configWith(schema = schema, runMigrations = false)
+        val cfg = createAppConfigForSchema(schema = schema, runMigrations = false)
         DatabaseFactory.init(cfg)
         // Table should not exist
         val tableExists =
@@ -134,7 +96,7 @@ class DatabaseFactoryTest : BaseIntegrationTest() {
     @Test
     fun `Exception handling in isHealthy returns false when datasource closed`() {
         DatabaseFactory.resetForTesting()
-        val cfg = configWith(schema = "s_health_exception", runMigrations = true)
+        val cfg = createAppConfigForSchema(schema = "s_health_exception", runMigrations = true)
         DatabaseFactory.init(cfg)
         // Close datasource to trigger IllegalState/SQL exception on health check
         DatabaseFactory.getDataSourceForTesting()?.close()
