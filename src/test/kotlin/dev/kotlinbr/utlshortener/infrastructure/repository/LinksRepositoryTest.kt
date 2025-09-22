@@ -17,6 +17,7 @@ import java.sql.DriverManager
 import java.time.OffsetDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Tag("integration")
@@ -152,5 +153,45 @@ class LinksRepositoryTest : BaseIntegrationTest() {
         val exists = repo.existsBySlug("a1")
 
         assertTrue(exists)
+    }
+
+    @Test
+    fun `existsNotBySlug returns false when not slug exists`() {
+        val schema = "s_repo_existsBySlug_false"
+        initDbInSchema(schema)
+
+        val created1: OffsetDateTime = TestClockUtils.now()
+        val created2: OffsetDateTime = TestClockUtils.now().plusDays(1)
+
+        transaction {
+            LinksTable.insert {
+                it[slug] = "Z9"
+                it[targetUrl] = "https://a.example/255"
+                it[createdAt] = created1
+                it[isActive] = false
+                it[expiresAt] = null
+            }
+            LinksTable.insert {
+                it[slug] = "Z10"
+                it[targetUrl] = "https://b.example/8222"
+                it[createdAt] = created2
+                it[isActive] = false
+                it[expiresAt] = created2.plusDays(30)
+            }
+        }
+
+        val repo = LinksRepository()
+        val exists = repo.existsBySlug("a1")
+        assertFalse(exists)
+    }
+
+    @Test
+    fun `existsBySlug returns false when Repository is empty`() {
+        val schema = "s_repo_empty_existsBySlug_false"
+        initDbInSchema(schema)
+
+        val repo = LinksRepository()
+        val exists = repo.existsBySlug("a1")
+        assertFalse(exists)
     }
 }
