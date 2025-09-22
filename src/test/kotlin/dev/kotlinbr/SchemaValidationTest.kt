@@ -1,17 +1,11 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.utlshortener.app.config.AppFlags
-import dev.kotlinbr.utlshortener.app.config.DbConfig
-import dev.kotlinbr.utlshortener.app.config.ServerConfig
-import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.sql.Connection
-import java.sql.DriverManager
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -22,35 +16,8 @@ import kotlin.test.assertTrue
  */
 @Tag("integration")
 class SchemaValidationTest : BaseIntegrationTest() {
-    private fun createSchemaIfNeeded(schema: String) {
-        DriverManager.getConnection(jdbcUrl(), username(), password()).use { conn ->
-            conn.createStatement().use { st ->
-                st.execute("CREATE SCHEMA IF NOT EXISTS \"$schema\"")
-            }
-        }
-    }
-
     private fun initDbInSchema(schema: String) {
-        createSchemaIfNeeded(schema)
-        val base = jdbcUrl()
-        val sep = if (base.contains("?")) "&" else "?"
-        val url = "$base${sep}currentSchema=$schema"
-        val cfg =
-            AppConfig(
-                env = "test",
-                server = ServerConfig(port = 0),
-                db =
-                    DbConfig(
-                        driver = "org.postgresql.Driver",
-                        url = url,
-                        user = username(),
-                        password = password(),
-                        poolMax = 5,
-                    ),
-                flags = AppFlags(skipDb = false, runMigrations = true),
-            )
-        DatabaseFactory.resetForTesting()
-        DatabaseFactory.init(cfg)
+        initDatabaseInSchema(schema)
         // Ensure sane isolation level for direct queries in tests
         TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_READ_COMMITTED
     }

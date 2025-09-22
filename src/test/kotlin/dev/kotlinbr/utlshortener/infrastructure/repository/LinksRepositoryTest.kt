@@ -1,11 +1,6 @@
 package dev.kotlinbr.utlshortener.infrastructure.repository
 
-import dev.kotlinbr.utlshortener.app.config.AppConfig
-import dev.kotlinbr.utlshortener.app.config.AppFlags
-import dev.kotlinbr.utlshortener.app.config.DbConfig
-import dev.kotlinbr.utlshortener.app.config.ServerConfig
 import dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import dev.kotlinbr.utlshortener.testutils.TestClockUtils
@@ -13,7 +8,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import java.sql.DriverManager
 import java.time.OffsetDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -21,40 +15,10 @@ import kotlin.test.assertTrue
 
 @Tag("integration")
 class LinksRepositoryTest : BaseIntegrationTest() {
-    private fun createSchema(schema: String) {
-        DriverManager.getConnection(jdbcUrl(), username(), password()).use { conn ->
-            conn.createStatement().use { st ->
-                st.execute("CREATE SCHEMA IF NOT EXISTS \"$schema\"")
-            }
-        }
-    }
-
-    private fun initDbInSchema(schema: String) {
-        createSchema(schema)
-        val base = jdbcUrl()
-        val sep = if (base.contains("?")) "&" else "?"
-        val cfg =
-            AppConfig(
-                env = "test",
-                server = ServerConfig(port = 0),
-                db =
-                    DbConfig(
-                        driver = "org.postgresql.Driver",
-                        url = "$base${sep}currentSchema=$schema",
-                        user = username(),
-                        password = password(),
-                        poolMax = 5,
-                    ),
-                flags = AppFlags(skipDb = false, runMigrations = true),
-            )
-        DatabaseFactory.resetForTesting()
-        DatabaseFactory.init(cfg)
-    }
-
     @Test
     fun `findAll returns rows mapped correctly`() {
         val schema = "s_repo_findall"
-        initDbInSchema(schema)
+        initDatabaseInSchema(schema)
 
         val created1: OffsetDateTime = TestClockUtils.now()
         val created2: OffsetDateTime = TestClockUtils.now().plusDays(1)
@@ -96,7 +60,7 @@ class LinksRepositoryTest : BaseIntegrationTest() {
     @Test
     fun `unique slug constraint enforced`() {
         val schema = "s_repo_unique"
-        initDbInSchema(schema)
+        initDatabaseInSchema(schema)
 
         // First insert should succeed
         transaction {
@@ -126,7 +90,7 @@ class LinksRepositoryTest : BaseIntegrationTest() {
     @Test
     fun `existsBySlug returns true when slug exists`() {
         val schema = "s_repo_existsBySlug_true"
-        initDbInSchema(schema)
+        initDatabaseInSchema(schema)
 
         val created1: OffsetDateTime = TestClockUtils.now()
         val created2: OffsetDateTime = TestClockUtils.now().plusDays(1)
