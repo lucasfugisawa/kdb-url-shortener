@@ -1,4 +1,5 @@
-package dev.kotlinbr.dev.kotlinbr.utlshortener.app.services
+package dev.kotlinbr.utlshortener.app.services
+
 import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import kotlin.random.Random
 
