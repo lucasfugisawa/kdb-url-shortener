@@ -17,9 +17,7 @@ class SlugGenerator(
             lastTried = slug
             if (!repo.existsBySlug(slug)) return slug
         }
-        throw IllegalStateException(
-            "Falha ao gerar slug único após $maxRetries tentativas. Último tentado: $lastTried",
-        )
+        error("Falha ao gerar slug único após $maxRetries tentativas. Último tentado: $lastTried")
     }
 
     private fun randomSlug(n: Int): String {
