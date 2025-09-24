@@ -122,7 +122,7 @@ class LinksRepositoryTest : BaseIntegrationTest() {
     @Test
     fun `existsNotBySlug returns false when not slug exists`() {
         val schema = "s_repo_existsBySlug_false"
-        initDbInSchema(schema)
+        initDatabaseInSchema(schema)
 
         val created1: OffsetDateTime = TestClockUtils.now()
         val created2: OffsetDateTime = TestClockUtils.now().plusDays(1)
@@ -152,7 +152,7 @@ class LinksRepositoryTest : BaseIntegrationTest() {
     @Test
     fun `existsBySlug returns false when Repository is empty`() {
         val schema = "s_repo_empty_existsBySlug_false"
-        initDbInSchema(schema)
+        initDatabaseInSchema(schema)
 
         val repo = LinksRepository()
         val exists = repo.existsBySlug("a1")
