@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.sql.DriverManager
 
 /**
  * Base class for integration tests that need a PostgreSQL database.
@@ -63,6 +64,7 @@ open class BaseIntegrationTest {
 
     protected fun password(): String = postgres.password
 
+    // -- Generic helpers (no schema) --
     protected fun createAppConfig(runMigrations: Boolean = true): AppConfig =
         AppConfig(
             env = "test",
@@ -80,6 +82,56 @@ open class BaseIntegrationTest {
 
     protected fun initDatabase(runMigrations: Boolean = true): AppConfig {
         val cfg = createAppConfig(runMigrations)
+        DatabaseFactory.init(cfg)
+        return cfg
+    }
+
+    // -- Schema-scoped helpers (shared by integration tests) --
+    protected fun ensureSchemaExists(schema: String) {
+        DriverManager.getConnection(jdbcUrl(), username(), password()).use { conn ->
+            conn.createStatement().use { st ->
+                st.execute("CREATE SCHEMA IF NOT EXISTS \"$schema\"")
+            }
+        }
+    }
+
+    protected fun jdbcUrlWithSchema(schema: String): String {
+        val base = jdbcUrl()
+        val sep = if (base.contains("?")) "&" else "?"
+        return "$base${sep}currentSchema=$schema"
+    }
+
+    protected fun createAppConfigForSchema(
+        schema: String,
+        runMigrations: Boolean = true,
+        poolMax: Int = 5,
+        driver: String = "org.postgresql.Driver",
+    ): AppConfig {
+        ensureSchemaExists(schema)
+        return AppConfig(
+            env = "test",
+            server = ServerConfig(port = 0),
+            db =
+                DbConfig(
+                    driver = driver,
+                    url = jdbcUrlWithSchema(schema),
+                    user = username(),
+                    password = password(),
+                    poolMax = poolMax,
+                ),
+            flags = AppFlags(skipDb = false, runMigrations = runMigrations),
+        )
+    }
+
+    protected fun initDatabaseInSchema(
+        schema: String,
+        runMigrations: Boolean = true,
+        resetFactory: Boolean = true,
+    ): AppConfig {
+        val cfg = createAppConfigForSchema(schema, runMigrations)
+        if (resetFactory) {
+            DatabaseFactory.resetForTesting()
+        }
         DatabaseFactory.init(cfg)
         return cfg
     }
