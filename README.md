@@ -242,7 +242,8 @@ Este projeto separa testes unitários (rápidos) de testes de integração (mais
 
 ## Contribuição
 
-- **Issues e PRs:** Prefira mensagens e commits em inglês (código), mas descrições podem ser em pt-BR. Se mensagens de commit em inglês estiverem gerando atrito relevante, fique à vontade para escrevê-las em pt-BR.
+- **Idioma**: Código, mensagens de erro/logs e eventuais comentários devem ser em en-US. 
+- **Issues e PRs:** Prefira mensagens de **commit** em en-US. Título e descrição de **pull requests** podem ser em en-US ou pt-BR.
 - **Padrões desejáveis:** pequenas PRs, descrição clara, testes cobrindo alterações, logs/erros amigáveis, atenção à observabilidade e ao desempenho.
 
 
