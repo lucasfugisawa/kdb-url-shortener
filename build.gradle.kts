@@ -51,24 +51,21 @@ val integrationTest by tasks.registering(Test::class) {
     testLogging { events("passed", "skipped", "failed") }
 }
 
-// Make `check` depend on both unit tests and integration tests
+// Make `check` depend on unit tests, integration tests, ktlint and detekt
 tasks.named("check") {
     dependsOn(tasks.test, integrationTest)
+    dependsOn("ktlintCheck", "detekt")
 }
 
 detekt {
     buildUponDefaultConfig = true
     allRules = false
     config.setFrom(files("detekt.yml"))
+    ignoreFailures = false
 }
 
 ktlint {
-    ignoreFailures.set(false)
-}
-
-// Ensure code quality checks run with the build
-tasks.named("check") {
-    dependsOn("ktlintCheck", "detekt")
+    ignoreFailures = false
 }
 
 dependencies {
@@ -173,12 +170,13 @@ val installGitHookPrePush by tasks.registering {
             |# Ensure we run from repo root
             |cd "$(git rev-parse --show-toplevel)" || exit 1
             |
-            |echo "[pre-push] Running Gradle check..."
-            |if ./gradlew check; then
-            |  echo "[pre-push] Gradle check passed."
+            |echo "[pre-push] Running Gradle ktlintCheck, detekt and check..."
+            |# Run linters explicitly first, then full check; any failure aborts push
+            |if ./gradlew --no-daemon ktlintCheck detekt check; then
+            |  echo "[pre-push] All checks passed."
             |  exit 0
             |else
-            |  echo "[pre-push] Gradle check failed. Aborting push." >&2
+            |  echo "[pre-push] Checks failed (ktlint/detekt/tests). Aborting push." >&2
             |  exit 1
             |fi
             """.trimMargin()
