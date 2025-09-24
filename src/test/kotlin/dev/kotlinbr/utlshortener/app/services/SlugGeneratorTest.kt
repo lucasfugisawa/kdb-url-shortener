@@ -47,10 +47,11 @@ class SlugGeneratorTest {
 
         val gen = SlugGenerator(repo)
 
-        val ex = assertThrows(IllegalStateException::class.java) {
-            gen.generate(length = 7, maxRetries = 3)
-        }
-        assertTrue(ex.message!!.contains("após 3 tentativas"))
+        val ex =
+            assertThrows(IllegalStateException::class.java) {
+                gen.generate(length = 7, maxRetries = 3)
+            }
+        assertTrue(ex.message!!.contains("after 3 attempts"))
         verify(exactly = 3) { repo.existsBySlug(any()) }
     }
 }
