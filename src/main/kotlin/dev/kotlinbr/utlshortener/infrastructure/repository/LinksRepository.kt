@@ -4,6 +4,7 @@ import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -22,6 +23,22 @@ class LinksRepository {
                 .andWhere { LinksTable.slug eq slug }
                 .limit(1)
                 .any()
+        }
+
+    fun save(link: Link): Link =
+        transaction {
+            val stmt =
+                LinksTable.insert {
+                    it[slug] = link.slug
+                    it[targetUrl] = link.targetUrl
+                    it[createdAt] = link.createdAt
+                    it[isActive] = link.isActive
+                    it[expiresAt] = link.expiresAt
+                }
+            val insertedRow: ResultRow =
+                stmt.resultedValues?.singleOrNull()
+                    ?: error("Failed to retrieve inserted row for link with slug='${link.slug}'")
+            insertedRow.toDomain()
         }
 }
 

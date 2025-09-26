@@ -197,9 +197,9 @@ class RoutesIntegrationTest {
                 module()
                 // Seed data after migrations
                 val now = TestClockUtils.now()
-                link1 = TestDataFactory.buildLink(id = 0, createdAt = now, isActive = true, expiresAt = null)
+                link1 = TestDataFactory.buildLink(createdAt = now, isActive = true, expiresAt = null)
                 link2 =
-                    TestDataFactory.buildLink(id = 0, createdAt = now, isActive = false, expiresAt = now.plusDays(1))
+                    TestDataFactory.buildLink(createdAt = now, isActive = false, expiresAt = now.plusDays(1))
                 id1 = TestDataFactory.insertLink(link1)
                 id2 = TestDataFactory.insertLink(link2)
             }

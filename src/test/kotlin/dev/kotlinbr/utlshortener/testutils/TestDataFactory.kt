@@ -18,7 +18,7 @@ object TestDataFactory {
             .take(8)
 
     fun buildLink(
-        id: Long = 0L,
+        id: Long? = null,
         slug: String = randomSlug(),
         targetUrl: String = "https://example.com/${'$'}slug",
         createdAt: OffsetDateTime = OffsetDateTime.now(),

@@ -16,7 +16,7 @@ data class LinkResponse(
 
 fun Link.toResponse(): LinkResponse =
     LinkResponse(
-        id = this.id,
+        id = this.id ?: error("Link ID cannot be null"),
         slug = this.slug,
         targetUrl = this.targetUrl,
         createdAt = this.createdAt.toString(),
