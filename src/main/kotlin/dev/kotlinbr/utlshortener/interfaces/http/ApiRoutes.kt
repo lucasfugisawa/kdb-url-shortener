@@ -6,8 +6,8 @@ import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
@@ -28,20 +28,19 @@ fun Application.configureApiRoutes() {
             }
             post("/shorten") {
                 val shortenCreate = call.receive<ShortenRequest>()
-                val linksRepository = LinksRepository()
-                val slugGenerator = SlugGenerator(linksRepository)
-                val slug = slugGenerator.generate()
                 val url = shortenCreate.url.trim()
 
                 if (url.isEmpty()) {
-                    call.respond(HttpStatusCode.BadRequest, "URL não pode estar vazia.")
-                    return@post
+                    throw BadRequestException("URL não pode estar vazia.")
                 }
 
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                    call.respond(HttpStatusCode.BadRequest, "URL inválida. Use http:// ou https://")
-                    return@post
+                    throw BadRequestException("URL inválida. Use http:// ou https://")
                 }
+
+                val linksRepository = LinksRepository()
+                val slugGenerator = SlugGenerator(linksRepository)
+                val slug = slugGenerator.generate()
 
                 val link =
                     Link(
