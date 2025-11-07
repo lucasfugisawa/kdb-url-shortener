@@ -14,7 +14,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import java.time.OffsetDateTime
 
 /**
  * API endpoints.
@@ -46,12 +45,8 @@ fun Application.configureApiRoutes() {
 
                 val link =
                     Link(
-                        id = null,
                         slug = slug,
                         targetUrl = url,
-                        createdAt = OffsetDateTime.now(),
-                        isActive = true,
-                        expiresAt = null,
                     )
 
                 linksRepository.save(link)
