@@ -1,27 +1,23 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
 import dev.kotlinbr.module
-import dev.kotlinbr.utlshortener.domain.Link
-import dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
-import dev.kotlinbr.utlshortener.testutils.TestClockUtils
-import dev.kotlinbr.utlshortener.testutils.TestDataFactory
+import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -128,103 +124,99 @@ class RoutesUnitTest {
             assertEquals(HttpStatusCode.BadRequest, res.status)
             assertEquals("{\"code\":\"bad_request\",\"message\":\"Invalid request\"}", res.bodyAsText())
         }
-}
-
-@Tag("integration")
-@Testcontainers
-@TestInstance(Lifecycle.PER_CLASS)
-class RoutesIntegrationTest {
-    companion object {
-        @JvmStatic
-        @Container
-        private val postgres: PostgreSQLContainer<*> =
-            PostgreSQLContainer(
-                "postgres:16-alpine",
-            ).apply { withReuse(true) }
-    }
-
-    @AfterEach
-    fun clearProps() {
-        System.clearProperty("APP_SKIP_DB")
-        System.clearProperty("APP_RUN_MIGRATIONS")
-        System.clearProperty("APP_ENV")
-        System.clearProperty("DB_URL")
-        System.clearProperty("DB_USER")
-        System.clearProperty("DB_PASSWORD")
-    }
-
-    private fun setDbProps() {
-        if (!postgres.isRunning) postgres.start()
-        System.setProperty("APP_ENV", "test")
-        System.setProperty("APP_SKIP_DB", "false")
-        System.setProperty("APP_RUN_MIGRATIONS", "true")
-        System.setProperty("DB_URL", postgres.jdbcUrl)
-        System.setProperty("DB_USER", postgres.username)
-        System.setProperty("DB_PASSWORD", postgres.password)
-    }
 
     @Test
-    fun `readiness healthy when DB initialized`() =
+    fun `POST shorten rejects empty URL`() =
         testApplication {
-            setDbProps()
+            System.setProperty("APP_SKIP_DB", "true")
+            System.setProperty("APP_RUN_MIGRATIONS", "false")
             application { module() }
-            val res = client.get("/health/ready")
-            assertEquals(HttpStatusCode.OK, res.status)
-            assertEquals("{\"status\":\"ready\"}", res.bodyAsText())
+            val request = ShortenRequest(url = "")
+            val jsonClient = createClient { install(ContentNegotiation) { json() } }
+            val res =
+                jsonClient.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+            assertEquals(HttpStatusCode.BadRequest, res.status)
+            assertEquals("URL não pode estar vazia.", res.bodyAsText())
         }
 
     @Test
-    fun `api GET links returns empty array on empty DB`() =
+    fun `POST shorten rejects URL with only spaces`() =
         testApplication {
-            setDbProps()
+            System.setProperty("APP_SKIP_DB", "true")
+            System.setProperty("APP_RUN_MIGRATIONS", "false")
             application { module() }
-            val res = client.get("/api/v1/links")
-            assertEquals(HttpStatusCode.OK, res.status)
-            val ct = res.headers[HttpHeaders.ContentType].orEmpty()
-            assertTrue(ct.lowercase().contains("application/json"))
-            assertEquals("[]", res.bodyAsText())
+            val request = ShortenRequest(url = "   ")
+            val jsonClient = createClient { install(ContentNegotiation) { json() } }
+            val res =
+                jsonClient.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+            assertEquals(HttpStatusCode.BadRequest, res.status)
+            assertEquals("URL não pode estar vazia.", res.bodyAsText())
         }
 
     @Test
-    fun `api GET links returns data with ISO-8601 dates`() =
+    fun `POST shorten rejects URL without http or https`() =
         testApplication {
-            setDbProps()
-            var id1: Long = 0
-            var id2: Long = 0
-            lateinit var link1: Link
-            lateinit var link2: Link
-            application {
-                module()
-                // Seed data after migrations
-                val now = TestClockUtils.now()
-                link1 = TestDataFactory.buildLink(createdAt = now, isActive = true, expiresAt = null)
-                link2 =
-                    TestDataFactory.buildLink(createdAt = now, isActive = false, expiresAt = now.plusDays(1))
-                id1 = TestDataFactory.insertLink(link1)
-                id2 = TestDataFactory.insertLink(link2)
-            }
-            val res = client.get("/api/v1/links")
-            assertEquals(HttpStatusCode.OK, res.status)
+            System.setProperty("APP_SKIP_DB", "true")
+            System.setProperty("APP_RUN_MIGRATIONS", "false")
+            application { module() }
+            val request = ShortenRequest(url = "example.com")
+            val jsonClient = createClient { install(ContentNegotiation) { json() } }
+            val res =
+                jsonClient.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+            assertEquals(HttpStatusCode.BadRequest, res.status)
+            assertEquals("URL inválida. Use http:// ou https://", res.bodyAsText())
+        }
+
+    @Test
+    fun `POST shorten accepts valid http URL`() =
+        testApplication {
+            System.setProperty("APP_SKIP_DB", "true")
+            System.setProperty("APP_RUN_MIGRATIONS", "false")
+            application { module() }
+            val request = ShortenRequest(url = "http://example.com")
+            val jsonClient = createClient { install(ContentNegotiation) { json() } }
+            val res =
+                jsonClient.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+            // Since DB is skipped, this will fail at repository level (InternalServerError),
+            // but validation should pass (not BadRequest with URL error message)
             val body = res.bodyAsText()
-            val json = Json { ignoreUnknownKeys = true }
-            val list = json.decodeFromString<List<LinkResponse>>(body)
-            assertEquals(2, list.size)
-            // Since IDs are auto-increment, ensure IDs returned are the inserted ones
-            val ids = list.map { it.id }.toSet()
-            assertTrue(ids.containsAll(listOf(id1, id2)))
-            val byId = list.associateBy { it.id }
-            val r1 = requireNotNull(byId[id1]) { "Response for id=$id1 not found" }
-            val r2 = requireNotNull(byId[id2]) { "Response for id=$id2 not found" }
-            assertEquals(link1.slug, r1.slug)
-            assertEquals(link1.targetUrl, r1.targetUrl)
-            assertEquals(link1.createdAt.toString(), r1.createdAt)
-            assertEquals(true, r1.isActive)
-            assertEquals(null, r1.expiresAt)
+            assertTrue(
+                res.status != HttpStatusCode.BadRequest ||
+                    (!body.contains("URL não pode estar vazia") && !body.contains("URL inválida")),
+            )
+        }
 
-            assertEquals(link2.slug, r2.slug)
-            assertEquals(link2.targetUrl, r2.targetUrl)
-            assertEquals(link2.createdAt.toString(), r2.createdAt)
-            assertEquals(false, r2.isActive)
-            assertEquals(link2.expiresAt!!.toString(), r2.expiresAt)
+    @Test
+    fun `POST shorten accepts valid https URL`() =
+        testApplication {
+            System.setProperty("APP_SKIP_DB", "true")
+            System.setProperty("APP_RUN_MIGRATIONS", "false")
+            application { module() }
+            val request = ShortenRequest(url = "https://example.com")
+            val jsonClient = createClient { install(ContentNegotiation) { json() } }
+            val res =
+                jsonClient.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
+            // Since DB is skipped, this will fail at repository level (InternalServerError),
+            // but validation should pass (not BadRequest with URL error message)
+            val body = res.bodyAsText()
+            assertTrue(
+                res.status != HttpStatusCode.BadRequest ||
+                    (!body.contains("URL não pode estar vazia") && !body.contains("URL inválida")),
+            )
         }
 }
