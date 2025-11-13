@@ -24,6 +24,7 @@ import java.time.OffsetDateTime
 fun Application.configureApiRoutes() {
     routing {
         route("/api/v1") {
+
             get("/links") {
                 val links = LinksRepository().findAll()
                 val response = links.map { it.toResponse() }
