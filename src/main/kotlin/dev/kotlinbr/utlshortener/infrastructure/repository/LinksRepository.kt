@@ -19,10 +19,20 @@ class LinksRepository {
     fun existsBySlug(slug: String): Boolean =
         transaction {
             LinksTable
-                .selectAll()
-                .andWhere { LinksTable.slug eq slug }
-                .limit(1)
-                .any()
+                .selectAll() // SELECT *
+                .andWhere { LinksTable.slug eq slug } // WHERE slug = <valor>
+                .limit(1) // só uma linha
+                .any() // retorna true se houver pelo menos uma linha
+        }
+
+    fun findBySlug(slug: String): Link? =
+        transaction {
+            LinksTable
+                .selectAll() // SELECT *
+                .andWhere { LinksTable.slug eq slug } // WHERE slug = <valor>
+                .limit(1) // só uma linha
+                .singleOrNull() // retorna linha ou null
+                ?.toDomain() // converte para Link se não for null
         }
 
     fun save(link: Link): Link =
