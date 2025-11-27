@@ -30,13 +30,11 @@ fun Application.configureApiRoutes() {
                 val response = links.map { it.toResponse() }
                 call.respond(response)
             }
-            // GET /api/v1/{slug} -> 302 redirect to targetUrl when active and not expired; otherwise 404
+
             get("/{slug}") {
                 val slug = call.parameters["slug"]?.trim().orEmpty()
 
                 if (slug.isEmpty()) {
-                    call.application.environment.log
-                        .info("slug_missing -> 404")
                     call.respond(HttpStatusCode.NotFound)
                     return@get
                 }
@@ -49,23 +47,12 @@ fun Application.configureApiRoutes() {
                 val isInactive = link?.isActive == false
 
                 if (link == null || isInactive || isExpired) {
-                    call.application.environment.log.info(
-                        "slug_redirect_not_found slug=$slug reason=" +
-                            when {
-                                link == null -> "not_found"
-                                isInactive -> "inactive"
-                                isExpired -> "expired"
-                                else -> "unknown"
-                            },
-                    )
                     call.respond(HttpStatusCode.NotFound)
                     return@get
                 }
-
-                call.application.environment.log
-                    .info("slug_redirect_found slug=$slug target=${link.targetUrl}")
                 call.respondRedirect(url = link.targetUrl, permanent = false)
             }
+
             post("/shorten") {
                 val shortenCreate = call.receive<ShortenRequest>()
                 val url = shortenCreate.url.trim()
