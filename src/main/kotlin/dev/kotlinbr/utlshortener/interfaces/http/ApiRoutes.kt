@@ -16,6 +16,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.OffsetDateTime
 
 /**
@@ -26,7 +28,9 @@ fun Application.configureApiRoutes() {
         route("/api/v1") {
 
             get("/links") {
-                val links = LinksRepository().findAll()
+                val links = withContext(Dispatchers.IO) {
+                    LinksRepository().findAll()
+                }
                 val response = links.map { it.toResponse() }
                 call.respond(response)
             }
@@ -39,14 +43,20 @@ fun Application.configureApiRoutes() {
                     return@get
                 }
 
-                val repo = LinksRepository()
-                val link = repo.findBySlug(slug)
+                val link = withContext(Dispatchers.IO) {
+                    LinksRepository().findBySlug(slug)
+                }
+
+                if (link == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
 
                 val now = OffsetDateTime.now()
-                val isExpired = link?.expiresAt?.let { !it.isAfter(now) } ?: false
-                val isInactive = link?.isActive == false
+                val isExpired = link.expiresAt?.let { !it.isAfter(now) } ?: false
+                val isInactive = !link.isActive
 
-                if (link == null || isInactive || isExpired) {
+                if (isInactive || isExpired) {
                     call.respond(HttpStatusCode.NotFound)
                     return@get
                 }
@@ -67,7 +77,9 @@ fun Application.configureApiRoutes() {
 
                 val linksRepository = LinksRepository()
                 val slugGenerator = SlugGenerator(linksRepository)
-                val slug = slugGenerator.generate()
+                val slug = withContext(Dispatchers.IO) {
+                    slugGenerator.generate()
+                }
 
                 val link =
                     Link(
@@ -75,7 +87,9 @@ fun Application.configureApiRoutes() {
                         targetUrl = url,
                     )
 
-                linksRepository.save(link)
+                withContext(Dispatchers.IO) {
+                    linksRepository.save(link)
+                }
                 val response = ShortenResponse(slug, "/$slug")
                 call.respond(response)
             }
