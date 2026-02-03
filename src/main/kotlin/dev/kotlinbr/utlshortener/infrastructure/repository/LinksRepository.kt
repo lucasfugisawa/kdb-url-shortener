@@ -46,7 +46,11 @@ class LinksRepository {
                 }
             val insertedRow: ResultRow =
                 stmt.resultedValues?.singleOrNull()
-                    ?: error("Failed to retrieve inserted row for link with slug='${link.slug}'")
+                    ?: error(
+                        "Failed to" +
+                            " retrieve inserted row for link with slug=" +
+                            "'${link.slug}'"
+                    )
             insertedRow.toDomain()
         }
 }
