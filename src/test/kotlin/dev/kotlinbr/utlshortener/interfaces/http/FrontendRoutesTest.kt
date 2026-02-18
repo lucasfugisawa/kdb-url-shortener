@@ -3,6 +3,7 @@ package dev.kotlinbr.utlshortener.interfaces.http
 import dev.kotlinbr.module
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.AfterEach
@@ -28,5 +29,23 @@ class FrontendRoutesTest {
             val body = response.bodyAsText()
             assertTrue(body.contains("<title>Encurtador de URL</title>"), "Body should contain the title")
             assertTrue(body.contains("id=\"urlInput\""), "Body should contain the url input")
+        }
+
+    @Test
+    fun `GET invalid slug returns 404 and friendly HTML`() =
+        testApplication {
+            System.setProperty("APP_SKIP_DB", "true")
+            application {
+                module()
+            }
+            val res = client.get("/api/v1/slug-que-nao-existe")
+            assertEquals(HttpStatusCode.NotFound, res.status)
+            assertEquals("no-store", res.headers[HttpHeaders.CacheControl])
+            val body = res.bodyAsText()
+            assertTrue(body.contains("404"), "Body should contain 404")
+            assertTrue(
+                body.contains("O link que você está tentando acessar não existe"),
+                "Body should contain friendly message",
+            )
         }
 }

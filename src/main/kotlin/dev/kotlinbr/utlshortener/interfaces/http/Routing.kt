@@ -18,6 +18,7 @@ fun Application.configureRouting() {
             call.respond(HttpStatusCode.InternalServerError, body)
         }
         status(HttpStatusCode.NotFound) { call, _ ->
+            if (call.response.headers["X-Friendly-404"] == "true") return@status
             call.respond(HttpStatusCode.NotFound, mapOf("code" to "not_found", "message" to "Resource not found"))
         }
         status(HttpStatusCode.BadRequest) { call, _ ->
