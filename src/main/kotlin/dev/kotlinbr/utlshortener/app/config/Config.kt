@@ -23,6 +23,7 @@ data class ServerConfig(
 data class AppFlags(
     val skipDb: Boolean,
     val runMigrations: Boolean,
+    val allowLocalhost: Boolean,
 )
 
 data class AppConfig(
@@ -118,6 +119,9 @@ fun loadAppConfig(application: Application): AppConfig {
             runMigrations =
                 sysOrEnv("APP_RUN_MIGRATIONS")?.trim()?.lowercase()?.let { it == "true" || it == "1" || it == "yes" }
                     ?: getBoolean("app.runMigrations", true),
+            allowLocalhost =
+                sysOrEnv("ALLOW_LOCALHOST")?.trim()?.lowercase()?.let { it == "true" || it == "1" || it == "yes" }
+                    ?: getBoolean("app.allowLocalhost", false),
         )
 
     return AppConfig(env = env, server = serverCfg, db = dbCfg, flags = flags)

@@ -65,7 +65,10 @@ open class BaseIntegrationTest {
     protected fun password(): String = postgres.password
 
     // -- Generic helpers (no schema) --
-    protected fun createAppConfig(runMigrations: Boolean = true): AppConfig =
+    protected fun createAppConfig(
+        runMigrations: Boolean = true,
+        allowLocalhost: Boolean = false,
+    ): AppConfig =
         AppConfig(
             env = "test",
             server = ServerConfig(port = 0),
@@ -77,11 +80,14 @@ open class BaseIntegrationTest {
                     password = password(),
                     poolMax = 5,
                 ),
-            flags = AppFlags(skipDb = false, runMigrations = runMigrations),
+            flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
         )
 
-    protected fun initDatabase(runMigrations: Boolean = true): AppConfig {
-        val cfg = createAppConfig(runMigrations)
+    protected fun initDatabase(
+        runMigrations: Boolean = true,
+        allowLocalhost: Boolean = false,
+    ): AppConfig {
+        val cfg = createAppConfig(runMigrations, allowLocalhost)
         DatabaseFactory.init(cfg)
         return cfg
     }
@@ -106,6 +112,7 @@ open class BaseIntegrationTest {
         runMigrations: Boolean = true,
         poolMax: Int = 5,
         driver: String = "org.postgresql.Driver",
+        allowLocalhost: Boolean = false,
     ): AppConfig {
         ensureSchemaExists(schema)
         return AppConfig(
@@ -119,7 +126,7 @@ open class BaseIntegrationTest {
                     password = password(),
                     poolMax = poolMax,
                 ),
-            flags = AppFlags(skipDb = false, runMigrations = runMigrations),
+            flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
         )
     }
 
@@ -127,8 +134,9 @@ open class BaseIntegrationTest {
         schema: String,
         runMigrations: Boolean = true,
         resetFactory: Boolean = true,
+        allowLocalhost: Boolean = false,
     ): AppConfig {
-        val cfg = createAppConfigForSchema(schema, runMigrations)
+        val cfg = createAppConfigForSchema(schema, runMigrations, allowLocalhost = allowLocalhost)
         if (resetFactory) {
             DatabaseFactory.resetForTesting()
         }

@@ -208,6 +208,23 @@ Este projeto separa testes unitários (rápidos) de testes de integração (mais
 - Todos os testes (recomendado antes de push): `./gradlew check`
   - Executa unit (test) e integration (integrationTest), além das checagens estáticas (ktlint, detekt).
 
+## Validação de URL
+
+A aplicação aplica regras robustas de validação e normalização para todas as URLs enviadas ao endpoint `/shorten`:
+
+1.  **Normalização**:
+    -   *Trim* de espaços em branco no início e fim.
+    -   Se a URL começar com `www.` (sem esquema), o prefixo `https://` é adicionado automaticamente.
+2.  **Esquemas Permitidos**:
+    -   Apenas `http://` e `https://` são aceitos. Outros protocolos (ftp, mailto, javascript, etc.) resultam em erro 400.
+3.  **Segurança (Anti-SSRF)**:
+    -   Por padrão, hosts locais e IPs privados (`localhost`, `127.0.0.1`, `10.*`, `192.168.*`, `172.16.*-172.31.*`) são bloqueados.
+    -   Esta restrição pode ser relaxada em ambientes de desenvolvimento definindo a variável de ambiente `ALLOW_LOCALHOST=true` ou a propriedade `app.allowLocalhost=true` no `application.conf`.
+4.  **Validação de Domínio**:
+    -   O domínio deve ter um TLD (Top-Level Domain) plausível (ex: deve conter ao menos um ponto separando o nome do domínio da extensão).
+5.  **Tamanho Máximo**:
+    -   URLs são limitadas a 2.000 caracteres.
+
 ### Convenção de tags
 - Qualquer teste que necessite de recursos externos (ex.: Docker/Testcontainers) deve ser anotado com `@Tag("integration")`.
 - Testes puramente de JVM/unidade não são tagueados e rodam por padrão no `test`.

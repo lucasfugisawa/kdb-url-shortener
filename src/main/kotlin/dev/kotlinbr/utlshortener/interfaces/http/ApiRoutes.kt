@@ -1,6 +1,8 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
+import dev.kotlinbr.utlshortener.app.config.AppConfigKey
 import dev.kotlinbr.utlshortener.app.services.SlugGenerator
+import dev.kotlinbr.utlshortener.app.services.UrlValidator
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
@@ -125,16 +127,13 @@ fun Application.configureApiRoutes() {
                 call.respond(response)
             }
             post("/shorten") {
+                val config = call.application.attributes[AppConfigKey]
                 val shortenCreate = call.receive<ShortenRequest>()
-                val url = shortenCreate.url.trim()
-
-                if (url.isEmpty()) {
-                    throw BadRequestException("URL não pode estar vazia.")
-                }
-
-                if (!url.startsWith("http://") && !url.startsWith("https://")) {
-                    throw BadRequestException("URL inválida. Use http:// ou https://")
-                }
+                val url =
+                    UrlValidator.validateAndNormalize(
+                        shortenCreate.url,
+                        allowLocalhost = config.flags.allowLocalhost,
+                    )
 
                 val linksRepository = LinksRepository()
                 val slugGenerator = SlugGenerator(linksRepository)
