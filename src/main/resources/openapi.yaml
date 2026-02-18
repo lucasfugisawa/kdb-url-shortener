@@ -1,0 +1,117 @@
+openapi: 3.0.3
+info:
+  title: KDB URL Shortener
+  description: API para encurtamento de URLs do Kotlin Brasil.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: API v1
+paths:
+  /shorten:
+    post:
+      summary: Encurta uma URL
+      operationId: shortenUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShortenRequest'
+      responses:
+        '200':
+          description: URL encurtada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShortenResponse'
+        '400':
+          description: Erro de validação ou URL inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /{slug}:
+    get:
+      summary: Redireciona para a URL original
+      operationId: redirectSlug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirecionamento
+        '404':
+          description: Slug não encontrado ou expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /{slug}/stats:
+    get:
+      summary: Obtém estatísticas de um link
+      operationId: getStats
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Estatísticas do link
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slug:
+                    type: string
+                  clicks:
+                    type: integer
+        '404':
+          description: Link não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ShortenRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          example: https://kotlin.org
+        expiresAt:
+          type: string
+          format: date-time
+          description: Data de expiração (ISO-8601)
+        maxClicks:
+          type: integer
+          description: Limite de cliques
+    ShortenResponse:
+      type: object
+      properties:
+        slug:
+          type: string
+        shortUrl:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string

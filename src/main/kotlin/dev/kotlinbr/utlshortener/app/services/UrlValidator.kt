@@ -1,6 +1,6 @@
 package dev.kotlinbr.utlshortener.app.services
 
-import io.ktor.server.plugins.BadRequestException
+import dev.kotlinbr.utlshortener.interfaces.http.UrlInvalidException
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -44,11 +44,11 @@ object UrlValidator {
         var normalized = url.trim()
 
         if (normalized.length > MAX_URL_LENGTH) {
-            throw BadRequestException("URL muito longa. Máximo de $MAX_URL_LENGTH caracteres.")
+            throw UrlInvalidException("URL muito longa. Máximo de $MAX_URL_LENGTH caracteres.")
         }
 
         if (normalized.isEmpty()) {
-            throw BadRequestException("URL não pode estar vazia.")
+            throw UrlInvalidException("URL não pode estar vazia.")
         }
 
         // If it starts with www. without scheme, prefix with https://
@@ -60,19 +60,19 @@ object UrlValidator {
             try {
                 URI(normalized)
             } catch (e: URISyntaxException) {
-                throw BadRequestException("URL inválida: ${e.message}")
+                throw UrlInvalidException("URL inválida: ${e.message}")
             }
 
         val scheme = uri.scheme?.lowercase()
         if (scheme == null || scheme !in VALID_SCHEMES) {
-            throw BadRequestException("Esquema inválido. Use http:// ou https://")
+            throw UrlInvalidException("Esquema inválido. Use http:// ou https://")
         }
 
-        val host = uri.host?.lowercase() ?: throw BadRequestException("Host inválido.")
+        val host = uri.host?.lowercase() ?: throw UrlInvalidException("Host inválido.")
 
         if (!allowLocalhost) {
             if (host in LOCAL_HOSTS || LOCAL_IP_RANGES.any { host.startsWith(it) }) {
-                throw BadRequestException("URLs locais não são permitidas.")
+                throw UrlInvalidException("URLs locais não são permitidas.")
             }
         }
 
@@ -80,7 +80,7 @@ object UrlValidator {
         if (!host.contains(".") || host.substringAfterLast(".").isEmpty()) {
             // Exception for localhost if allowed, but we already handled host in LOCAL_HOSTS
             if (!allowLocalhost || host != "localhost") {
-                throw BadRequestException("Domínio deve ter um TLD plausível.")
+                throw UrlInvalidException("Domínio deve ter um TLD plausível.")
             }
         }
 

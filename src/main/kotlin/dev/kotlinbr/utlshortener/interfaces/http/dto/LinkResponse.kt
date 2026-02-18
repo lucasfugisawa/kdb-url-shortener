@@ -16,6 +16,12 @@ data class LinkResponse(
     val maxClicks: Int? = null,
 )
 
+@Serializable
+data class StatsResponse(
+    val slug: String,
+    val clicks: Int,
+)
+
 fun Link.toResponse(): LinkResponse =
     LinkResponse(
         id = this.id ?: error("Link ID cannot be null"),
