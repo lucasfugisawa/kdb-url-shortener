@@ -98,18 +98,21 @@ fun Application.configureApiRoutes() {
                     }
 
                 val now = OffsetDateTime.now()
-                if (link == null || !link.isActive || (link.expiresAt != null && link.expiresAt.isBefore(now))) {
+                val isExpired = link?.expiresAt != null && link.expiresAt.isBefore(now)
+                val reachedMaxClicks = link?.maxClicks != null && link.clicksCount >= link.maxClicks
+
+                if (link == null || !link.isActive || isExpired || reachedMaxClicks) {
                     logger.info(
                         "Redirect falhou para slug: {}. Motivo: {}",
                         slug,
-                        if (link ==
-                            null
-                        ) {
+                        if (link == null) {
                             "não encontrado"
                         } else if (!link.isActive) {
                             "inativo"
+                        } else if (isExpired) {
+                            "expirado por tempo"
                         } else {
-                            "expirado"
+                            "expirado por cliques (${link.clicksCount}/${link.maxClicks})"
                         },
                     )
                     call.response.header("Cache-Control", "no-store")
@@ -147,6 +150,11 @@ fun Application.configureApiRoutes() {
             post("/shorten") {
                 val config = call.application.attributes[AppConfigKey]
                 val shortenCreate = call.receive<ShortenRequest>()
+
+                if (shortenCreate.expiresAt != null && shortenCreate.maxClicks != null) {
+                    throw BadRequestException("expiresAt e maxClicks são mutuamente exclusivos.")
+                }
+
                 val url =
                     UrlValidator.validateAndNormalize(
                         shortenCreate.url,
@@ -157,10 +165,19 @@ fun Application.configureApiRoutes() {
                 val slugGenerator = SlugGenerator(linksRepository)
                 val slug = slugGenerator.generate()
 
+                val expiresAt =
+                    try {
+                        shortenCreate.expiresAt?.let { OffsetDateTime.parse(it) }
+                    } catch (e: Exception) {
+                        throw BadRequestException("Formato de data inválido.")
+                    }
+
                 val link =
                     Link(
                         slug = slug,
                         targetUrl = url,
+                        expiresAt = expiresAt,
+                        maxClicks = shortenCreate.maxClicks,
                     )
 
                 linksRepository.save(link)

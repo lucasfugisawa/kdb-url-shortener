@@ -25,6 +25,7 @@ object TestDataFactory {
         isActive: Boolean = true,
         expiresAt: OffsetDateTime? = null,
         clicksCount: Int = 0,
+        maxClicks: Int? = null,
     ): Link =
         Link(
             id = id,
@@ -34,6 +35,7 @@ object TestDataFactory {
             isActive = isActive,
             expiresAt = expiresAt,
             clicksCount = clicksCount,
+            maxClicks = maxClicks,
         )
 
     // --- SQL helpers (Exposed) ---
@@ -48,6 +50,7 @@ object TestDataFactory {
                     it[isActive] = link.isActive
                     it[expiresAt] = link.expiresAt
                     it[clicksCount] = link.clicksCount
+                    it[maxClicks] = link.maxClicks
                 } get LinksTable.id
             id
         }
@@ -81,5 +84,6 @@ object TestDataFactory {
             isActive = this[LinksTable.isActive],
             expiresAt = this[LinksTable.expiresAt],
             clicksCount = this[LinksTable.clicksCount],
+            maxClicks = this[LinksTable.maxClicks],
         )
 }

@@ -52,6 +52,7 @@ class LinksRepository {
                     it[createdAt] = link.createdAt
                     it[isActive] = link.isActive
                     it[expiresAt] = link.expiresAt
+                    it[maxClicks] = link.maxClicks
                 }
             val insertedRow: ResultRow =
                 stmt.resultedValues?.singleOrNull()
@@ -69,4 +70,5 @@ private fun ResultRow.toDomain(): Link =
         isActive = this[LinksTable.isActive],
         expiresAt = this[LinksTable.expiresAt],
         clicksCount = this[LinksTable.clicksCount],
+        maxClicks = this[LinksTable.maxClicks],
     )

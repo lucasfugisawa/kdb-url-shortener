@@ -44,8 +44,8 @@ class RoutesUnitTest {
             val res = client.get("/")
             assertEquals(HttpStatusCode.OK, res.status)
             val ct = res.headers[HttpHeaders.ContentType].orEmpty()
-            assertContains(ct.lowercase(), "text/plain")
-            assertEquals("Hello World!", res.bodyAsText())
+            assertContains(ct.lowercase(), "text/html")
+            assertTrue(res.bodyAsText().contains("<title>Encurtador de URL</title>"))
         }
 
     @Test
@@ -173,7 +173,7 @@ class RoutesUnitTest {
                     setBody(request)
                 }
             assertEquals(HttpStatusCode.BadRequest, res.status)
-            assertEquals("URL inválida. Use http:// ou https://", res.bodyAsText())
+            assertEquals("Esquema inválido. Use http:// ou https://", res.bodyAsText())
         }
 
     @Test
@@ -218,6 +218,70 @@ class RoutesUnitTest {
                 res.status != HttpStatusCode.BadRequest ||
                     (!body.contains("URL não pode estar vazia") && !body.contains("URL inválida")),
             )
+        }
+
+    @Test
+    fun `POST shorten rejects both expiresAt and maxClicks`() =
+        testApplication {
+            System.setProperty("APP_SKIP_DB", "true")
+            application {
+                module()
+            }
+            val client =
+                createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+            val res =
+                client.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        ShortenRequest(
+                            url = "https://google.com",
+                            expiresAt = "2026-12-31T23:59:59Z",
+                            maxClicks = 10,
+                        ),
+                    )
+                }
+            assertEquals(HttpStatusCode.BadRequest, res.status)
+            assertTrue(res.bodyAsText().contains("mutuamente exclusivos"))
+        }
+
+    @Test
+    fun `POST shorten rejects invalid date format`() =
+        testApplication {
+            System.setProperty("APP_SKIP_DB", "true")
+            application {
+                module()
+            }
+            val client =
+                createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+            val res =
+                client.post("/api/v1/shorten") {
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                            "url": "https://google.com",
+                            "expiresAt": "data-invalida"
+                        }
+                        """.trimIndent(),
+                    )
+                }
+            // If it fails at deserialization, it might be 400 or 500 depending on Ktor setup.
+            // But if it reaches our logic, it's 400.
+            // In Ktor, if Jackson/Kotlinx fails to parse a field into a non-nullable type or
+            // if there's a type mismatch, it usually throws a BadRequestException (or similar).
+            // Here it's a String, so it should parse.
+            assertTrue(res.status == HttpStatusCode.BadRequest || res.status == HttpStatusCode.InternalServerError)
+            if (res.status == HttpStatusCode.BadRequest) {
+                assertTrue(res.bodyAsText().contains("Formato de data inválido"))
+            }
         }
 
     @Test

@@ -10,4 +10,5 @@ data class Link(
     val isActive: Boolean = true,
     val expiresAt: OffsetDateTime? = null,
     val clicksCount: Int = 0,
+    val maxClicks: Int? = null,
 )

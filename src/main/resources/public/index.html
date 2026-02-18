@@ -56,7 +56,16 @@
     
     <div class="form-group">
         <input type="text" id="urlInput" placeholder="Digite a URL para encurtar (ex: https://google.com)">
-        <button onclick="shortenUrl()">Encurtar</button>
+        <div style="margin-top: 10px;">
+            <label for="expiresAtInput">Expira em:</label>
+            <input type="datetime-local" id="expiresAtInput">
+            <span style="margin: 0 10px;">OU</span>
+            <label for="maxClicksInput">Máximo de cliques:</label>
+            <input type="number" id="maxClicksInput" min="1" placeholder="Ex: 10" style="width: 80px;">
+        </div>
+        <div style="margin-top: 10px;">
+            <button onclick="shortenUrl()">Encurtar</button>
+        </div>
     </div>
 
     <div id="result">
@@ -73,6 +82,7 @@
                 <th>Criado em</th>
                 <th>Ativo</th>
                 <th>Expira em</th>
+                <th>Cliques / Max</th>
             </tr>
         </thead>
         <tbody id="linksTableBody">
@@ -83,14 +93,30 @@
     <script>
         async function shortenUrl() {
             const urlInput = document.getElementById('urlInput');
+            const expiresAtInput = document.getElementById('expiresAtInput');
+            const maxClicksInput = document.getElementById('maxClicksInput');
+            
             const url = urlInput.value;
+            const expiresAt = expiresAtInput.value;
+            const maxClicks = maxClicksInput.value;
+
             if (!url) return alert('Por favor, insira uma URL');
+            if (expiresAt && maxClicks) return alert('Você deve escolher entre expiração por tempo OU por cliques.');
+
+            const payload = { url: url };
+            if (expiresAt) {
+                // Convert datetime-local to ISO string with timezone
+                payload.expiresAt = new Date(expiresAt).toISOString();
+            }
+            if (maxClicks) {
+                payload.maxClicks = parseInt(maxClicks);
+            }
 
             try {
                 const response = await fetch('/api/v1/shorten', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url })
+                    body: JSON.stringify(payload)
                 });
 
                 if (response.ok) {
@@ -101,6 +127,8 @@
                     shortLinkA.textContent = shortUrl;
                     document.getElementById('result').style.display = 'block';
                     urlInput.value = '';
+                    expiresAtInput.value = '';
+                    maxClicksInput.value = '';
                     loadLinks();
                 } else {
                     const err = await response.text();
@@ -130,6 +158,7 @@
                             <td>${new Date(link.createdAt).toLocaleString()}</td>
                             <td class="${link.isActive ? 'status-active' : 'status-inactive'}">${link.isActive ? 'Sim' : 'Não'}</td>
                             <td>${link.expiresAt ? new Date(link.expiresAt).toLocaleString() : '-'}</td>
+                            <td>${link.clicksCount} / ${link.maxClicks || '∞'}</td>
                         `;
                         tbody.appendChild(row);
                     });

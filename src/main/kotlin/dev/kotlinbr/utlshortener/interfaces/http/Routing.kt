@@ -11,7 +11,19 @@ fun Application.configureRouting() {
     install(StatusPages) {
         exception<BadRequestException> { call, cause ->
             // For validation errors where we want to preserve the custom message as plain text
-            call.respond(HttpStatusCode.BadRequest, cause.message ?: "Invalid request")
+            val message = cause.message ?: "Invalid request"
+            if (message.contains("expiresAt e maxClicks são mutuamente exclusivos") ||
+                message.contains("Formato de data inválido") ||
+                message.contains("URL não pode estar vazia") ||
+                message.contains("Esquema inválido") ||
+                message.contains("Host inválido") ||
+                message.contains("URLs locais não são permitidas") ||
+                message.contains("Domínio deve ter um TLD plausível")
+            ) {
+                call.respond(HttpStatusCode.BadRequest, message)
+            } else {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to message))
+            }
         }
         exception<Throwable> { call, cause ->
             val body = mapOf("code" to "internal_error", "message" to (cause.message ?: "Internal Server Error"))

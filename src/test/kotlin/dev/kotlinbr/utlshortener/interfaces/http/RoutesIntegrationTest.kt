@@ -218,6 +218,29 @@ class RoutesIntegrationTest {
         }
 
     @Test
+    fun `api GET slug returns 404 when link reached maxClicks`() =
+        testApplication {
+            setDbProps()
+            val slug = "maxclicks"
+            application {
+                module()
+                transaction {
+                    LinksTable.deleteAll()
+                    TestDataFactory.insertLink(
+                        TestDataFactory.buildLink(
+                            slug = slug,
+                            clicksCount = 3,
+                            maxClicks = 3,
+                        ),
+                    )
+                }
+            }
+
+            val res = client.get("/api/v1/$slug")
+            assertEquals(HttpStatusCode.NotFound, res.status)
+        }
+
+    @Test
     fun `api GET slug returns 404 when link does not exist`() =
         testApplication {
             setDbProps()

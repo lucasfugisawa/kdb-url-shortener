@@ -1,0 +1,1 @@
+ALTER TABLE links ADD COLUMN max_clicks INT NULL;

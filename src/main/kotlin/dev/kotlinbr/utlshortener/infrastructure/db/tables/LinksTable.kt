@@ -13,5 +13,6 @@ object LinksTable : Table("links") {
     val isActive = bool("is_active").default(true)
     val expiresAt = timestampWithTimeZone("expires_at").nullable()
     val clicksCount = integer("clicks_count").default(0)
+    val maxClicks = integer("max_clicks").nullable()
     override val primaryKey = PrimaryKey(id)
 }
