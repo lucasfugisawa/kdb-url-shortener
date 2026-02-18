@@ -68,6 +68,7 @@ open class BaseIntegrationTest {
     protected fun createAppConfig(
         runMigrations: Boolean = true,
         allowLocalhost: Boolean = false,
+        cleanupIntervalMinutes: Int = 15,
     ): AppConfig =
         AppConfig(
             env = "test",
@@ -81,6 +82,7 @@ open class BaseIntegrationTest {
                     poolMax = 5,
                 ),
             flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
+            cleanupIntervalMinutes = cleanupIntervalMinutes,
         )
 
     protected fun initDatabase(
@@ -113,6 +115,7 @@ open class BaseIntegrationTest {
         poolMax: Int = 5,
         driver: String = "org.postgresql.Driver",
         allowLocalhost: Boolean = false,
+        cleanupIntervalMinutes: Int = 15,
     ): AppConfig {
         ensureSchemaExists(schema)
         return AppConfig(
@@ -127,6 +130,7 @@ open class BaseIntegrationTest {
                     poolMax = poolMax,
                 ),
             flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
+            cleanupIntervalMinutes = cleanupIntervalMinutes,
         )
     }
 

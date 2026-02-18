@@ -31,9 +31,11 @@ data class AppConfig(
     val server: ServerConfig,
     val db: DbConfig,
     val flags: AppFlags,
+    val cleanupIntervalMinutes: Int,
 )
 
 val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
+val CleanupJobKey: AttributeKey<dev.kotlinbr.utlshortener.app.services.CleanupJob> = AttributeKey("CleanupJob")
 
 private fun sysOrEnv(key: String): String? = System.getProperty(key) ?: System.getenv(key)
 
@@ -124,5 +126,14 @@ fun loadAppConfig(application: Application): AppConfig {
                     ?: getBoolean("app.allowLocalhost", false),
         )
 
-    return AppConfig(env = env, server = serverCfg, db = dbCfg, flags = flags)
+    val cleanupInterval =
+        sysOrEnv("CLEANUP_INTERVAL_MINUTES")?.toIntOrNull() ?: getInt("app.cleanup.intervalMinutes", 1)
+
+    return AppConfig(
+        env = env,
+        server = serverCfg,
+        db = dbCfg,
+        flags = flags,
+        cleanupIntervalMinutes = cleanupInterval,
+    )
 }

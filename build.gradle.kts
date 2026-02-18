@@ -6,7 +6,7 @@ val exposedVersion = "0.61.0"
 val hikariVersion = "7.0.2"
 val postgresDriverVersion = "42.7.7"
 val logstashEncoderVersion = "8.1"
-val testcontainersVersion = "1.21.3"
+val testcontainersVersion = "2.0.3"
 val ktlintVersion = "13.1.0"
 val detektVersion = "1.23.8"
 
@@ -97,8 +97,8 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
     testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
-    testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
+    testImplementation("org.testcontainers:postgresql:1.21.4")
+    testImplementation("org.testcontainers:junit-jupiter:1.21.4")
 }
 
 flyway {

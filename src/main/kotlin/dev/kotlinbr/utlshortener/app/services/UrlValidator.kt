@@ -1,6 +1,6 @@
 package dev.kotlinbr.utlshortener.app.services
 
-import io.ktor.server.plugins.*
+import io.ktor.server.plugins.BadRequestException
 import java.net.URI
 import java.net.URISyntaxException
 

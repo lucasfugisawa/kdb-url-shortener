@@ -3,12 +3,18 @@ package dev.kotlinbr.utlshortener.infrastructure.repository
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.time.OffsetDateTime
 
 class LinksRepository {
     fun findAll(): List<Link> =
@@ -58,6 +64,18 @@ class LinksRepository {
                 stmt.resultedValues?.singleOrNull()
                     ?: error("Failed to retrieve inserted row for link with slug='${link.slug}'")
             insertedRow.toDomain()
+        }
+
+    fun deactivateExpiredLinks(now: OffsetDateTime = OffsetDateTime.now()): Int =
+        transaction {
+            LinksTable.update({
+                LinksTable.isActive eq true and (
+                    (LinksTable.expiresAt less now) or
+                        (LinksTable.maxClicks.isNotNull() and (LinksTable.clicksCount greaterEq LinksTable.maxClicks))
+                )
+            }) {
+                it[isActive] = false
+            }
         }
 }
 
