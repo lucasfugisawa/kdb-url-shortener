@@ -225,4 +225,38 @@ class RoutesIntegrationTest {
             val res = client.get("/api/v1/nonexistent")
             assertEquals(HttpStatusCode.NotFound, res.status)
         }
+
+    @Test
+    fun `accessing slug increments clicks_count and GET stats returns it`() =
+        testApplication {
+            setDbProps()
+            val target = "https://kotlin.link"
+            val slug = "clicktest"
+            application {
+                module()
+                transaction {
+                    LinksTable.deleteAll()
+                    TestDataFactory.insertLink(TestDataFactory.buildLink(slug = slug, targetUrl = target))
+                }
+            }
+
+            // Verify initial stats
+            val initialStatsRes = client.get("/api/v1/$slug/stats")
+            assertEquals(HttpStatusCode.OK, initialStatsRes.status)
+            assertTrue(initialStatsRes.bodyAsText().contains("\"clicks\":0"))
+
+            // Access slug 3 times
+            val redirectClient = createClient { followRedirects = false }
+            repeat(3) {
+                val res = redirectClient.get("/api/v1/$slug")
+                assertEquals(HttpStatusCode.Found, res.status)
+            }
+
+            // Verify updated stats
+            val updatedStatsRes = client.get("/api/v1/$slug/stats")
+            assertEquals(HttpStatusCode.OK, updatedStatsRes.status)
+            val body = updatedStatsRes.bodyAsText()
+            assertTrue(body.contains("\"slug\":\"$slug\""), "Body should contain slug")
+            assertTrue(body.contains("\"clicks\":3"), "Body should contain 3 clicks")
+        }
 }

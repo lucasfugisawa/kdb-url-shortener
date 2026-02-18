@@ -12,6 +12,7 @@ data class LinkResponse(
     val createdAt: String,
     val isActive: Boolean,
     val expiresAt: String? = null,
+    val clicksCount: Int = 0,
 )
 
 fun Link.toResponse(): LinkResponse =
@@ -22,6 +23,7 @@ fun Link.toResponse(): LinkResponse =
         createdAt = this.createdAt.toString(),
         isActive = this.isActive,
         expiresAt = this.expiresAt?.toString(),
+        clicksCount = this.clicksCount,
     )
 
 fun LinkResponse.toDomain(): Link =
@@ -32,4 +34,5 @@ fun LinkResponse.toDomain(): Link =
         createdAt = OffsetDateTime.parse(this.createdAt),
         isActive = this.isActive,
         expiresAt = this.expiresAt?.let { OffsetDateTime.parse(it) },
+        clicksCount = this.clicksCount,
     )

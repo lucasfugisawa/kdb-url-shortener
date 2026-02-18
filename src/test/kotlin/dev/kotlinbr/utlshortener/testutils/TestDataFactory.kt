@@ -24,6 +24,7 @@ object TestDataFactory {
         createdAt: OffsetDateTime = OffsetDateTime.now(),
         isActive: Boolean = true,
         expiresAt: OffsetDateTime? = null,
+        clicksCount: Int = 0,
     ): Link =
         Link(
             id = id,
@@ -32,6 +33,7 @@ object TestDataFactory {
             createdAt = createdAt,
             isActive = isActive,
             expiresAt = expiresAt,
+            clicksCount = clicksCount,
         )
 
     // --- SQL helpers (Exposed) ---
@@ -45,6 +47,7 @@ object TestDataFactory {
                     it[createdAt] = link.createdAt
                     it[isActive] = link.isActive
                     it[expiresAt] = link.expiresAt
+                    it[clicksCount] = link.clicksCount
                 } get LinksTable.id
             id
         }
@@ -77,5 +80,6 @@ object TestDataFactory {
             createdAt = this[LinksTable.createdAt],
             isActive = this[LinksTable.isActive],
             expiresAt = this[LinksTable.expiresAt],
+            clicksCount = this[LinksTable.clicksCount],
         )
 }

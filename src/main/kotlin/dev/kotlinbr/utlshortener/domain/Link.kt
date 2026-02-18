@@ -9,4 +9,5 @@ data class Link(
     val createdAt: OffsetDateTime = OffsetDateTime.now(),
     val isActive: Boolean = true,
     val expiresAt: OffsetDateTime? = null,
+    val clicksCount: Int = 0,
 )

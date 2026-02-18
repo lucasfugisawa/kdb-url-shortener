@@ -3,10 +3,12 @@ package dev.kotlinbr.utlshortener.infrastructure.repository
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class LinksRepository {
     fun findAll(): List<Link> =
@@ -34,6 +36,13 @@ class LinksRepository {
                 .any()
         }
 
+    fun incrementClicks(slug: String): Int =
+        transaction {
+            LinksTable.update({ LinksTable.slug eq slug }) {
+                it[clicksCount] = clicksCount + 1
+            }
+        }
+
     fun save(link: Link): Link =
         transaction {
             val stmt =
@@ -59,4 +68,5 @@ private fun ResultRow.toDomain(): Link =
         createdAt = this[LinksTable.createdAt],
         isActive = this[LinksTable.isActive],
         expiresAt = this[LinksTable.expiresAt],
+        clicksCount = this[LinksTable.clicksCount],
     )

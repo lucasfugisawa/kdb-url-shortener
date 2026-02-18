@@ -119,7 +119,25 @@ fun Application.configureApiRoutes() {
                 }
 
                 logger.info("Redirecting slug {} to {}", slug, link.targetUrl)
+                try {
+                    val linksRepository = LinksRepository()
+                    linksRepository.incrementClicks(slug)
+                } catch (e: Exception) {
+                    logger.error("Erro ao incrementar cliques para slug {}: {}", slug, e.message)
+                }
                 call.respondRedirect(link.targetUrl)
+            }
+            get("/{slug}/stats") {
+                val slug = call.parameters["slug"] ?: throw BadRequestException("Slug é obrigatório.")
+                val linksRepository = LinksRepository()
+                val link = linksRepository.findBySlug(slug)
+
+                if (link == null) {
+                    call.respond(HttpStatusCode.NotFound, mapOf("error" to "Link não encontrado"))
+                    return@get
+                }
+
+                call.respond(mapOf("slug" to slug, "clicks" to link.clicksCount))
             }
             get("/links") {
                 val links = LinksRepository().findAll()
