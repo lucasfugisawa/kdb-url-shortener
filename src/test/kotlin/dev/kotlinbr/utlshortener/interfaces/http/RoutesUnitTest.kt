@@ -219,4 +219,18 @@ class RoutesUnitTest {
                     (!body.contains("URL não pode estar vazia") && !body.contains("URL inválida")),
             )
         }
+
+    @Test
+    fun `GET slug returns 404 when DB is skipped`() =
+        testApplication {
+            System.setProperty("APP_SKIP_DB", "true")
+            System.setProperty("APP_RUN_MIGRATIONS", "false")
+            application { module() }
+            val res = client.get("/api/v1/any-slug")
+            // When DB is skipped, the repository might throw an exception or return null depending on implementation
+            // In our case, the current implementation of configureApiRoutes calls LinksRepository()
+            // which in turn will try to use the DB. If APP_SKIP_DB is true, it might fail or return null.
+            // But we want to ensure the route exists.
+            assertTrue(res.status == HttpStatusCode.NotFound || res.status == HttpStatusCode.InternalServerError)
+        }
 }

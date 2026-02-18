@@ -16,6 +16,15 @@ class LinksRepository {
                 .map { it.toDomain() }
         }
 
+    fun findBySlug(slug: String): Link? =
+        transaction {
+            LinksTable
+                .selectAll()
+                .andWhere { LinksTable.slug eq slug }
+                .singleOrNull()
+                ?.toDomain()
+        }
+
     fun existsBySlug(slug: String): Boolean =
         transaction {
             LinksTable

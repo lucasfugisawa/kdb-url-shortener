@@ -158,4 +158,71 @@ class RoutesIntegrationTest {
             assertEquals("https://example.com/test", linkInDb.targetUrl)
             assertEquals(true, linkInDb.isActive)
         }
+
+    @Test
+    fun `api GET slug redirects to targetUrl when active`() =
+        testApplication {
+            setDbProps()
+            val target = "https://kotlin.link"
+            val slug = "ktlink"
+            application {
+                module()
+                transaction {
+                    LinksTable.deleteAll()
+                    TestDataFactory.insertLink(TestDataFactory.buildLink(slug = slug, targetUrl = target))
+                }
+            }
+
+            val res =
+                createClient {
+                    followRedirects = false
+                }.get("/api/v1/$slug")
+
+            assertEquals(HttpStatusCode.Found, res.status)
+            assertEquals(target, res.headers[HttpHeaders.Location])
+        }
+
+    @Test
+    fun `api GET slug returns 404 when link is inactive`() =
+        testApplication {
+            setDbProps()
+            val slug = "inactive"
+            application {
+                module()
+                transaction {
+                    LinksTable.deleteAll()
+                    TestDataFactory.insertLink(TestDataFactory.buildLink(slug = slug, isActive = false))
+                }
+            }
+
+            val res = client.get("/api/v1/$slug")
+            assertEquals(HttpStatusCode.NotFound, res.status)
+        }
+
+    @Test
+    fun `api GET slug returns 404 when link is expired`() =
+        testApplication {
+            setDbProps()
+            val slug = "expired"
+            application {
+                module()
+                transaction {
+                    LinksTable.deleteAll()
+                    val expiredDate = TestClockUtils.now().minusDays(1)
+                    TestDataFactory.insertLink(TestDataFactory.buildLink(slug = slug, expiresAt = expiredDate))
+                }
+            }
+
+            val res = client.get("/api/v1/$slug")
+            assertEquals(HttpStatusCode.NotFound, res.status)
+        }
+
+    @Test
+    fun `api GET slug returns 404 when link does not exist`() =
+        testApplication {
+            setDbProps()
+            application { module() }
+            val res = client.get("/api/v1/nonexistent")
+            assertEquals(HttpStatusCode.NotFound, res.status)
+        }
 }
