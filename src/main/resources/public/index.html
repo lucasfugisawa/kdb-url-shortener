@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encurtador de URL</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 { color: #333; }
+        .form-group { margin-bottom: 20px; }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover { background-color: #0056b3; }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background-color: #f8f9fa; }
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Encurtador de URL</h1>
+    
+    <div class="form-group">
+        <input type="text" id="urlInput" placeholder="Digite a URL para encurtar (ex: https://google.com)">
+        <button onclick="shortenUrl()">Encurtar</button>
+    </div>
+
+    <div id="result">
+        <strong>Link encurtado:</strong> 
+        <a id="shortLink" href="#" target="_blank"></a>
+    </div>
+
+    <h2>Links Existentes</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Link Curto</th>
+                <th>Destino</th>
+                <th>Criado em</th>
+                <th>Ativo</th>
+                <th>Expira em</th>
+            </tr>
+        </thead>
+        <tbody id="linksTableBody">
+            <!-- Preenchido via JS -->
+        </tbody>
+    </table>
+
+    <script>
+        async function shortenUrl() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value;
+            if (!url) return alert('Por favor, insira uma URL');
+
+            try {
+                const response = await fetch('/api/v1/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const shortLinkA = document.getElementById('shortLink');
+                    const shortUrl = window.location.origin + '/api/v1/' + data.slug;
+                    shortLinkA.href = shortUrl;
+                    shortLinkA.textContent = shortUrl;
+                    document.getElementById('result').style.display = 'block';
+                    urlInput.value = '';
+                    loadLinks();
+                } else {
+                    const err = await response.text();
+                    alert('Erro ao encurtar: ' + err);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erro na requisição');
+            }
+        }
+
+        async function loadLinks() {
+            try {
+                const response = await fetch('/api/v1/links');
+                if (response.ok) {
+                    const links = await response.json();
+                    const tbody = document.getElementById('linksTableBody');
+                    tbody.innerHTML = '';
+
+                    links.forEach(link => {
+                        const row = document.createElement('tr');
+                        const shortUrl = window.location.origin + '/api/v1/' + link.slug;
+                        
+                        row.innerHTML = `
+                            <td><a href="${shortUrl}" target="_blank">${link.slug}</a></td>
+                            <td><a href="${link.targetUrl}" target="_blank">${link.targetUrl}</a></td>
+                            <td>${new Date(link.createdAt).toLocaleString()}</td>
+                            <td class="${link.isActive ? 'status-active' : 'status-inactive'}">${link.isActive ? 'Sim' : 'Não'}</td>
+                            <td>${link.expiresAt ? new Date(link.expiresAt).toLocaleString() : '-'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading links:', error);
+            }
+        }
+
+        // Carregar links ao abrir a página
+        loadLinks();
+    </script>
+</body>
+</html>
