@@ -3,7 +3,6 @@ package dev.kotlinbr.utlshortener.interfaces.http
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText

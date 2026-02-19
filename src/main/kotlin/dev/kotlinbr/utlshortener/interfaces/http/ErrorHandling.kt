@@ -53,7 +53,7 @@ fun Application.configureErrorHandling() {
                 ErrorResponse("NOT_FOUND", cause.message ?: "Resource not found"),
             )
         }
-        exception<Throwable> { call, cause ->
+        exception<Throwable> { call, _ ->
             call.respond(
                 HttpStatusCode.InternalServerError,
                 ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred"),

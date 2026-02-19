@@ -3,9 +3,6 @@ package dev.kotlinbr.utlshortener.infrastructure.repository
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere

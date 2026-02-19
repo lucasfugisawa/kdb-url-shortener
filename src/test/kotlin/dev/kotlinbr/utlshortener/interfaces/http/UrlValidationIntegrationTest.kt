@@ -10,7 +10,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Tag

@@ -1,7 +1,5 @@
 package dev.kotlinbr.utlshortener.app.config
 
-import dev.kotlinbr.utlshortener.app.config.DEFAULT_SERVER_PORT
-import dev.kotlinbr.utlshortener.app.config.loadAppConfig
 import io.ktor.server.config.MapApplicationConfig
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Disabled

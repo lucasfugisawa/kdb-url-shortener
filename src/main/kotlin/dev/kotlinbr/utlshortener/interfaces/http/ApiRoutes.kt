@@ -5,15 +5,12 @@ import dev.kotlinbr.utlshortener.app.services.SlugGenerator
 import dev.kotlinbr.utlshortener.app.services.UrlValidator
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
-import dev.kotlinbr.utlshortener.interfaces.http.LinkExpiredException
-import dev.kotlinbr.utlshortener.interfaces.http.SlugNotFoundException
 import dev.kotlinbr.utlshortener.interfaces.http.dto.PagedResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.StatsResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -88,7 +85,7 @@ fun Application.configureApiRoutes() {
                 val expiresAt =
                     try {
                         shortenCreate.expiresAt?.let { OffsetDateTime.parse(it) }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         throw BadRequestException("Invalid date format.")
                     }
 

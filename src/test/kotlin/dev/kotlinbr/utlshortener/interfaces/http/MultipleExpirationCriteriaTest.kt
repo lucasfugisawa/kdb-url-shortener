@@ -78,10 +78,7 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
                     )
                 }
             val slug =
-                shortenResponse.bodyAsText().let {
-                    // Simple way to get slug from {"slug":"...", "shortUrl":"..."}
-                    it.substringAfter("\"slug\":\"").substringBefore("\"")
-                }
+                shortenResponse.bodyAsText().substringAfter("\"slug\":\"").substringBefore("\"")
 
             val response = client.get("/api/v1/$slug")
             assertEquals(HttpStatusCode.Gone, response.status)
@@ -117,9 +114,7 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
                     )
                 }
             val slug =
-                shortenResponse.bodyAsText().let {
-                    it.substringAfter("\"slug\":\"").substringBefore("\"")
-                }
+                shortenResponse.bodyAsText().substringAfter("\"slug\":\"").substringBefore("\"")
 
             // First click - OK
             val response1 = client.get("/api/v1/$slug")
