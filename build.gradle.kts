@@ -1,6 +1,9 @@
 val kotlinVersion: String by project
 val logbackVersion: String by project
 val ktorVersion: String by project
+val junitVersion = "5.13.4"
+val mockkVersion = "1.13.17"
+val testcontainersPostgresVersion = "1.21.4"
 val flywayVersion = "11.12.0"
 val exposedVersion = "0.61.0"
 val hikariVersion = "7.0.2"
@@ -97,14 +100,14 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation")
     testImplementation("io.ktor:ktor-serialization-kotlinx-json")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-    testImplementation("io.mockk:mockk:1.13.13")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.insert-koin:koin-test:$koinVersion")
     testImplementation("io.insert-koin:koin-test-junit5:$koinVersion")
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
-    testImplementation("org.testcontainers:postgresql:1.21.4")
-    testImplementation("org.testcontainers:junit-jupiter:1.21.4")
+    testImplementation("org.testcontainers:postgresql:$testcontainersPostgresVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testcontainersPostgresVersion")
 }
 
 flyway {
