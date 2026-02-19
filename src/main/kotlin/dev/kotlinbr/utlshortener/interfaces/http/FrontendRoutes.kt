@@ -1,10 +1,15 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
+import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.call
 import io.ktor.server.http.content.staticResources
+import io.ktor.server.request.uri
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -13,9 +18,31 @@ import io.ktor.server.routing.routing
  * Frontend endpoint(s).
  */
 fun Application.configureFrontendRoutes() {
-    routing {
-        staticResources("/", "public", index = "index.html")
+    intercept(ApplicationCallPipeline.Plugins) {
+        val uri = call.request.uri
+        if (uri.startsWith("/api/v1/")) return@intercept
 
+        val path = uri.substringBefore("?").removePrefix("/")
+        if (path.isNotEmpty() &&
+            !path.contains("/") &&
+            !path.contains(".") &&
+            path.matches(Regex("^[a-zA-Z0-9]{3,15}$"))
+        ) {
+            val linksRepository = LinksRepository()
+            val exists =
+                try {
+                    linksRepository.existsBySlug(path)
+                } catch (e: Exception) {
+                    false
+                }
+            if (exists) {
+                call.respondRedirect("/api/v1/$path")
+                finish()
+            }
+        }
+    }
+
+    routing {
         get("/docs") {
             val html =
                 """
@@ -56,5 +83,7 @@ fun Application.configureFrontendRoutes() {
                 call.respond(HttpStatusCode.NotFound)
             }
         }
+
+        staticResources("/", "public", index = "index.html")
     }
 }

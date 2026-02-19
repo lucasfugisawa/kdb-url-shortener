@@ -4,6 +4,8 @@ info:
   description: API para encurtamento de URLs do Kotlin Brasil.
   version: 1.0.0
 servers:
+  - url: /
+    description: Frontend (Short URLs)
   - url: /api/v1
     description: API v1
 paths:
