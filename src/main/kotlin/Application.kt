@@ -31,7 +31,9 @@ fun Application.module() {
         environment.log.info("Database initialized")
 
         val cleanupJob by inject<CleanupJob>()
-        cleanupJob.start()
+        if (appConfig.flags.startCleanupJob) {
+            cleanupJob.start()
+        }
     } else {
         environment.log.info("Skipping database initialization due to app.skipDb=true")
     }

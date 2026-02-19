@@ -279,7 +279,7 @@ class RoutesIntegrationTest {
             // Access slug 3 times
             val redirectClient = createClient { followRedirects = false }
             repeat(3) {
-                val res = redirectClient.get("/api/v1/$slug")
+                val res = redirectClient.get("/$slug")
                 assertEquals(HttpStatusCode.Found, res.status)
             }
 

@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 servers:
   - url: /
-    description: Frontend (Short URLs)
+    description: Frontend and Short URLs
   - url: /api/v1
     description: API v1
 paths:
@@ -13,6 +13,8 @@ paths:
     post:
       summary: Encurta uma URL
       operationId: shortenUrl
+      tags:
+        - API
       requestBody:
         required: true
         content:
@@ -42,6 +44,8 @@ paths:
     get:
       summary: Redireciona para a URL original
       operationId: redirectSlug
+      tags:
+        - Redirection
       parameters:
         - name: slug
           in: path
@@ -61,6 +65,8 @@ paths:
     get:
       summary: Obtém estatísticas de um link
       operationId: getStats
+      tags:
+        - API
       parameters:
         - name: slug
           in: path
@@ -85,6 +91,51 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /health:
+    get:
+      summary: Health check simples
+      operationId: healthCheck
+      tags:
+        - Infrastructure
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+  /health/ready:
+    get:
+      summary: Readiness check (verifica banco de dados)
+      operationId: readinessCheck
+      tags:
+        - Infrastructure
+      responses:
+        '200':
+          description: Ready
+        '503':
+          description: Not Ready
+  /env:
+    get:
+      summary: Obtém o ambiente atual
+      operationId: getEnv
+      tags:
+        - Infrastructure
+      responses:
+        '200':
+          description: OK
+  /admin/cleanup:
+    post:
+      summary: Executa limpeza manual de links expirados
+      operationId: runCleanup
+      tags:
+        - Infrastructure
+      responses:
+        '200':
+          description: Success
 
 components:
   schemas:

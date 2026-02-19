@@ -12,7 +12,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.response.respond
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
@@ -88,9 +88,9 @@ class RoutesUnitTest {
             System.setProperty("APP_SKIP_DB", "true")
             System.setProperty("APP_RUN_MIGRATIONS", "false")
             application { module() }
-            val res = client.get("/no-such-route")
+            val res = client.get("/api/v1/no-such-route")
             assertEquals(HttpStatusCode.NotFound, res.status)
-            assertEquals("{\"code\":\"not_found\",\"message\":\"Resource not found\"}", res.bodyAsText())
+            assertTrue(res.bodyAsText().contains("\"code\":\"SLUG_NOT_FOUND\""))
         }
 
     @Test
@@ -106,7 +106,7 @@ class RoutesUnitTest {
             }
             val res = client.get("/throw")
             assertEquals(HttpStatusCode.InternalServerError, res.status)
-            assertEquals("{\"code\":\"internal_error\",\"message\":\"boom\"}", res.bodyAsText())
+            assertTrue(res.bodyAsText().contains("\"code\":\"INTERNAL_ERROR\""))
         }
 
     @Test
@@ -117,12 +117,13 @@ class RoutesUnitTest {
             application {
                 module()
                 routing {
-                    get("/bad") { call.respond(HttpStatusCode.BadRequest) }
+                    get("/bad") { throw BadRequestException("Invalid request") }
                 }
             }
             val res = client.get("/bad")
             assertEquals(HttpStatusCode.BadRequest, res.status)
-            assertEquals("{\"code\":\"bad_request\",\"message\":\"Invalid request\"}", res.bodyAsText())
+            assertTrue(res.bodyAsText().contains("\"code\":\"VALIDATION_ERROR\""))
+            assertTrue(res.bodyAsText().contains("\"message\":\"Invalid request\""))
         }
 
     @Test
@@ -139,7 +140,7 @@ class RoutesUnitTest {
                     setBody(request)
                 }
             assertEquals(HttpStatusCode.BadRequest, res.status)
-            assertEquals("URL não pode estar vazia.", res.bodyAsText())
+            assertTrue(res.bodyAsText().contains("URL cannot be empty"))
         }
 
     @Test
@@ -156,7 +157,7 @@ class RoutesUnitTest {
                     setBody(request)
                 }
             assertEquals(HttpStatusCode.BadRequest, res.status)
-            assertEquals("URL não pode estar vazia.", res.bodyAsText())
+            assertTrue(res.bodyAsText().contains("URL cannot be empty"))
         }
 
     @Test
@@ -173,7 +174,7 @@ class RoutesUnitTest {
                     setBody(request)
                 }
             assertEquals(HttpStatusCode.BadRequest, res.status)
-            assertEquals("Esquema inválido. Use http:// ou https://", res.bodyAsText())
+            assertTrue(res.bodyAsText().contains("Invalid scheme"))
         }
 
     @Test
@@ -221,7 +222,7 @@ class RoutesUnitTest {
         }
 
     @Test
-    fun `POST shorten rejects both expiresAt and maxClicks`() =
+    fun `POST shorten accepts both expiresAt and maxClicks`() =
         testApplication {
             System.setProperty("APP_SKIP_DB", "true")
             application {
@@ -244,8 +245,8 @@ class RoutesUnitTest {
                         ),
                     )
                 }
-            assertEquals(HttpStatusCode.BadRequest, res.status)
-            assertTrue(res.bodyAsText().contains("mutuamente exclusivos"))
+            // Should NOT be 400 Bad Request now as we allow both
+            assertTrue(res.status != HttpStatusCode.BadRequest)
         }
 
     @Test

@@ -21,6 +21,7 @@ class CleanupJobIT : BaseIntegrationTest() {
             val schema = "cleanup_job_test"
             val appConfig = initDatabaseInSchema(schema)
             System.setProperty("DB_URL", appConfig.db.url)
+            System.setProperty("APP_START_CLEANUP_JOB", "false")
 
             application {
                 module()

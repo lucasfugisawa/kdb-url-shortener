@@ -45,7 +45,7 @@ class SlugRedirectionTest {
                 }.get("/$slug")
 
             assertEquals(HttpStatusCode.Found, response.status)
-            assertEquals("/api/v1/$slug", response.headers[HttpHeaders.Location])
+            assertEquals(target, response.headers[HttpHeaders.Location])
         }
 
     @Test
@@ -82,7 +82,7 @@ class SlugRedirectionTest {
                 module()
             }
 
-            val response = client.get("/index.html")
+            val response = client.get("/")
             assertEquals(HttpStatusCode.OK, response.status)
         }
 

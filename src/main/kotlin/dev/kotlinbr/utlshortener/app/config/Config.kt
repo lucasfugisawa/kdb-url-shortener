@@ -23,6 +23,7 @@ data class AppFlags(
     val skipDb: Boolean,
     val runMigrations: Boolean,
     val allowLocalhost: Boolean,
+    val startCleanupJob: Boolean,
 )
 
 data class SlugConfig(
@@ -126,6 +127,9 @@ fun loadAppConfig(application: Application): AppConfig {
             allowLocalhost =
                 sysOrEnv("ALLOW_LOCALHOST")?.trim()?.lowercase()?.let { it == "true" || it == "1" || it == "yes" }
                     ?: getBoolean("app.allowLocalhost", false),
+            startCleanupJob =
+                sysOrEnv("APP_START_CLEANUP_JOB")?.trim()?.lowercase()?.let { it == "true" || it == "1" || it == "yes" }
+                    ?: getBoolean("app.cleanup.enabled", true),
         )
 
     val cleanupInterval =

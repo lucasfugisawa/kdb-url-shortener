@@ -71,6 +71,7 @@ open class BaseIntegrationTest {
     protected fun createAppConfig(
         runMigrations: Boolean = true,
         allowLocalhost: Boolean = false,
+        startCleanupJob: Boolean = true,
         cleanupIntervalMinutes: Int = 15,
         slugLength: Int = 7,
         slugMaxRetries: Int = 5,
@@ -86,7 +87,13 @@ open class BaseIntegrationTest {
                     password = password(),
                     poolMax = 5,
                 ),
-            flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
+            flags =
+                AppFlags(
+                    skipDb = false,
+                    runMigrations = runMigrations,
+                    allowLocalhost = allowLocalhost,
+                    startCleanupJob = startCleanupJob,
+                ),
             cleanupIntervalMinutes = cleanupIntervalMinutes,
             slug = SlugConfig(length = slugLength, maxRetries = slugMaxRetries),
         )
@@ -121,6 +128,7 @@ open class BaseIntegrationTest {
         poolMax: Int = 5,
         driver: String = "org.postgresql.Driver",
         allowLocalhost: Boolean = false,
+        startCleanupJob: Boolean = true,
         cleanupIntervalMinutes: Int = 15,
         slugLength: Int = 7,
         slugMaxRetries: Int = 5,
@@ -137,7 +145,13 @@ open class BaseIntegrationTest {
                     password = password(),
                     poolMax = poolMax,
                 ),
-            flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
+            flags =
+                AppFlags(
+                    skipDb = false,
+                    runMigrations = runMigrations,
+                    allowLocalhost = allowLocalhost,
+                    startCleanupJob = startCleanupJob,
+                ),
             cleanupIntervalMinutes = cleanupIntervalMinutes,
             slug = SlugConfig(length = slugLength, maxRetries = slugMaxRetries),
         )

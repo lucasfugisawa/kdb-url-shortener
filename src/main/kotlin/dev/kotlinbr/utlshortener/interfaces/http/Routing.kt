@@ -4,7 +4,7 @@ import io.ktor.server.application.Application
 
 fun Application.configureRouting() {
     configureErrorHandling()
-    configureFrontendRoutes()
     configureInfraRoutes()
     configureApiRoutes()
+    configureFrontendRoutes()
 }
