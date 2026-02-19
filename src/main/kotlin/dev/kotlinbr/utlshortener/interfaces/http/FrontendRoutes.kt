@@ -1,6 +1,5 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -13,34 +12,26 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import org.koin.ktor.ext.inject
 
 /**
  * Frontend endpoint(s).
  */
 fun Application.configureFrontendRoutes() {
-    val linksRepository by inject<LinksRepository>()
-
     intercept(ApplicationCallPipeline.Plugins) {
         val uri = call.request.uri
         if (uri.startsWith("/api/v1/")) return@intercept
 
         val path = uri.substringBefore("?").removePrefix("/")
+        val knownPaths = listOf("docs", "openapi.yaml", "health", "health/ready", "env", "admin/cleanup")
+
         if (path.isNotEmpty() &&
             !path.contains("/") &&
             !path.contains(".") &&
+            path !in knownPaths &&
             path.matches(Regex("^[a-zA-Z0-9]{3,15}$"))
         ) {
-            val exists =
-                try {
-                    linksRepository.existsBySlug(path)
-                } catch (e: Exception) {
-                    false
-                }
-            if (exists) {
-                call.respondRedirect("/api/v1/$path")
-                finish()
-            }
+            call.respondRedirect("/api/v1/$path")
+            finish()
         }
     }
 
