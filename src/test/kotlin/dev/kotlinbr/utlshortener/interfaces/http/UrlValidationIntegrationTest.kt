@@ -1,6 +1,6 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.module
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -13,32 +13,21 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-fun Application.configureTestRouting() {
-    configureErrorHandling()
-    configureSerialization()
-    configureApiRoutes()
-}
-
 @Tag("integration")
 class UrlValidationIntegrationTest : BaseIntegrationTest() {
-    @BeforeEach
-    fun setup() {
-        initDatabaseInSchema("url_validation_test")
-    }
-
     @Test
     fun `POST shorten should accept valid url`() =
         testApplication {
-            val cfg = createAppConfigForSchema("url_validation_test")
+            System.clearProperty("ALLOW_LOCALHOST")
+            val cfg = initDatabaseInSchema("url_validation_test")
+            System.setProperty("DB_URL", cfg.db.url)
             application {
-                attributes.put(AppConfigKey, cfg)
-                configureTestRouting()
+                module()
             }
 
             val client =
@@ -69,10 +58,11 @@ class UrlValidationIntegrationTest : BaseIntegrationTest() {
     )
     fun `POST shorten should return 400 for invalid urls`(url: String) =
         testApplication {
-            val cfg = createAppConfigForSchema("url_validation_test")
+            System.clearProperty("ALLOW_LOCALHOST")
+            val cfg = initDatabaseInSchema("url_validation_test")
+            System.setProperty("DB_URL", cfg.db.url)
             application {
-                attributes.put(AppConfigKey, cfg)
-                configureTestRouting()
+                module()
             }
 
             val client =
@@ -94,10 +84,11 @@ class UrlValidationIntegrationTest : BaseIntegrationTest() {
     @Test
     fun `POST shorten should accept localhost if configured`() =
         testApplication {
-            val cfg = createAppConfigForSchema("url_validation_test", allowLocalhost = true)
+            val cfg = initDatabaseInSchema("url_validation_test", allowLocalhost = true)
+            System.setProperty("DB_URL", cfg.db.url)
+            System.setProperty("ALLOW_LOCALHOST", "true")
             application {
-                attributes.put(AppConfigKey, cfg)
-                configureTestRouting()
+                module()
             }
 
             val client =

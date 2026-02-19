@@ -2,9 +2,7 @@ package dev.kotlinbr.utlshortener.app.config
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import dev.kotlinbr.utlshortener.app.services.CleanupJob
 import io.ktor.server.application.Application
-import io.ktor.util.AttributeKey
 
 const val DEFAULT_SERVER_PORT: Int = 8080
 const val DEFAULT_DB_POOL_MAX: Int = 10
@@ -40,9 +38,6 @@ data class AppConfig(
     val cleanupIntervalMinutes: Int,
     val slug: SlugConfig,
 )
-
-val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
-val CleanupJobKey: AttributeKey<CleanupJob> = AttributeKey("CleanupJob")
 
 private fun sysOrEnv(key: String): String? = System.getProperty(key) ?: System.getenv(key)
 

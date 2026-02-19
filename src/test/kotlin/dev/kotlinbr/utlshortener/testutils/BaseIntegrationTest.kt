@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.koin.core.context.stopKoin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
@@ -57,6 +58,7 @@ open class BaseIntegrationTest {
     @AfterAll
     fun afterAll() {
         // Do not stop container explicitly when reuse=true; let Testcontainers manage lifecycle
+        stopKoin()
     }
 
     protected fun jdbcUrl(): String = postgres.jdbcUrl

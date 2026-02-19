@@ -1,6 +1,6 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.module
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -20,10 +20,9 @@ class ErrorHandlingIntegrationTest : BaseIntegrationTest() {
     fun `should return URL_INVALID when url is malformed`() =
         testApplication {
             val appConfig = initDatabaseInSchema("error_url_invalid")
+            System.setProperty("DB_URL", appConfig.db.url)
             application {
-                attributes.put(AppConfigKey, appConfig)
-                configureSerialization()
-                configureRouting()
+                module()
             }
 
             val client =
@@ -48,10 +47,9 @@ class ErrorHandlingIntegrationTest : BaseIntegrationTest() {
     fun `should return SLUG_NOT_FOUND when slug does not exist`() =
         testApplication {
             val appConfig = initDatabaseInSchema("error_slug_not_found")
+            System.setProperty("DB_URL", appConfig.db.url)
             application {
-                attributes.put(AppConfigKey, appConfig)
-                configureSerialization()
-                configureRouting()
+                module()
             }
 
             val client =
@@ -72,10 +70,9 @@ class ErrorHandlingIntegrationTest : BaseIntegrationTest() {
     fun `should return VALIDATION_ERROR for invalid json`() =
         testApplication {
             val appConfig = initDatabaseInSchema("error_validation")
+            System.setProperty("DB_URL", appConfig.db.url)
             application {
-                attributes.put(AppConfigKey, appConfig)
-                configureSerialization()
-                configureRouting()
+                module()
             }
 
             val client =

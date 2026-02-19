@@ -18,7 +18,10 @@ Este documento define os padrões de desenvolvimento e boas práticas para o pro
 
 ## 3. Arquitetura e Padrões
 
-- **Injeção de Dependência**: Atualmente o projeto não utiliza um framework de DI (como Koin ou Dagger). No entanto, evite instanciar repositórios ou serviços repetidamente dentro de loops ou múltiplos locais na mesma classe/rota. Instancie-os uma vez no nível apropriado (ex: no início da configuração da rota).
+- **Injeção de Dependência**: O projeto utiliza o **Koin** (versão 4.1.1).
+    - As dependências devem ser definidas em `dev.kotlinbr.utlshortener.app.config.KoinModule.kt`.
+    - Use `by inject<T>()` para injetar dependências em classes do Ktor ou componentes gerenciados.
+    - Evite injetar tipos primitivos diretamente. Se necessário, agrupe-os em classes de configuração (ex: `SlugConfig`) ou crie tipos específicos.
 - **DTOs (Data Transfer Objects)**: Toda comunicação externa (API) deve usar DTOs definidos em `interfaces/http/dto`. Não exponha entidades de domínio diretamente.
 - **Imutabilidade**: Prefira `val` a `var` sempre que possível. Use `data class` para representar estruturas de dados.
 

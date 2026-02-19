@@ -1,25 +1,25 @@
 package dev.kotlinbr
 
-import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.utlshortener.app.config.AppConfig
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
+import org.koin.ktor.ext.inject
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class ApplicationModuleTest {
     @Test
-    fun `injects AppConfig into attributes with default env dev`() =
+    fun `injects AppConfig with default env dev`() =
         testApplication {
             // Ensure we don't touch DB during this test run
             System.setProperty("APP_SKIP_DB", "true")
             // Explicitly use the real module
             application {
                 module()
-                val cfg = attributes[AppConfigKey]
-                assertNotNull(cfg, "AppConfig should be present in application attributes")
+                val cfg by inject<AppConfig>()
                 assertEquals("dev", cfg.env, "Default env should be 'dev' unless overridden")
             }
         }
@@ -50,10 +50,10 @@ class ApplicationModuleTest {
 
             application { module() }
 
-            // GET /
+            // GET / (now returns index.html)
             val root = client.get("/")
             assertEquals(HttpStatusCode.OK, root.status)
-            assertEquals("Hello World!", root.bodyAsText())
+            assertTrue(root.bodyAsText().contains("<title>Encurtador de URL</title>"))
 
             // Health endpoint from InfraRoutes
             val health = client.get("/health")

@@ -1,6 +1,6 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.module
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -22,11 +22,9 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
     fun `api POST shorten should allow both expiresAt and maxClicks`() =
         testApplication {
             val config = initDatabaseInSchema("multiple_criteria_success")
+            System.setProperty("DB_URL", config.db.url)
             application {
-                attributes.put(AppConfigKey, config)
-                configureSerialization()
-                configureErrorHandling()
-                configureApiRoutes()
+                module()
             }
 
             val client =
@@ -55,11 +53,9 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
     fun `api GET slug should fail if ANY criteria is met - time expired`() =
         testApplication {
             val config = initDatabaseInSchema("criteria_time_expired")
+            System.setProperty("DB_URL", config.db.url)
             application {
-                attributes.put(AppConfigKey, config)
-                configureSerialization()
-                configureErrorHandling()
-                configureApiRoutes()
+                module()
             }
 
             val client =
@@ -95,11 +91,9 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
     fun `api GET slug should fail if ANY criteria is met - max clicks reached`() =
         testApplication {
             val config = initDatabaseInSchema("criteria_clicks_expired")
+            System.setProperty("DB_URL", config.db.url)
             application {
-                attributes.put(AppConfigKey, config)
-                configureSerialization()
-                configureErrorHandling()
-                configureApiRoutes()
+                module()
             }
 
             val client =

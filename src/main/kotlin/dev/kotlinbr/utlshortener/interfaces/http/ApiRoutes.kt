@@ -1,6 +1,6 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
-import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.utlshortener.app.config.AppConfig
 import dev.kotlinbr.utlshortener.app.services.SlugGenerator
 import dev.kotlinbr.utlshortener.app.services.UrlValidator
 import dev.kotlinbr.utlshortener.domain.Link
@@ -12,6 +12,7 @@ import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.StatsResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.toResponse
 import io.ktor.server.application.Application
+import io.ktor.server.application.call
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -20,6 +21,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import org.koin.ktor.ext.inject
 import org.slf4j.LoggerFactory
 import java.time.OffsetDateTime
 
@@ -28,7 +30,8 @@ import java.time.OffsetDateTime
  */
 fun Application.configureApiRoutes() {
     val logger = LoggerFactory.getLogger("dev.kotlinbr.utlshortener.interfaces.http.ApiRoutes")
-    val linksRepository = LinksRepository()
+    val linksRepository by inject<LinksRepository>()
+    val config by inject<AppConfig>()
 
     routing {
         route("/api/v1") {
@@ -90,7 +93,6 @@ fun Application.configureApiRoutes() {
                 call.respond(response)
             }
             post("/shorten") {
-                val config = call.application.attributes[AppConfigKey]
                 val shortenCreate = call.receive<ShortenRequest>()
 
                 val url =

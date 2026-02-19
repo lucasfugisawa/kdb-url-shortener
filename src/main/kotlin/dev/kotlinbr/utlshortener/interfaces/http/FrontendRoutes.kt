@@ -13,12 +13,13 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import org.koin.ktor.ext.inject
 
 /**
  * Frontend endpoint(s).
  */
 fun Application.configureFrontendRoutes() {
-    val linksRepository = LinksRepository()
+    val linksRepository by inject<LinksRepository>()
 
     intercept(ApplicationCallPipeline.Plugins) {
         val uri = call.request.uri

@@ -1,10 +1,6 @@
 package dev.kotlinbr.utlshortener.app.services
 
-import dev.kotlinbr.utlshortener.app.config.AppConfigKey
-import dev.kotlinbr.utlshortener.app.config.CleanupJobKey
-import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
-import dev.kotlinbr.utlshortener.interfaces.http.configureRouting
-import dev.kotlinbr.utlshortener.interfaces.http.configureSerialization
+import dev.kotlinbr.module
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import dev.kotlinbr.utlshortener.testutils.TestDataFactory
 import io.ktor.client.request.post
@@ -24,15 +20,10 @@ class CleanupJobIT : BaseIntegrationTest() {
             // Setup database and schema for this test
             val schema = "cleanup_job_test"
             val appConfig = initDatabaseInSchema(schema)
+            System.setProperty("DB_URL", appConfig.db.url)
 
             application {
-                attributes.put(AppConfigKey, appConfig)
-                val linksRepository = LinksRepository()
-                val cleanupJob = CleanupJob(linksRepository, appConfig.cleanupIntervalMinutes)
-                attributes.put(CleanupJobKey, cleanupJob)
-
-                configureSerialization()
-                configureRouting()
+                module()
             }
 
             // Create links with different conditions
