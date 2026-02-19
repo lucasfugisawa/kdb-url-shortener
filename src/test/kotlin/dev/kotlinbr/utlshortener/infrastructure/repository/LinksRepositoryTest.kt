@@ -43,7 +43,8 @@ class LinksRepositoryTest : BaseIntegrationTest() {
         }
 
         val repo = LinksRepository()
-        val list: List<Link> = repo.findAll()
+        val (list, total) = repo.findAll()
+        assertEquals(2, total)
         assertEquals(2, list.size)
 
         val a = list.first { it.slug == "a1" }

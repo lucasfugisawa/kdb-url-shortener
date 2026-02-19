@@ -4,6 +4,7 @@ import dev.kotlinbr.module
 import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import dev.kotlinbr.utlshortener.interfaces.http.dto.LinkResponse
+import dev.kotlinbr.utlshortener.interfaces.http.dto.PagedResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenResponse
 import dev.kotlinbr.utlshortener.testutils.TestClockUtils
@@ -88,7 +89,7 @@ class RoutesIntegrationTest {
             assertEquals(HttpStatusCode.OK, res.status)
             val ct = res.headers[HttpHeaders.ContentType].orEmpty()
             assertTrue(ct.lowercase().contains("application/json"))
-            assertEquals("[]", res.bodyAsText())
+            assertEquals("{\"items\":[],\"total\":0,\"page\":1,\"size\":25}", res.bodyAsText())
         }
 
     @Test
@@ -115,8 +116,12 @@ class RoutesIntegrationTest {
             assertEquals(HttpStatusCode.OK, res.status)
             val body = res.bodyAsText()
             val json = Json { ignoreUnknownKeys = true }
-            val list = json.decodeFromString<List<LinkResponse>>(body)
+            val paged = json.decodeFromString<PagedResponse<LinkResponse>>(body)
+            val list = paged.items
             assertEquals(2, list.size)
+            assertEquals(2, paged.total)
+            assertEquals(1, paged.page)
+            assertEquals(25, paged.size)
             // Since IDs are auto-increment, ensure IDs returned are the inserted ones
             val ids = list.map { it.id }.toSet()
             assertTrue(ids.containsAll(listOf(id1, id2)))

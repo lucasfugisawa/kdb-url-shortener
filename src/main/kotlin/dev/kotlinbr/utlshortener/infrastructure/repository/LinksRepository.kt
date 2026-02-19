@@ -17,11 +17,20 @@ import org.jetbrains.exposed.sql.update
 import java.time.OffsetDateTime
 
 class LinksRepository {
-    fun findAll(): List<Link> =
+    fun findAll(
+        page: Int = 1,
+        size: Int = 25,
+    ): Pair<List<Link>, Long> =
         transaction {
-            LinksTable
-                .selectAll()
-                .map { it.toDomain() }
+            val total = LinksTable.selectAll().count()
+            val offset = ((page - 1) * size).toLong()
+            val items =
+                LinksTable
+                    .selectAll()
+                    .limit(size)
+                    .offset(offset)
+                    .map { it.toDomain() }
+            items to total
         }
 
     fun findBySlug(slug: String): Link? =

@@ -246,6 +246,42 @@
         .status-active { color: var(--success-color); font-weight: 600; }
         .status-inactive { color: var(--danger-color); font-weight: 600; }
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            align-items: center;
+        }
+
+        .pagination-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: auto;
+            font-weight: 500;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--secondary-text);
+            font-size: 0.875rem;
+        }
+
         .truncate {
             max-width: 300px;
             white-space: nowrap;
@@ -325,6 +361,11 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination" id="paginationControls">
+                <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">Anterior</button>
+                <div id="pageNumbers" style="display: flex; gap: 0.5rem;"></div>
+                <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">Próximo</button>
+            </div>
         </div>
     </div>
 
@@ -359,6 +400,9 @@
         // Initialize theme
         const savedTheme = localStorage.getItem('theme-preference') || 'system';
         setTheme(savedTheme);
+
+        let currentPage = 1;
+        const pageSize = 25;
 
         async function shortenUrl() {
             const urlInput = document.getElementById('urlInput');
@@ -396,7 +440,7 @@
                     urlInput.value = '';
                     expiresAtInput.value = '';
                     maxClicksInput.value = '';
-                    loadLinks();
+                    loadLinks(currentPage);
                 } else {
                     const err = await response.text();
                     alert('Erro ao encurtar: ' + err);
@@ -407,11 +451,13 @@
             }
         }
 
-        async function loadLinks() {
+        async function loadLinks(page = 1) {
             try {
-                const response = await fetch('/api/v1/links');
+                const response = await fetch(`/api/v1/links?page=${page}&size=${pageSize}`);
                 if (response.ok) {
-                    const links = await response.json();
+                    const data = await response.json();
+                    const links = data.items;
+                    const total = data.total;
                     const tbody = document.getElementById('linksTableBody');
                     tbody.innerHTML = '';
 
@@ -429,13 +475,53 @@
                         `;
                         tbody.appendChild(row);
                     });
+
+                    // Update pagination controls
+                    currentPage = data.page;
+                    const totalPages = Math.ceil(total / pageSize) || 1;
+                    
+                    const pageNumbers = document.getElementById('pageNumbers');
+                    pageNumbers.innerHTML = '';
+                    
+                    // Show a few pages around the current page
+                    const startPage = Math.max(1, currentPage - 2);
+                    const endPage = Math.min(totalPages, currentPage + 2);
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const btn = document.createElement('button');
+                        btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                        btn.textContent = i;
+                        btn.onclick = () => loadLinks(i);
+                        if (i === currentPage) {
+                            btn.disabled = true;
+                            btn.style.backgroundColor = 'var(--primary-color)';
+                            btn.style.color = 'white';
+                        }
+                        pageNumbers.appendChild(btn);
+                    }
+
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    
+                    prevBtn.style.visibility = currentPage <= 1 ? 'hidden' : 'visible';
+                    nextBtn.style.visibility = currentPage >= totalPages ? 'hidden' : 'visible';
+                    
+                    if (total <= pageSize) {
+                        document.getElementById('paginationControls').style.display = 'none';
+                    } else {
+                        document.getElementById('paginationControls').style.display = 'flex';
+                    }
                 }
             } catch (error) {
                 console.error('Error loading links:', error);
             }
         }
 
-        loadLinks();
+        function changePage(delta) {
+            loadLinks(currentPage + delta);
+        }
+
+        loadLinks(currentPage);
     </script>
 </body>
 </html>

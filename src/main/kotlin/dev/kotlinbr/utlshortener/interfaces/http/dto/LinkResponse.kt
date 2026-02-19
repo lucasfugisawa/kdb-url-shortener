@@ -17,6 +17,14 @@ data class LinkResponse(
 )
 
 @Serializable
+data class PagedResponse<T>(
+    val items: List<T>,
+    val total: Long,
+    val page: Int,
+    val size: Int,
+)
+
+@Serializable
 data class StatsResponse(
     val slug: String,
     val clicks: Int,

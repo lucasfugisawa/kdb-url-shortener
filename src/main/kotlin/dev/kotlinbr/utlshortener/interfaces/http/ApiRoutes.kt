@@ -7,6 +7,7 @@ import dev.kotlinbr.utlshortener.domain.Link
 import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import dev.kotlinbr.utlshortener.interfaces.http.LinkExpiredException
 import dev.kotlinbr.utlshortener.interfaces.http.SlugNotFoundException
+import dev.kotlinbr.utlshortener.interfaces.http.dto.PagedResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenRequest
 import dev.kotlinbr.utlshortener.interfaces.http.dto.ShortenResponse
 import dev.kotlinbr.utlshortener.interfaces.http.dto.StatsResponse
@@ -88,8 +89,17 @@ fun Application.configureApiRoutes() {
                 call.respond(StatsResponse(slug = slug, clicks = link.clicksCount))
             }
             get("/links") {
-                val links = linksRepository.findAll()
-                val response = links.map { it.toResponse() }
+                val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
+                val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 25
+
+                val (links, total) = linksRepository.findAll(page, size)
+                val response =
+                    PagedResponse(
+                        items = links.map { it.toResponse() },
+                        total = total,
+                        page = page,
+                        size = size,
+                    )
                 call.respond(response)
             }
             post("/shorten") {
