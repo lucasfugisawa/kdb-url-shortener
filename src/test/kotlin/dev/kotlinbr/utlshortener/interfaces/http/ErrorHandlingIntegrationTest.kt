@@ -1,5 +1,6 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
+import dev.kotlinbr.utlshortener.app.config.AppConfigKey
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -20,7 +21,7 @@ class ErrorHandlingIntegrationTest : BaseIntegrationTest() {
         testApplication {
             val appConfig = initDatabaseInSchema("error_url_invalid")
             application {
-                attributes.put(dev.kotlinbr.utlshortener.app.config.AppConfigKey, appConfig)
+                attributes.put(AppConfigKey, appConfig)
                 configureSerialization()
                 configureRouting()
             }
@@ -48,7 +49,7 @@ class ErrorHandlingIntegrationTest : BaseIntegrationTest() {
         testApplication {
             val appConfig = initDatabaseInSchema("error_slug_not_found")
             application {
-                attributes.put(dev.kotlinbr.utlshortener.app.config.AppConfigKey, appConfig)
+                attributes.put(AppConfigKey, appConfig)
                 configureSerialization()
                 configureRouting()
             }
@@ -72,7 +73,7 @@ class ErrorHandlingIntegrationTest : BaseIntegrationTest() {
         testApplication {
             val appConfig = initDatabaseInSchema("error_validation")
             application {
-                attributes.put(dev.kotlinbr.utlshortener.app.config.AppConfigKey, appConfig)
+                attributes.put(AppConfigKey, appConfig)
                 configureSerialization()
                 configureRouting()
             }

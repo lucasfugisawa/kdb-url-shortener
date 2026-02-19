@@ -1,5 +1,8 @@
 package dev.kotlinbr.utlshortener.app.services
 
+import dev.kotlinbr.utlshortener.app.config.AppConfigKey
+import dev.kotlinbr.utlshortener.app.config.CleanupJobKey
+import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
 import dev.kotlinbr.utlshortener.interfaces.http.configureRouting
 import dev.kotlinbr.utlshortener.interfaces.http.configureSerialization
 import dev.kotlinbr.utlshortener.testutils.BaseIntegrationTest
@@ -23,12 +26,10 @@ class CleanupJobIT : BaseIntegrationTest() {
             val appConfig = initDatabaseInSchema(schema)
 
             application {
-                attributes.put(dev.kotlinbr.utlshortener.app.config.AppConfigKey, appConfig)
-                val linksRepository =
-                    dev.kotlinbr.utlshortener.infrastructure.repository
-                        .LinksRepository()
+                attributes.put(AppConfigKey, appConfig)
+                val linksRepository = LinksRepository()
                 val cleanupJob = CleanupJob(linksRepository, appConfig.cleanupIntervalMinutes)
-                attributes.put(dev.kotlinbr.utlshortener.app.config.CleanupJobKey, cleanupJob)
+                attributes.put(CleanupJobKey, cleanupJob)
 
                 configureSerialization()
                 configureRouting()
