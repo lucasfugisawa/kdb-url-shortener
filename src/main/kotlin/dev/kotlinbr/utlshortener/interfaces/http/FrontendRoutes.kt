@@ -66,7 +66,7 @@ fun Application.configureFrontendRoutes() {
 
         get("/openapi.yaml") {
             val content =
-                this::class.java.classLoader
+                javaClass.classLoader
                     .getResourceAsStream("openapi.yaml")
                     ?.bufferedReader()
                     ?.readText()

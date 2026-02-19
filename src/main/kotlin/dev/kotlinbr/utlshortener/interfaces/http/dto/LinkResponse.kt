@@ -24,24 +24,24 @@ data class StatsResponse(
 
 fun Link.toResponse(): LinkResponse =
     LinkResponse(
-        id = this.id ?: error("Link ID cannot be null"),
-        slug = this.slug,
-        targetUrl = this.targetUrl,
-        createdAt = this.createdAt.toString(),
-        isActive = this.isActive,
-        expiresAt = this.expiresAt?.toString(),
-        clicksCount = this.clicksCount,
-        maxClicks = this.maxClicks,
+        id = id ?: error("Link ID cannot be null"),
+        slug = slug,
+        targetUrl = targetUrl,
+        createdAt = createdAt.toString(),
+        isActive = isActive,
+        expiresAt = expiresAt?.toString(),
+        clicksCount = clicksCount,
+        maxClicks = maxClicks,
     )
 
 fun LinkResponse.toDomain(): Link =
     Link(
-        id = this.id,
-        slug = this.slug,
-        targetUrl = this.targetUrl,
-        createdAt = OffsetDateTime.parse(this.createdAt),
-        isActive = this.isActive,
-        expiresAt = this.expiresAt?.let { OffsetDateTime.parse(it) },
-        clicksCount = this.clicksCount,
-        maxClicks = this.maxClicks,
+        id = id,
+        slug = slug,
+        targetUrl = targetUrl,
+        createdAt = OffsetDateTime.parse(createdAt),
+        isActive = isActive,
+        expiresAt = expiresAt?.let { OffsetDateTime.parse(it) },
+        clicksCount = clicksCount,
+        maxClicks = maxClicks,
     )

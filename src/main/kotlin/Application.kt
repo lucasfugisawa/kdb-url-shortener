@@ -24,16 +24,16 @@ fun Application.module() {
         modules(koinModule(appConfig))
     }
 
-    this.environment.log.info("Application starting with env=${appConfig.env}")
+    environment.log.info("Application starting with env=${appConfig.env}")
 
     if (!appConfig.flags.skipDb) {
         DatabaseFactory.init(appConfig)
-        this.environment.log.info("Database initialized")
+        environment.log.info("Database initialized")
 
         val cleanupJob by inject<CleanupJob>()
         cleanupJob.start()
     } else {
-        this.environment.log.info("Skipping database initialization due to app.skipDb=true")
+        environment.log.info("Skipping database initialization due to app.skipDb=true")
     }
 
     configureHTTP()
