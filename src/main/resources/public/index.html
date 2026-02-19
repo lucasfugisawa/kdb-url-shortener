@@ -5,91 +5,361 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Encurtador de URL</title>
     <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-text: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --input-bg: #ffffff;
+            --table-stripe: #f2f2f2;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light-theme) {
+                --bg-color: #212529;
+                --text-color: #f8f9fa;
+                --card-bg: #343a40;
+                --border-color: #495057;
+                --primary-color: #375a7f;
+                --primary-hover: #2b4764;
+                --secondary-text: #adb5bd;
+                --success-color: #28a745;
+                --danger-color: #e74c3c;
+                --input-bg: #2c3034;
+                --table-stripe: #2c3034;
+            }
+        }
+
+        :root.dark-theme {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --card-bg: #343a40;
+            --border-color: #495057;
+            --primary-color: #375a7f;
+            --primary-hover: #2b4764;
+            --secondary-text: #adb5bd;
+            --success-color: #28a745;
+            --danger-color: #e74c3c;
+            --input-bg: #2c3034;
+            --table-stripe: #2c3034;
+        }
+
         body {
-            font-family: sans-serif;
-            max-width: 800px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-size: 14px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
+            padding: 2rem;
         }
-        h1 { color: #333; }
-        .form-group { margin-bottom: 20px; }
-        input[type="text"] {
-            width: 70%;
-            padding: 10px;
-            font-size: 16px;
+
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
+
+        .header-title {
+            text-align: left;
+            flex: 1;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card-bg);
+            padding: 0.25rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-btn {
+            background: none;
+            border: none;
+            color: var(--secondary-text);
+            padding: 0.4rem;
+            border-radius: 50%;
             cursor: pointer;
-            background-color: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            width: 32px;
+            height: 32px;
+        }
+
+        .theme-btn:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .theme-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 2rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.url {
+            flex: 3;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--secondary-text);
+        }
+
+        input {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--primary-color);
             color: white;
             border: none;
             border-radius: 4px;
+            transition: background-color 0.2s;
+            height: 38px;
+            align-self: flex-end;
         }
-        button:hover { background-color: #0056b3; }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
         #result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(13, 110, 253, 0.1);
+            border: 1px dashed var(--primary-color);
             border-radius: 4px;
             display: none;
+            word-break: break-all;
         }
+
+        #result strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 30px;
+            font-size: 0.875rem;
         }
+
         th, td {
             text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
         }
-        th { background-color: #f8f9fa; }
-        .status-active { color: green; font-weight: bold; }
-        .status-inactive { color: red; font-weight: bold; }
+
+        th {
+            background-color: var(--card-bg);
+            font-weight: 600;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--table-stripe);
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .status-active { color: var(--success-color); font-weight: 600; }
+        .status-inactive { color: var(--danger-color); font-weight: 600; }
+
+        .truncate {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .form-row { flex-direction: column; align-items: stretch; }
+            .form-group { min-width: 100%; }
+            button { width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <h1>Encurtador de URL</h1>
-    
-    <div class="form-group">
-        <input type="text" id="urlInput" placeholder="Digite a URL para encurtar (ex: https://google.com)">
-        <div style="margin-top: 10px;">
-            <label for="expiresAtInput">Expira em:</label>
-            <input type="datetime-local" id="expiresAtInput">
-            <label for="maxClicksInput" style="margin-left: 10px;">Máximo de cliques:</label>
-            <input type="number" id="maxClicksInput" min="1" placeholder="Ex: 10" style="width: 80px;">
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>Encurtador de URL</h1>
+                <p style="color: var(--secondary-text); margin: 0;">Simples, rápido e eficiente</p>
+            </div>
+            <div class="theme-switch">
+                <button class="theme-btn" data-theme="light" title="Tema Claro">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
+                <button class="theme-btn" data-theme="system" title="Tema do Sistema">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                </button>
+                <button class="theme-btn" data-theme="dark" title="Tema Escuro">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </header>
+        
+        <div class="card">
+            <div class="form-row">
+                <div class="form-group url">
+                    <label for="urlInput">URL de Destino</label>
+                    <input type="text" id="urlInput" placeholder="https://exemplo.com/sua-url-longa">
+                </div>
+                <div class="form-group">
+                    <label for="expiresAtInput">Expira em</label>
+                    <input type="datetime-local" id="expiresAtInput">
+                </div>
+                <div class="form-group" style="flex: 0 0 120px; min-width: 120px;">
+                    <label for="maxClicksInput">Máx Cliques</label>
+                    <input type="number" id="maxClicksInput" min="1" placeholder="Ex: 100">
+                </div>
+                <button onclick="shortenUrl()">Encurtar</button>
+            </div>
+
+            <div id="result">
+                <strong>✓ Link encurtado com sucesso:</strong> 
+                <a id="shortLink" href="#" target="_blank"></a>
+            </div>
         </div>
-        <div style="margin-top: 10px;">
-            <button onclick="shortenUrl()">Encurtar</button>
+
+        <div class="card">
+            <h2 style="font-size: 1.25rem; margin-top: 0; margin-bottom: 1.5rem;">Links Existentes</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Link Curto</th>
+                            <th>Destino</th>
+                            <th>Criado em</th>
+                            <th>Status</th>
+                            <th>Expira em</th>
+                            <th>Cliques / Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="linksTableBody">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <div id="result">
-        <strong>Link encurtado:</strong> 
-        <a id="shortLink" href="#" target="_blank"></a>
-    </div>
-
-    <h2>Links Existentes</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Link Curto</th>
-                <th>Destino</th>
-                <th>Criado em</th>
-                <th>Ativo</th>
-                <th>Expira em</th>
-                <th>Cliques / Max</th>
-            </tr>
-        </thead>
-        <tbody id="linksTableBody">
-            <!-- Preenchido via JS -->
-        </tbody>
-    </table>
 
     <script>
+        // Theme Management
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        const htmlElement = document.documentElement;
+
+        function setTheme(theme) {
+            htmlElement.classList.remove('light-theme', 'dark-theme');
+            themeBtns.forEach(btn => btn.classList.remove('active'));
+
+            if (theme === 'light') {
+                htmlElement.classList.add('light-theme');
+                document.querySelector('.theme-btn[data-theme="light"]').classList.add('active');
+            } else if (theme === 'dark') {
+                htmlElement.classList.add('dark-theme');
+                document.querySelector('.theme-btn[data-theme="dark"]').classList.add('active');
+            } else {
+                document.querySelector('.theme-btn[data-theme="system"]').classList.add('active');
+            }
+
+            localStorage.setItem('theme-preference', theme);
+        }
+
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                setTheme(btn.getAttribute('data-theme'));
+            });
+        });
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme-preference') || 'system';
+        setTheme(savedTheme);
+
         async function shortenUrl() {
             const urlInput = document.getElementById('urlInput');
             const expiresAtInput = document.getElementById('expiresAtInput');
@@ -103,7 +373,6 @@
 
             const payload = { url: url };
             if (expiresAt) {
-                // Convert datetime-local to ISO string with timezone
                 payload.expiresAt = new Date(expiresAt).toISOString();
             }
             if (maxClicks) {
@@ -151,12 +420,12 @@
                         const shortUrl = window.location.origin + '/api/v1/' + link.slug;
                         
                         row.innerHTML = `
-                            <td><a href="${shortUrl}" target="_blank">${link.slug}</a></td>
-                            <td><a href="${link.targetUrl}" target="_blank">${link.targetUrl}</a></td>
-                            <td>${new Date(link.createdAt).toLocaleString()}</td>
-                            <td class="${link.isActive ? 'status-active' : 'status-inactive'}">${link.isActive ? 'Sim' : 'Não'}</td>
-                            <td>${link.expiresAt ? new Date(link.expiresAt).toLocaleString() : '-'}</td>
-                            <td>${link.clicksCount} / ${link.maxClicks || '∞'}</td>
+                            <td><a href="${shortUrl}" target="_blank" style="font-family: monospace; font-weight: bold;">${link.slug}</a></td>
+                            <td><a href="${link.targetUrl}" target="_blank" class="truncate" title="${link.targetUrl}">${link.targetUrl}</a></td>
+                            <td>${new Date(link.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                            <td class="${link.isActive ? 'status-active' : 'status-inactive'}">${link.isActive ? 'Ativo' : 'Inativo'}</td>
+                            <td>${link.expiresAt ? new Date(link.expiresAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}</td>
+                            <td>${link.clicksCount} <span style="color: var(--secondary-text)">/ ${link.maxClicks || '∞'}</span></td>
                         `;
                         tbody.appendChild(row);
                     });
@@ -166,7 +435,6 @@
             }
         }
 
-        // Carregar links ao abrir a página
         loadLinks();
     </script>
 </body>
