@@ -45,13 +45,27 @@ class SlugGeneratorTest {
         // Sempre colide
         every { repo.existsBySlug(any()) } returns true
 
-        val gen = SlugGenerator(repo)
+        val gen = SlugGenerator(repo, length = 7, maxRetries = 3)
 
         val ex =
             assertThrows(IllegalStateException::class.java) {
-                gen.generate(length = 7, maxRetries = 3)
+                gen.generate()
             }
         assertTrue(ex.message!!.contains("after 3 attempts"))
         verify(exactly = 3) { repo.existsBySlug(any()) }
+    }
+
+    @Test
+    fun `respeita length e maxRetries passados no construtor`() {
+        val repo = mockk<LinksRepository>()
+        every { repo.existsBySlug(any()) } returns false
+
+        val length = 10
+        val maxRetries = 3
+        val generator = SlugGenerator(repo, length = length, maxRetries = maxRetries)
+        val slug = generator.generate()
+
+        assertEquals(length, slug.length)
+        verify(exactly = 1) { repo.existsBySlug(any()) }
     }
 }

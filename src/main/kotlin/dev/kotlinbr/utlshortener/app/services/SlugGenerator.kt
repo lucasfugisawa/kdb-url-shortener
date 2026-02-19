@@ -5,13 +5,12 @@ import kotlin.random.Random
 
 class SlugGenerator(
     private val repo: LinksRepository,
+    private val length: Int = 7,
+    private val maxRetries: Int = 5,
 ) {
     private val base62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    fun generate(
-        length: Int = 7,
-        maxRetries: Int = 5,
-    ): String {
+    fun generate(): String {
         var lastTried = ""
         repeat(maxRetries) {
             val slug = randomSlug(length)

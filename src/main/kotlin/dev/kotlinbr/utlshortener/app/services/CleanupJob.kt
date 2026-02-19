@@ -34,7 +34,6 @@ class CleanupJob(
         logger.info("Running cleanup for expired links...")
         val affectedRows = linksRepository.deactivateExpiredLinks()
         logger.info("Cleanup finished. $affectedRows links deactivated.")
-        // TODO: Métricas (contador)
         return affectedRows
     }
 }

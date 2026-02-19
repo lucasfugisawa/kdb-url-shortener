@@ -2,6 +2,7 @@ package dev.kotlinbr.utlshortener.app.config
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import dev.kotlinbr.utlshortener.app.services.CleanupJob
 import io.ktor.server.application.Application
 import io.ktor.util.AttributeKey
 
@@ -26,16 +27,22 @@ data class AppFlags(
     val allowLocalhost: Boolean,
 )
 
+data class SlugConfig(
+    val length: Int,
+    val maxRetries: Int,
+)
+
 data class AppConfig(
     val env: String,
     val server: ServerConfig,
     val db: DbConfig,
     val flags: AppFlags,
     val cleanupIntervalMinutes: Int,
+    val slug: SlugConfig,
 )
 
 val AppConfigKey: AttributeKey<AppConfig> = AttributeKey("AppConfig")
-val CleanupJobKey: AttributeKey<dev.kotlinbr.utlshortener.app.services.CleanupJob> = AttributeKey("CleanupJob")
+val CleanupJobKey: AttributeKey<CleanupJob> = AttributeKey("CleanupJob")
 
 private fun sysOrEnv(key: String): String? = System.getProperty(key) ?: System.getenv(key)
 
@@ -129,11 +136,18 @@ fun loadAppConfig(application: Application): AppConfig {
     val cleanupInterval =
         sysOrEnv("CLEANUP_INTERVAL_MINUTES")?.toIntOrNull() ?: getInt("app.cleanup.intervalMinutes", 1)
 
+    val slugCfg =
+        SlugConfig(
+            length = sysOrEnv("SLUG_LENGTH")?.toIntOrNull() ?: getInt("app.slug.length", 7),
+            maxRetries = sysOrEnv("SLUG_MAX_RETRIES")?.toIntOrNull() ?: getInt("app.slug.maxRetries", 5),
+        )
+
     return AppConfig(
         env = env,
         server = serverCfg,
         db = dbCfg,
         flags = flags,
         cleanupIntervalMinutes = cleanupInterval,
+        slug = slugCfg,
     )
 }

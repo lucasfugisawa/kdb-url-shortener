@@ -65,6 +65,21 @@ class ConfigLoaderTest {
                 assertEquals(10, cfg.db.poolMax)
                 assertEquals(false, cfg.flags.skipDb)
                 assertEquals(true, cfg.flags.runMigrations)
+                assertEquals(7, cfg.slug.length)
+                assertEquals(5, cfg.slug.maxRetries)
+            }
+        }
+
+    @Test
+    fun `slug config overrides`() =
+        testApplication {
+            setProp("SLUG_LENGTH", "12")
+            setProp("SLUG_MAX_RETRIES", "10")
+            environment { config = MapApplicationConfig() }
+            application {
+                val cfg = loadAppConfig(this)
+                assertEquals(12, cfg.slug.length)
+                assertEquals(10, cfg.slug.maxRetries)
             }
         }
 

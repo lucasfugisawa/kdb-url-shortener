@@ -105,7 +105,12 @@ fun Application.configureApiRoutes() {
                     )
 
                 val linksRepository = LinksRepository()
-                val slugGenerator = SlugGenerator(linksRepository)
+                val slugGenerator =
+                    SlugGenerator(
+                        repo = linksRepository,
+                        length = config.slug.length,
+                        maxRetries = config.slug.maxRetries,
+                    )
                 val slug = slugGenerator.generate()
 
                 val expiresAt =

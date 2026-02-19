@@ -4,6 +4,7 @@ import dev.kotlinbr.utlshortener.app.config.AppConfig
 import dev.kotlinbr.utlshortener.app.config.AppFlags
 import dev.kotlinbr.utlshortener.app.config.DbConfig
 import dev.kotlinbr.utlshortener.app.config.ServerConfig
+import dev.kotlinbr.utlshortener.app.config.SlugConfig
 import dev.kotlinbr.utlshortener.infrastructure.db.DatabaseFactory
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -69,6 +70,8 @@ open class BaseIntegrationTest {
         runMigrations: Boolean = true,
         allowLocalhost: Boolean = false,
         cleanupIntervalMinutes: Int = 15,
+        slugLength: Int = 7,
+        slugMaxRetries: Int = 5,
     ): AppConfig =
         AppConfig(
             env = "test",
@@ -83,6 +86,7 @@ open class BaseIntegrationTest {
                 ),
             flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
             cleanupIntervalMinutes = cleanupIntervalMinutes,
+            slug = SlugConfig(length = slugLength, maxRetries = slugMaxRetries),
         )
 
     protected fun initDatabase(
@@ -116,6 +120,8 @@ open class BaseIntegrationTest {
         driver: String = "org.postgresql.Driver",
         allowLocalhost: Boolean = false,
         cleanupIntervalMinutes: Int = 15,
+        slugLength: Int = 7,
+        slugMaxRetries: Int = 5,
     ): AppConfig {
         ensureSchemaExists(schema)
         return AppConfig(
@@ -131,6 +137,7 @@ open class BaseIntegrationTest {
                 ),
             flags = AppFlags(skipDb = false, runMigrations = runMigrations, allowLocalhost = allowLocalhost),
             cleanupIntervalMinutes = cleanupIntervalMinutes,
+            slug = SlugConfig(length = slugLength, maxRetries = slugMaxRetries),
         )
     }
 
