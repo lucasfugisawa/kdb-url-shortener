@@ -43,11 +43,18 @@ Um **URL Shortener** (encurtador de links) é um serviço que transforma um ende
 
 **Exemplo prático (ilustrativo):**
 - **Criar** um link curto:
-  - `POST /links`
-    - Body JSON: `{ "url": "https://kotlinlang.org/docs/home.html", "alias": "kotlin-docs" }`
-    - Resposta: `{ "code": "kotlin-docs", "shortUrl": "https://sho.rt/kotlin-docs" }`
+  - `POST /api/v1/shorten`
+    - Body JSON: `{ "url": "https://kotlinlang.org/docs/home.html", "expiresAt": "2026-12-31T23:59:59Z", "maxClicks": 100 }`
+    - Resposta: `{ "slug": "abc123", "shortUrl": "/abc123" }`
 - **Acessar** o link curto:
-  - `GET /kotlin-docs` → `302 Location: https://kotlinlang.org/docs/home.html`
+  - `GET /api/v1/abc123` → `302 Location: https://kotlinlang.org/docs/home.html`
+
+### Regras de Expiração
+Um link pode ser configurado para expirar de duas formas (ou ambas simultaneamente):
+1. **Data de expiração (`expiresAt`)**: O link para de funcionar após a data/hora especificada.
+2. **Máximo de cliques (`maxClicks`)**: O link para de funcionar após atingir o limite de acessos.
+
+Se ambos forem definidos, o link será desativado assim que o **primeiro** critério for atingido.
 
 
 ## Estrutura do projeto
@@ -207,6 +214,10 @@ Este projeto separa testes unitários (rápidos) de testes de integração (mais
   - Executa somente testes anotados com `@Tag("integration")`.
 - Todos os testes (recomendado antes de push): `./gradlew check`
   - Executa unit (test) e integration (integrationTest), além das checagens estáticas (ktlint, detekt).
+
+## Padrões de Código
+
+Para garantir a qualidade e consistência do projeto, siga as nossas [Coding Guidelines](CODING_GUIDELINES.md).
 
 ## Validação de URL
 
