@@ -45,7 +45,7 @@ class RoutesUnitTest {
             assertEquals(HttpStatusCode.OK, res.status)
             val ct = res.headers[HttpHeaders.ContentType].orEmpty()
             assertContains(ct.lowercase(), "text/html")
-            assertTrue(res.bodyAsText().contains("<title>Encurtador de URL</title>"))
+            assertTrue(res.bodyAsText().contains("<title>URL Shortener</title>"))
         }
 
     @Test
@@ -195,7 +195,7 @@ class RoutesUnitTest {
             val body = res.bodyAsText()
             assertTrue(
                 res.status != HttpStatusCode.BadRequest ||
-                    (!body.contains("URL não pode estar vazia") && !body.contains("URL inválida")),
+                    (!body.contains("URL cannot be empty") && !body.contains("Invalid URL")),
             )
         }
 
@@ -217,7 +217,7 @@ class RoutesUnitTest {
             val body = res.bodyAsText()
             assertTrue(
                 res.status != HttpStatusCode.BadRequest ||
-                    (!body.contains("URL não pode estar vazia") && !body.contains("URL inválida")),
+                    (!body.contains("URL cannot be empty") && !body.contains("Invalid URL")),
             )
         }
 
@@ -269,7 +269,7 @@ class RoutesUnitTest {
                         """
                         {
                             "url": "https://google.com",
-                            "expiresAt": "data-invalida"
+                            "expiresAt": "invalid-date"
                         }
                         """.trimIndent(),
                     )
@@ -281,7 +281,7 @@ class RoutesUnitTest {
             // Here it's a String, so it should parse.
             assertTrue(res.status == HttpStatusCode.BadRequest || res.status == HttpStatusCode.InternalServerError)
             if (res.status == HttpStatusCode.BadRequest) {
-                assertTrue(res.bodyAsText().contains("Formato de data inválido"))
+                assertTrue(res.bodyAsText().contains("Invalid date format"))
             }
         }
 

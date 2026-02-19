@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: KDB URL Shortener
-  description: API para encurtamento de URLs do Kotlin Brasil.
+  description: URL shortening API for Kotlin Brasil.
   version: 1.0.0
 servers:
   - url: /
@@ -11,7 +11,7 @@ servers:
 paths:
   /shorten:
     post:
-      summary: Encurta uma URL
+      summary: Shortens a URL
       operationId: shortenUrl
       tags:
         - API
@@ -23,26 +23,26 @@ paths:
               $ref: '#/components/schemas/ShortenRequest'
       responses:
         '200':
-          description: URL encurtada com sucesso
+          description: URL shortened successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ShortenResponse'
         '400':
-          description: Erro de validação ou URL inválida
+          description: Validation error or invalid URL
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
-          description: Erro interno
+          description: Internal error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /{slug}:
     get:
-      summary: Redireciona para a URL original
+      summary: Redirects to the original URL
       operationId: redirectSlug
       tags:
         - Redirection
@@ -54,16 +54,16 @@ paths:
             type: string
       responses:
         '302':
-          description: Redirecionamento
+          description: Redirect
         '404':
-          description: Slug não encontrado ou expirado
+          description: Slug not found or expired
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /{slug}/stats:
     get:
-      summary: Obtém estatísticas de um link
+      summary: Gets statistics for a link
       operationId: getStats
       tags:
         - API
@@ -75,7 +75,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Estatísticas do link
+          description: Link statistics
           content:
             application/json:
               schema:
@@ -86,14 +86,14 @@ paths:
                   clicks:
                     type: integer
         '404':
-          description: Link não encontrado
+          description: Link not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /health:
     get:
-      summary: Health check simples
+      summary: Simple health check
       operationId: healthCheck
       tags:
         - Infrastructure
@@ -109,7 +109,7 @@ paths:
                     type: string
   /health/ready:
     get:
-      summary: Readiness check (verifica banco de dados)
+      summary: Readiness check (checks database)
       operationId: readinessCheck
       tags:
         - Infrastructure
@@ -120,7 +120,7 @@ paths:
           description: Not Ready
   /env:
     get:
-      summary: Obtém o ambiente atual
+      summary: Gets the current environment
       operationId: getEnv
       tags:
         - Infrastructure
@@ -129,7 +129,7 @@ paths:
           description: OK
   /admin/cleanup:
     post:
-      summary: Executa limpeza manual de links expirados
+      summary: Executes manual cleanup of expired links
       operationId: runCleanup
       tags:
         - Infrastructure
@@ -150,10 +150,10 @@ components:
         expiresAt:
           type: string
           format: date-time
-          description: Data de expiração (ISO-8601)
+          description: Expiration date (ISO-8601)
         maxClicks:
           type: integer
-          description: Limite de cliques
+          description: Click limit
     ShortenResponse:
       type: object
       properties:

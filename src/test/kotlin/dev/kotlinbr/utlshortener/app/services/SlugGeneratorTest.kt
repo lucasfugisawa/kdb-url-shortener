@@ -40,9 +40,9 @@ class SlugGeneratorTest {
     }
 
     @Test
-    fun `estoura erro se ultrapassar maxRetries`() {
+    fun `should throw error if maxRetries exceeded`() {
         val repo = mockk<LinksRepository>()
-        // Sempre colide
+        // Always collides
         every { repo.existsBySlug(any()) } returns true
 
         val gen = SlugGenerator(repo, length = 7, maxRetries = 3)
@@ -56,7 +56,7 @@ class SlugGeneratorTest {
     }
 
     @Test
-    fun `respeita length e maxRetries passados no construtor`() {
+    fun `respects length and maxRetries passed in constructor`() {
         val repo = mockk<LinksRepository>()
         every { repo.existsBySlug(any()) } returns false
 

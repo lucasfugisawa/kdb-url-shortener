@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encurtador de URL</title>
+    <title>URL Shortener</title>
     <style>
         :root {
             --bg-color: #f8f9fa;
@@ -205,6 +205,18 @@
             color: var(--primary-color);
         }
 
+        .error-message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--danger-color);
+            border-radius: 4px;
+            color: var(--danger-color);
+            display: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -303,17 +315,17 @@
     <div class="container">
         <header>
             <div class="header-title">
-                <h1>Encurtador de URL</h1>
-                <p style="color: var(--secondary-text); margin: 0;">Simples, rápido e eficiente</p>
+                <h1>URL Shortener</h1>
+                <p style="color: var(--secondary-text); margin: 0;">Simple, fast and efficient</p>
             </div>
             <div class="theme-switch">
-                <button class="theme-btn" data-theme="light" title="Tema Claro">
+                <button class="theme-btn" data-theme="light" title="Light Theme">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                 </button>
-                <button class="theme-btn" data-theme="system" title="Tema do Sistema">
+                <button class="theme-btn" data-theme="system" title="System Theme">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
                 </button>
-                <button class="theme-btn" data-theme="dark" title="Tema Escuro">
+                <button class="theme-btn" data-theme="dark" title="Dark Theme">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 </button>
             </div>
@@ -322,38 +334,40 @@
         <div class="card">
             <div class="form-row">
                 <div class="form-group url">
-                    <label for="urlInput">URL de Destino</label>
-                    <input type="text" id="urlInput" placeholder="https://exemplo.com/sua-url-longa">
+                    <label for="urlInput">Destination URL</label>
+                    <input type="text" id="urlInput" placeholder="https://example.com/your-long-url">
                 </div>
                 <div class="form-group">
-                    <label for="expiresAtInput">Expira em</label>
+                    <label for="expiresAtInput">Expires at</label>
                     <input type="datetime-local" id="expiresAtInput">
                 </div>
                 <div class="form-group" style="flex: 0 0 120px; min-width: 120px;">
-                    <label for="maxClicksInput">Máx Cliques</label>
+                    <label for="maxClicksInput">Max Clicks</label>
                     <input type="number" id="maxClicksInput" min="1" placeholder="Ex: 100">
                 </div>
-                <button onclick="shortenUrl()">Encurtar</button>
+                <button onclick="shortenUrl()">Shorten</button>
             </div>
 
             <div id="result">
-                <strong>✓ Link encurtado com sucesso:</strong> 
+                <strong>✓ Link shortened successfully:</strong> 
                 <a id="shortLink" href="#" target="_blank"></a>
             </div>
+
+            <div id="errorMessage" class="error-message"></div>
         </div>
 
         <div class="card">
-            <h2 style="font-size: 1.25rem; margin-top: 0; margin-bottom: 1.5rem;">Links Existentes</h2>
+            <h2 style="font-size: 1.25rem; margin-top: 0; margin-bottom: 1.5rem;">Existing Links</h2>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Link Curto</th>
-                            <th>Destino</th>
-                            <th>Criado em</th>
+                            <th>Short Link</th>
+                            <th>Destination</th>
+                            <th>Created at</th>
                             <th>Status</th>
-                            <th>Expira em</th>
-                            <th>Cliques / Max</th>
+                            <th>Expires at</th>
+                            <th>Clicks / Max</th>
                         </tr>
                     </thead>
                     <tbody id="linksTableBody">
@@ -362,9 +376,9 @@
                 </table>
             </div>
             <div class="pagination" id="paginationControls">
-                <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">Anterior</button>
+                <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">Previous</button>
                 <div id="pageNumbers" style="display: flex; gap: 0.5rem;"></div>
-                <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">Próximo</button>
+                <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">Next</button>
             </div>
         </div>
     </div>
@@ -408,12 +422,21 @@
             const urlInput = document.getElementById('urlInput');
             const expiresAtInput = document.getElementById('expiresAtInput');
             const maxClicksInput = document.getElementById('maxClicksInput');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('errorMessage');
             
             const url = urlInput.value;
             const expiresAt = expiresAtInput.value;
             const maxClicks = maxClicksInput.value;
 
-            if (!url) return alert('Por favor, insira uma URL');
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            if (!url) {
+                errorDiv.textContent = 'Please enter a URL';
+                errorDiv.style.display = 'block';
+                return;
+            }
 
             const payload = { url: url };
             if (expiresAt) {
@@ -433,21 +456,23 @@
                 if (response.ok) {
                     const data = await response.json();
                     const shortLinkA = document.getElementById('shortLink');
-                    const shortUrl = window.location.origin + '/api/v1/' + data.slug;
+                    const shortUrl = window.location.origin + '/' + data.slug;
                     shortLinkA.href = shortUrl;
                     shortLinkA.textContent = shortUrl;
-                    document.getElementById('result').style.display = 'block';
+                    resultDiv.style.display = 'block';
                     urlInput.value = '';
                     expiresAtInput.value = '';
                     maxClicksInput.value = '';
                     loadLinks(currentPage);
                 } else {
-                    const err = await response.text();
-                    alert('Erro ao encurtar: ' + err);
+                    const data = await response.json();
+                    errorDiv.textContent = 'Error shortening: ' + (data.message || 'Unknown error');
+                    errorDiv.style.display = 'block';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Erro na requisição');
+                errorDiv.textContent = 'Request error';
+                errorDiv.style.display = 'block';
             }
         }
 
@@ -463,14 +488,14 @@
 
                     links.forEach(link => {
                         const row = document.createElement('tr');
-                        const shortUrl = window.location.origin + '/api/v1/' + link.slug;
+                        const shortUrl = window.location.origin + '/' + link.slug;
                         
                         row.innerHTML = `
                             <td><a href="${shortUrl}" target="_blank" style="font-family: monospace; font-weight: bold;">${link.slug}</a></td>
                             <td><a href="${link.targetUrl}" target="_blank" class="truncate" title="${link.targetUrl}">${link.targetUrl}</a></td>
-                            <td>${new Date(link.createdAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                            <td class="${link.isActive ? 'status-active' : 'status-inactive'}">${link.isActive ? 'Ativo' : 'Inativo'}</td>
-                            <td>${link.expiresAt ? new Date(link.expiresAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}</td>
+                            <td>${new Date(link.createdAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                            <td class="${link.isActive ? 'status-active' : 'status-inactive'}">${link.isActive ? 'Active' : 'Inactive'}</td>
+                            <td>${link.expiresAt ? new Date(link.expiresAt).toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' }) : '—'}</td>
                             <td>${link.clicksCount} <span style="color: var(--secondary-text)">/ ${link.maxClicks || '∞'}</span></td>
                         `;
                         tbody.appendChild(row);

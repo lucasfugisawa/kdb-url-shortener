@@ -26,7 +26,7 @@ class FrontendRoutesTest {
             val response = client.get("/")
             assertEquals(HttpStatusCode.OK, response.status)
             val body = response.bodyAsText()
-            assertTrue(body.contains("<title>Encurtador de URL</title>"), "Body should contain the title")
+            assertTrue(body.contains("<title>URL Shortener</title>"), "Body should contain the title")
             assertTrue(body.contains("id=\"urlInput\""), "Body should contain the url input")
         }
 
@@ -37,7 +37,7 @@ class FrontendRoutesTest {
             application {
                 module()
             }
-            val res = client.get("/api/v1/slug-que-nao-existe")
+            val res = client.get("/api/v1/non-existent-slug")
             assertEquals(HttpStatusCode.NotFound, res.status)
         }
 }

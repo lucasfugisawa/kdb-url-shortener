@@ -1,42 +1,42 @@
 # Coding Guidelines
 
-Este documento define os padrões de desenvolvimento e boas práticas para o projeto **kdb-url-shortener**. O objetivo é manter a consistência do código, facilitar a manutenção e garantir a qualidade do software.
+This document defines the development standards and best practices for the **kdb-url-shortener** project. The goal is to maintain code consistency, facilitate maintenance, and ensure software quality.
 
-## 1. Idioma e Nomenclatura
+## 1. Language and Naming
 
-- **Código e Documentação Técnica**: Todo o código (nomes de classes, variáveis, funções), logs, mensagens de erro da API e KDoc devem ser escritos em **en-US**.
-- **Commits**: Mensagens de commit devem ser preferencialmente em **en-US**.
-- **Pull Requests**: Títulos e descrições podem ser em **en-US** ou **pt-BR**.
+- **Code and Technical Documentation**: All code (class names, variables, functions), logs, API error messages, and KDoc must be written in **en-US**.
+- **Commits**: Commit messages should preferably be in **en-US**.
+- **Pull Requests**: Titles and descriptions can be in **en-US** or **pt-BR**.
 
-## 2. Estilo de Código (Kotlin)
+## 2. Code Style (Kotlin)
 
-- **Wildcard Imports**: São estritamente proibidos. Importe cada classe ou função explicitamente.
-- **Formatação**: O projeto utiliza o `ktlint`. Execute `./gradlew ktlintFormat` antes de enviar seu código.
-- **Análise Estática**: Utilizamos o `detekt`. Garanta que seu código não possui violações executando `./gradlew detekt`.
-- **Naming**: Siga as convenções oficiais do Kotlin (PascalCase para classes, camelCase para variáveis/funções).
-- **Tratamento de Datas**: Use sempre `java.time.OffsetDateTime` para garantir a consistência de fuso horário.
+- **Wildcard Imports**: These are strictly forbidden. Import each class or function explicitly.
+- **Formatting**: The project uses `ktlint`. Run `./gradlew ktlintFormat` before submitting your code.
+- **Static Analysis**: We use `detekt`. Ensure your code has no violations by running `./gradlew detekt`.
+- **Naming**: Follow official Kotlin conventions (PascalCase for classes, camelCase for variables/functions).
+- **Date Handling**: Always use `java.time.OffsetDateTime` to ensure timezone consistency.
 
-## 3. Arquitetura e Padrões
+## 3. Architecture and Patterns
 
-- **Injeção de Dependência**: O projeto utiliza o **Koin** (versão 4.1.1).
-    - As dependências devem ser definidas em `dev.kotlinbr.utlshortener.app.config.KoinModule.kt`.
-    - Use `by inject<T>()` para injetar dependências em classes do Ktor ou componentes gerenciados.
-    - Evite injetar tipos primitivos diretamente. Se necessário, agrupe-os em classes de configuração (ex: `SlugConfig`) ou crie tipos específicos.
-- **DTOs (Data Transfer Objects)**: Toda comunicação externa (API) deve usar DTOs definidos em `interfaces/http/dto`. Não exponha entidades de domínio diretamente.
-- **Imutabilidade**: Prefira `val` a `var` sempre que possível. Use `data class` para representar estruturas de dados.
+- **Dependency Injection**: The project uses **Koin** (version 4.1.1).
+    - Dependencies must be defined in `dev.kotlinbr.utlshortener.app.config.KoinModule.kt`.
+    - Use `by inject<T>()` to inject dependencies into Ktor classes or managed components.
+    - Avoid injecting primitive types directly. If necessary, group them into configuration classes (e.g., `SlugConfig`) or create specific types.
+- **DTOs (Data Transfer Objects)**: All external communication (API) must use DTOs defined in `interfaces/http/dto`. Do not expose domain entities directly.
+- **Immutability**: Prefer `val` over `var` whenever possible. Use `data class` to represent data structures.
 
-## 4. Testes
+## 4. Testing
 
-- **Unitários**: Devem ser rápidos e não depender de recursos externos.
-- **Integração**: Devem ser anotados com `@Tag("integration")`. O projeto utiliza **Testcontainers** para fornecer um banco de dados PostgreSQL real durante os testes de integração.
-- **Cobertura**: Novas funcionalidades ou correções de bugs devem vir acompanhadas de testes que validem tanto o "caminho feliz" quanto casos de erro.
+- **Unit Tests**: Must be fast and not depend on external resources.
+- **Integration Tests**: Must be annotated with `@Tag("integration")`. The project uses **Testcontainers** to provide a real PostgreSQL database during integration tests.
+- **Coverage**: New features or bug fixes must be accompanied by tests that validate both the "happy path" and error cases.
 
-## 5. Observabilidade
+## 5. Observability
 
-- **Logs**: Use SLF4J com Logback. Registre eventos importantes, mas evite logs excessivos ou sensíveis em produção.
-- **Error Handling**: Use o mecanismo de `StatusPages` no Ktor para centralizar o tratamento de exceções e retornar respostas consistentes.
+- **Logs**: Use SLF4J with Logback. Record important events, but avoid excessive or sensitive logs in production.
+- **Error Handling**: Use the `StatusPages` mechanism in Ktor to centralize exception handling and return consistent responses.
 
 ## 6. Git Workflow
 
-- **Hooks**: Recomenda-se instalar o git hook de pre-push: `./gradlew installGitHookPrePush`. Isso garante que testes e checagens de estilo rodem localmente antes de você enviar o código.
-- **Tamanho das PRs**: Prefira Pull Requests pequenas e focadas em uma única tarefa ou funcionalidade.
+- **Hooks**: It is recommended to install the pre-push git hook: `./gradlew installGitHookPrePush`. This ensures that tests and style checks run locally before you push the code.
+- **PR Size**: Prefer small Pull Requests focused on a single task or feature.

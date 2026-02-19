@@ -53,7 +53,7 @@ class ApplicationModuleTest {
             // GET / (now returns index.html)
             val root = client.get("/")
             assertEquals(HttpStatusCode.OK, root.status)
-            assertTrue(root.bodyAsText().contains("<title>Encurtador de URL</title>"))
+            assertTrue(root.bodyAsText().contains("<title>URL Shortener</title>"))
 
             // Health endpoint from InfraRoutes
             val health = client.get("/health")

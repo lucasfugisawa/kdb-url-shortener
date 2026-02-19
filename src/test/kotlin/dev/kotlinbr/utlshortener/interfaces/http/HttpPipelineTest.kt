@@ -73,6 +73,6 @@ class HttpPipelineTest {
             val uuidRegex = Regex("^[0-9a-fA-F-]{36}$")
             assertTrue(uuidRegex.matches(requestId), "X-Request-ID should look like a UUID: $requestId")
             // Also ensure body is still accessible (index.html is served at root)
-            assertTrue(response.bodyAsText().contains("<title>Encurtador de URL</title>"))
+            assertTrue(response.bodyAsText().contains("<title>URL Shortener</title>"))
         }
 }

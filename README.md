@@ -1,63 +1,64 @@
 # kdb-url-shortener
 
-Encurtador de URLs escrito em Kotlin/Ktor. 
+URL Shortener written in Kotlin/Ktor.
 
-Este repositório será utilizado como projeto de aprendizado colaborativo na comunidade Kotlin Devs Brasil (KDB). 
+This repository is used as a collaborative learning project in the Kotlin Devs Brasil (KDB) community.
 
-A iniciativa visa ajudar pessoas desenvolvedoras iniciantes (ou em transição) a praticar backend com Kotlin em um cenário próximo ao de uma empresa real, desenvolvendo habilidades técnicas (Kotlin, Ktor, bancos de dados, testes, Docker, boas práticas) e comportamentais (comunicação, colaboração, revisão de código, gestão de tarefas), além de adquirir experiência prática e portfólio.
-
-
-## Visão geral
-
-- Stack principal: Kotlin (JVM 21), Ktor (Netty), Exposed (SQL), PostgreSQL, Flyway (migrações), Redis (futuro uso), Logback (logs).
-- Endpoints iniciais:
-  - `GET /` → retorno simples "Hello World!" (placeholder).
-  - `GET /health` → `{ "status": "ok" }` para verificação básica.
-  - `GET /health/ready` → checa conectividade com o banco; retorna 200 quando a aplicação está pronta para receber tráfego.
-  - `GET /env` → expõe o ambiente atual (dev, prod, test).
-- Observabilidade simples: cabeçalho `X-Request-ID`, logs estruturados com informações de requisição e latência.
+The initiative aims to help beginner (or transitioning) developers practice backend with Kotlin in a scenario close to a real company, developing technical skills (Kotlin, Ktor, databases, testing, Docker, best practices) and soft skills (communication, collaboration, code review, task management), in addition to acquiring practical experience and portfolio.
 
 
-## O que é e como funciona um URL Shortener
+## Overview
 
-Um **URL Shortener** (encurtador de links) é um serviço que transforma um endereço longo, difícil de compartilhar, em um link curto e simples. Exemplo:
-- Longo: https://www.exemplo.com/artigos/ktor-introducao?utm_source=newsletter&utm_medium=email
-- Curto: https://sho.rt/abc123
+- Main Stack: Kotlin (JVM 21), Ktor (Netty), Exposed (SQL), PostgreSQL, Flyway (migrations), Logback (logs).
+- Core Endpoints:
+  - `GET /` -> Serves the web frontend.
+  - `GET /health` -> `{ "status": "ok" }` for basic verification.
+  - `GET /health/ready` -> checks database connectivity; returns 200 when the application is ready to receive traffic.
+  - `GET /env` -> exposes the current environment (dev, prod, test).
+  - `POST /admin/cleanup` -> manually triggers the deletion/deactivation of expired links.
+- Simple Observability: `X-Request-ID` header, structured logs with request information and latency.
 
-**Por que usar:**
-- Facilita o compartilhamento em redes sociais, mensagens e materiais impressos.
-- Melhora a estética dos links e reduz erros de digitação.
-- Possibilita coleta de métricas (cliques, origem, dispositivo) e aplicação de regras como expiração do link.
 
-**Como funciona (alto nível):**
-1) Criação do link curto
-   - O cliente envia a URL original para o serviço.
-   - A aplicação gera um código curto (ex.: "abc123") ou usa um alias personalizado (ex.: "kdb").
-   - O par código → URL original é salvo no banco de dados.
-   - A API retorna a URL curta completa (ex.: https://sho.rt/abc123).
-2) Redirecionamento
-   - Quando alguém acessa https://sho.rt/abc123, o servidor procura o código no banco e responde com um redirecionamento HTTP (geralmente 302) para a URL original.
-3) Métricas e regras (opcionais)
-   - Cada clique pode ser registrado para gerar relatórios.
-   - É possível definir expiração (TTL), limites de uso, proteção por senha, entre outras políticas.
+## What it is and how a URL Shortener works
 
-**Exemplo prático (ilustrativo):**
-- **Criar** um link curto:
+A **URL Shortener** (link shortener) is a service that transforms a long address, difficult to share, into a short and simple link. Example:
+- Long: https://www.example.com/articles/ktor-introduction?utm_source=newsletter&utm_medium=email
+- Short: https://sho.rt/abc123
+
+**Why use it:**
+- Facilitates sharing on social networks, messages, and printed materials.
+- Improves link aesthetics and reduces typing errors.
+- Enables metric collection (clicks, origin, device) and applying rules like link expiration.
+
+**How it works (high level):**
+1) Creating the short link
+   - The client sends the original URL to the service.
+   - The application generates a short code (e.g.: "abc123") or uses a custom alias (currently generated automatically).
+   - The code -> original URL pair is saved in the database.
+   - The API returns the complete short URL (e.g.: https://sho.rt/abc123).
+2) Redirection
+   - When someone accesses https://sho.rt/abc123, the server looks up the code in the database and responds with an HTTP redirection (usually 302) to the original URL.
+3) Metrics and rules
+   - Each click is recorded.
+   - It's possible to set expiration (TTL), usage limits (max clicks), among other policies.
+
+**Practical example:**
+- **Create** a short link:
   - `POST /api/v1/shorten`
-    - Body JSON: `{ "url": "https://kotlinlang.org/docs/home.html", "expiresAt": "2026-12-31T23:59:59Z", "maxClicks": 100 }`
-    - Resposta: `{ "slug": "abc123", "shortUrl": "/abc123" }`
-- **Acessar** o link curto:
-  - `GET /api/v1/abc123` → `302 Location: https://kotlinlang.org/docs/home.html`
+    - JSON Body: `{ "url": "https://kotlinlang.org/docs/home.html", "expiresAt": "2026-12-31T23:59:59Z", "maxClicks": 100 }`
+    - Response: `{ "slug": "abc123", "shortUrl": "/abc123" }`
+- **Access** the short link:
+  - `GET /abc123` -> `302 Found; Location: https://kotlinlang.org/docs/home.html`
 
-### Regras de Expiração
-Um link pode ser configurado para expirar de duas formas (ou ambas simultaneamente):
-1. **Data de expiração (`expiresAt`)**: O link para de funcionar após a data/hora especificada.
-2. **Máximo de cliques (`maxClicks`)**: O link para de funcionar após atingir o limite de acessos.
+### Expiration Rules
+A link can be configured to expire in two ways (or both simultaneously):
+1. **Expiration date (`expiresAt`)**: The link stops working after the specified date/time.
+2. **Maximum clicks (`maxClicks`)**: The link stops working after reaching the access limit.
 
-Se ambos forem definidos, o link será desativado assim que o **primeiro** critério for atingido.
+If both are defined, the link will be deactivated as soon as the **first** criterion is met.
 
 
-## Estrutura do projeto
+## Project Structure
 
 ```
 .
@@ -78,204 +79,163 @@ Se ambos forem definidos, o link será desativado assim que o **primeiro** crit�
 ├─ src
 │  ├─ main
 │  │  ├─ kotlin
-│  │  │  ├─ Application.kt                  # Ponto de entrada (EngineMain) + module()
+│  │  │  ├─ Application.kt                  # Entry point (EngineMain) + module()
 │  │  │  └─ dev/kotlinbr/utlshortener
 │  │  │     ├─ app
-│  │  │     │  ├─ config/Config.kt          # Configuração da aplicação (env, server, db)
-│  │  │     │  └─ http/HTTP.kt              # Pipeline/middlewares HTTP
-│  │  │     ├─ domain/                      # Entidades e regras de negócio (variam por domínio)
+│  │  │     │  ├─ config/Config.kt          # App configuration (env, server, db)
+│  │  │     │  ├─ http/HTTP.kt              # HTTP pipeline/middlewares
+│  │  │     │  └─ services/                 # Business logic services (validation, generator, cleanup)
+│  │  │     ├─ domain/                      # Entities and business rules
 │  │  │     ├─ infrastructure
-│  │  │     │  ├─ db/DatabaseFactory.kt     # Inicialização do DB + Flyway
-│  │  │     │  ├─ db/tables/                # Tabelas (Exposed) — mapeamentos SQL do domínio
-│  │  │     │  └─ repository/               # Repositórios — acesso a dados (varia por domínio)
+│  │  │     │  ├─ db/DatabaseFactory.kt     # DB initialization + Flyway
+│  │  │     │  ├─ db/tables/                # Tables (Exposed) — domain SQL mapping
+│  │  │     │  └─ repository/               # Repositories — data access
 │  │  │     └─ interfaces/http
-│  │  │        ├─ ApiRoutes.kt              # Endpoints da API (ex.: GET /api/v1/links)
-│  │  │        ├─ FrontendRoutes.kt         # Rotas de frontend/redirecionamento
-│  │  │        ├─ InfraRoutes.kt            # Rotas de infraestrutura (/health, /env)
-│  │  │        ├─ Routing.kt                # Registro de todas as rotas
-│  │  │        ├─ Serialization.kt          # Configuração de JSON/ContentNegotiation
-│  │  │        └─ dto/                      # DTOs (mapeamentos de entrada/saída) — variam por caso de uso
+│  │  │        ├─ ApiRoutes.kt              # API endpoints (e.g.: POST /api/v1/shorten)
+│  │  │        ├─ FrontendRoutes.kt         # Frontend routes / redirection / index.html
+│  │  │        ├─ InfraRoutes.kt            # Infrastructure routes (/health, /env, /admin/cleanup)
+│  │  │        ├─ Routing.kt                # Routing registration
+│  │  │        ├─ Serialization.kt          # JSON configuration (ContentNegotiation)
+│  │  │        └─ dto/                      # Data Transfer Objects (Request/Response mapping)
 │  │  └─ resources
-│  │     ├─ application.conf                # Configurações por ambiente
-│  │     ├─ db/migration/                   # Migrações Flyway (scripts versionados)
-│  │     └─ logback.xml                     # Configuração de logs
+│  │     ├─ application.conf                # Environment-based configurations
+│  │     ├─ db/migration/                   # Flyway migrations (versioned scripts)
+│  │     ├─ logback.xml                     # Logging configuration
+│  │     ├─ public/                         # Static frontend files (index.html)
+│  │     └─ openapi.yaml                    # API Documentation (Swagger)
 │  └─ test
-│     └─ kotlin/                            # Testes (unitários e de integração); não listado individualmente
+│     └─ kotlin/                            # Tests (unit and integration)
 ```
 
 
-## Como rodar/desenvolver localmente (Gradle)
+## How to run/develop locally (Gradle)
 
-### Pré-requisitos
-- Java 21 (JDK) instalado
-- Docker (para subir dependências como Postgres/Redis)
+### Prerequisites
+- Java 21 (JDK) installed
+- Docker (to run dependencies like Postgres/Redis)
 
-Nota para Windows:
-- Recomenda-se usar o Windows PowerShell nas instruções abaixo, pois ele suporta invocar o wrapper do Gradle como `./gradlew`.
-- Alternativamente, no CMD use `gradlew.bat` (sem `./`). No Git Bash também é possível usar `./gradlew`.
+Note for Windows:
+- It's recommended to use Windows PowerShell or Git Bash to run the Gradle wrapper as `./gradlew`.
+- Alternatively, in CMD use `gradlew.bat` (without `./`).
 
-### Comandos úteis
-- Rodar testes: `./gradlew test`
-- Build completo: `./gradlew build` (inclui `ktlintCheck` e `detekt`)
-- Executar o servidor: `./gradlew run`
+### Useful Commands
+- Run tests: `./gradlew test`
+- Integration tests: `./gradlew integrationTest`
+- Complete build: `./gradlew build` (includes checks, tests and linters)
+- Run the server: `./gradlew run`
 
-### Dependências via Docker (Postgres e Redis)
-- Subir dependências: `./gradlew dockerDepsUp`
-- Parar containers (mantém dados): `./gradlew dockerDepsStop`
-- Remover containers (mantém dados): `./gradlew dockerDepsDown`
-- Recriar deps: `./gradlew dockerDepsRecreate`
-- Atualizar imagens: `./gradlew dockerDepsPull`
-- Resetar banco (apaga volume): `./gradlew dockerDbReset`
+### Docker Dependencies (Postgres)
+- Start dependencies: `./gradlew dockerDepsUp`
+- Stop containers (keeps data): `./gradlew dockerDepsStop`
+- Remove containers (keeps data): `./gradlew dockerDepsDown`
+- Recreate dependencies: `./gradlew dockerDepsRecreate`
+- Update images: `./gradlew dockerDepsPull`
+- Reset database (wipes volume): `./gradlew dockerDbReset`
 
-### Ordem e pré-requisitos (importante)
-- **Pré-requisito:** Docker Desktop/Engine em execução e com Docker Compose v2 disponível (comando `docker compose`).
-- **Primeira vez (ou após longo tempo):** rode `dockerDepsPull` para baixar as imagens e depois `dockerDepsUp`.
-- **Ciclo típico de desenvolvimento:**
-  1) `dockerDepsUp` — cria/sobe Postgres e Redis em background (perfil deps). Se já existirem, apenas inicia.
-  2) Desenvolva e rode a aplicação: `./gradlew run` (a aplicação aponta por padrão para o Postgres em localhost).
-  3) `dockerDepsStop` — pausa os containers, mantendo os dados no volume.
-- **Quando algo "quebrar" nos containers sem alterar dados:** use `dockerDepsRecreate` para forçar a recriação dos containers (mantém volumes e dados).
-- **Para limpar containers e rede (mantendo os volumes):** use `dockerDepsDown`.
-- **Para reset total do banco (apagando volume do Postgres):** use `dockerDbReset`. Atenção: isso apaga todos os dados.
+### Lifecycle and Prerequisites (Important)
+- **Prerequisite:** Docker Desktop/Engine running and Docker Compose v2 available (`docker compose` command).
+- **First time (or after a long time):** run `dockerDepsPull` to download images and then `dockerDepsUp`.
+- **Typical development cycle:**
+  1) `dockerDepsUp` — starts Postgres in the background (deps profile).
+  2) Develop and run the app: `./gradlew run` (it points to localhost Postgres by default).
+  3) `dockerDepsStop` — pauses containers, keeping data in the volume.
+- **When something "breaks" in the containers without data change:** use `dockerDepsRecreate`.
+- **To total database reset (deleting Postgres volume):** use `dockerDbReset`. **Warning:** this deletes all data.
 
-Observações e dicas:
-- Healthcheck: o Postgres tem healthcheck no docker-compose. Após `dockerDepsUp`, aguarde alguns segundos até o serviço ficar saudável. Você pode checar com `docker compose -f docker-compose.yml ps`.
-- Perfis: usamos o perfil `deps` no Compose para subir apenas Postgres e Redis. Os comandos Gradle já passam `--profile deps` quando necessário.
-- Sobre migrações: por padrão, ao iniciar a aplicação local (Gradle run), as migrações do Flyway são executadas automaticamente para garantir que a tabela `links` exista.
-- Parar tudo manualmente: se você tiver subido a stack completa via Compose (incluindo `app`), `dockerDepsDown` também derruba os serviços do perfil atual do projeto. Para um reset completo com remoção de volume, prefira `dockerDbReset`. 
-
-**Configuração padrão (dev):**
-- Ambiente: `APP_ENV=dev` (padrão)
-- Banco (localhost): `jdbc:postgresql://localhost:5432/kdb_url_shortener` com user `kdb_url_shortener` e senha `kdb-url-shortener-pwd`
-- Para sobrescrever via ambiente: `DB_URL`, `DB_USER`, `DB_PASSWORD`
-- Para pular o banco temporariamente (ex.: demos rápidas): definir propriedade do sistema `-DAPP_SKIP_DB=true` (não recomendável para desenvolvimento real)
-
-**Health checks locais:**
-- `GET http://localhost:8080/health` → `{ "status": "ok" }`
-- `GET http://localhost:8080/health/ready` → 200 quando a app conectou no banco
+Notes:
+- Healthcheck: Postgres has a healthcheck in docker-compose. Wait a few seconds until the service is healthy.
+- Migrations: Flyway migrations run automatically at startup when running locally via Gradle.
 
 
-## Rodando tudo com Docker (stack semelhante ao prod)
+**Default Configuration (dev):**
+- Environment: `APP_ENV=dev` (default)
+- Database (localhost): `jdbc:postgresql://localhost:5432/kdb_url_shortener`
+- User: `kdb_url_shortener` / Password: `kdb-url-shortener-pwd`
+- Environment Overrides: `DB_URL`, `DB_USER`, `DB_PASSWORD`
 
-**Pré-requisitos:** Docker e Docker Compose.
 
-**Subir a stack completa (Postgres + Redis + App):**
+**Local Health Checks:**
+- `GET http://localhost:8080/health` -> `{ "status": "ok" }`
+- `GET http://localhost:8080/health/ready` -> 200 when connected to the database
+
+
+## Running with Docker (Production-like stack)
+
+**Subir a stack completa (Postgres + App):**
 - `docker compose up --build`
 
-**Serviços:**
-- postgres (imagem: `postgres:16`)
-- redis (imagem: `redis:7`)
-- app (build a partir do Dockerfile usando Eclipse Temurin 21)
+**Services:**
+- postgres (image: `postgres:16`)
+- app (build from Dockerfile using Eclipse Temurin 21)
 
-**Variáveis usadas pelo container da aplicação (definidas no compose):**
+**Application Container Variables (defined in compose):**
 - `APP_ENV=prod`
-- `APP_RUN_MIGRATIONS=true` (roda migrações Flyway no startup)
+- `APP_RUN_MIGRATIONS=true` (runs migrations at startup)
 - `DB_URL=jdbc:postgresql://postgres:5432/kdb_url_shortener`
 - `DB_USER=kdb_url_shortener`
 - `DB_PASSWORD=kdb-url-shortener-pwd`
 
-**Verificando saúde:**
-- `GET http://localhost:8080/health` → 200 `{ "status": "ok" }`
-- `GET http://localhost:8080/health/ready` → 200 quando o Postgres estiver pronto e a app conectada
 
-**Parar/remover:**
-- Ctrl+C para parar; depois `docker compose down` para remover containers. Dados do Postgres ficam no volume `pgdata`.
+## Code Quality
+
+- Checks: `./gradlew ktlintCheck detekt`
+- Automatic formatting: `./gradlew ktlintFormat`
 
 
-## Qualidade de código
+## Git Hook: pre-push (checks before pushing)
 
-- Checagens: `./gradlew ktlintCheck detekt`
-- Formatação automática: `./gradlew ktlintFormat`
+The pre-push hook prevents pushing code that breaks the build, tests, or static analysis.
 
-## Hook do Git: pre-push (checagens antes de enviar código)
-
-Por que instalar:
-- Evita enviar código que quebra o build/testes/análises estáticas. O hook executa a tarefa `check`, que já inclui `ktlintCheck` e `detekt` configurados no projeto.
-
-Como instalar o hook neste repositório:
+To install it:
 - Execute: `./gradlew installGitHookPrePush`
-  - Isso cria/atualiza o arquivo `.git/hooks/pre-push` com um script que roda `./gradlew check` antes do push.
-  - Se a checagem falhar, o push é abortado (você verá uma mensagem explicando o motivo).
+- This creates `.git/hooks/pre-push` that runs `./gradlew check` (linters + tests) before pushing.
 
-Observações:
-- O hook é instalado localmente (não vai para o repositório remoto). Cada colaborador precisa instalá-lo uma vez.
-- Caso o diretório `.git` não exista (por exemplo, se você baixou um zip), o task avisará e não fará nada.
-- Para remover, apague o arquivo `.git/hooks/pre-push`.
-- No Windows, o Git para Windows executa hooks como scripts sh. O comando `./gradlew` funciona no PowerShell e no Git Bash; no CMD use `gradlew.bat`.
 
-## Testes: como rodar e como funcionam
+## Testing: how it works
 
-Este projeto separa testes unitários (rápidos) de testes de integração (mais lentos) que usam Testcontainers (PostgreSQL).
+Tests are split into Unit tests (fast) and Integration tests (slower, using Testcontainers).
 
-### Resumo de comandos
-- Unit tests (padrão): `./gradlew test`
-  - Executa JUnit 5 com `@Tag("integration")` excluído.
-- Integration tests apenas: `./gradlew integrationTest`
-  - Executa somente testes anotados com `@Tag("integration")`.
-- Todos os testes (recomendado antes de push): `./gradlew check`
-  - Executa unit (test) e integration (integrationTest), além das checagens estáticas (ktlint, detekt).
+### Command Summary
+- Unit tests: `./gradlew test` (excludes `@Tag("integration")`)
+- Integration tests: `./gradlew integrationTest` (only `@Tag("integration")`)
+- All checks (recommended before push): `./gradlew check` (unit + integration + linters)
 
-## Padrões de Código
+### Tagging Convention
+- Any test requiring external resources (Docker/Testcontainers) MUST be annotated with `@Tag("integration")`.
 
-Para garantir a qualidade e consistência do projeto, siga as nossas [Coding Guidelines](CODING_GUIDELINES.md).
-
-## Validação de URL
-
-A aplicação aplica regras robustas de validação e normalização para todas as URLs enviadas ao endpoint `/shorten`:
-
-1.  **Normalização**:
-    -   *Trim* de espaços em branco no início e fim.
-    -   Se a URL começar com `www.` (sem esquema), o prefixo `https://` é adicionado automaticamente.
-2.  **Esquemas Permitidos**:
-    -   Apenas `http://` e `https://` são aceitos. Outros protocolos (ftp, mailto, javascript, etc.) resultam em erro 400.
-3.  **Segurança (Anti-SSRF)**:
-    -   Por padrão, hosts locais e IPs privados (`localhost`, `127.0.0.1`, `10.*`, `192.168.*`, `172.16.*-172.31.*`) são bloqueados.
-    -   Esta restrição pode ser relaxada em ambientes de desenvolvimento definindo a variável de ambiente `ALLOW_LOCALHOST=true` ou a propriedade `app.allowLocalhost=true` no `application.conf`.
-4.  **Validação de Domínio**:
-    -   O domínio deve ter um TLD (Top-Level Domain) plausível (ex: deve conter ao menos um ponto separando o nome do domínio da extensão).
-5.  **Tamanho Máximo**:
-    -   URLs são limitadas a 2.000 caracteres.
-
-### Convenção de tags
-- Qualquer teste que necessite de recursos externos (ex.: Docker/Testcontainers) deve ser anotado com `@Tag("integration")`.
-- Testes puramente de JVM/unidade não são tagueados e rodam por padrão no `test`.
-
-### Como o ambiente é controlado nos testes
-- Os testes evitam depender de variáveis de ambiente reais do SO. Em vez disso, usam propriedades do sistema (JVM) para emular as variáveis esperadas pelo loader de configuração da app:
-  - `APP_ENV`, `APP_SKIP_DB`, `APP_RUN_MIGRATIONS`
-  - `DB_URL`, `DB_USER`, `DB_PASSWORD`, `DB_DRIVER`, `DB_POOL_MAX`
-- Exemplos aparecem ao longo dos testes, por exemplo: `System.setProperty("APP_SKIP_DB", "true")` para pular o DB no bootstrap, ou a `BaseIntegrationTest` que injeta `DB_URL/USER/PASSWORD` a partir do container em execução.
-- O carregador de config (`loadAppConfig`) lê primeiro do `ApplicationConfig` (overrides em memória via `testApplication`) e depois de propriedades do sistema/variáveis reais, permitindo testes determinísticos.
-
-### Infra de testes
+### Test Infrastructure
 - `src/test/kotlin/dev/kotlinbr/utlshortener/testutils`
-  - `BaseIntegrationTest.kt`: classe base JUnit que inicia um container PostgreSQL (Testcontainers) reutilizável e configura propriedades do sistema para a app (`APP_ENV=test`, `APP_RUN_MIGRATIONS=true`, credenciais `DB_*`). Marca testes com `@Tag("integration")`.
-  - `TestDataFactory.kt`: builders e helpers com Exposed para inserir/selecionar links.
-  - `TestClockUtils.kt`: utilitários de relógio fixo para timestamps determinísticos.
-- Testes unitários ficam em `src/test/kotlin/dev/kotlinbr` e espelham a estrutura de pacotes do main.
-
-### Testcontainers em CI
-- Requisitos: um daemon Docker deve estar disponível ao runner. Modo privilegiado NÃO é obrigatório; Docker-in-Docker padrão ou socket do host são suficientes.
-- Não é necessária config Gradle especial. Testes anotados com `@Tag("integration")` iniciarão containers PostgreSQL sob demanda.
-- Reuse para velocidade (opcional, local): crie `~/.testcontainers.properties` com `testcontainers.reuse.enable=true` para permitir reuso entre execuções. Não faça commit desse arquivo.
-- Se o CI limitar egress de rede, garanta que o Docker pode baixar `postgres:16-alpine`.
-
-### Solução de problemas
-- "Cannot connect to Docker": garanta que o Docker está instalado e que o usuário/runner atual tem acesso ao daemon.
-- Testes de integração travam na primeira execução: o pull de imagens pode levar tempo em cache frio. Faça pre-pull das imagens ou use o helper `dockerDepsPull`.
-- Para pular testes de integração temporariamente no CI, rode apenas `./gradlew test`. Para exigir ambos, use `./gradlew check`.
-
-### Referências
-- O filtro por tags do JUnit Platform está configurado no `build.gradle.kts`: a task `test` exclui `@Tag("integration")`, e a task `integrationTest` inclui somente essa tag.
-
-## Contribuição
-
-- **Idioma**: Código, mensagens de erro/logs e eventuais comentários devem ser em en-US. 
-- **Issues e PRs:** Prefira mensagens de **commit** em en-US. Título e descrição de **pull requests** podem ser em en-US ou pt-BR.
-- **Padrões desejáveis:** pequenas PRs, descrição clara, testes cobrindo alterações, logs/erros amigáveis, atenção à observabilidade e ao desempenho.
+  - `BaseIntegrationTest.kt`: base class using Testcontainers PostgreSQL.
+  - `TestDataFactory.kt`: helpers to insert/seed data.
+  - `TestClockUtils.kt`: fixed clock utilities for deterministic tests.
 
 
-## Licença
+## URL Validation
 
-Este projeto utiliza a licença MIT. Veja o arquivo LICENSE para detalhes.
+The application applies robust validation and normalization rules:
 
+1.  **Normalization**: Trims whitespace. Adds `https://` if the URL starts with `www.`.
+2.  **Allowed Schemes**: Only `http://` and `https://` are accepted.
+3.  **Security (Anti-SSRF)**: Rejects local hosts and private IPs by default. This can be relaxed via `ALLOW_LOCALHOST=true` (dev only).
+4.  **Domain Validation**: Domains must have a plausible TLD.
+5.  **Maximum Size**: URLs are limited to 2,000 characters.
+
+
+## Cleanup Job
+
+The application features a background `CleanupJob` that periodically deactivates expired links.
+- Controlled via `APP_START_CLEANUP_JOB` (enabled by default).
+- Interval can be set via `CLEANUP_INTERVAL_MINUTES`.
+- Can be manually triggered via `POST /admin/cleanup`.
+
+
+## Contribution
+
+- **Language**: Code, error messages, logs, and KDocs must be in **en-US**.
+- **Commits:** Commit messages must be in **en-US**.
+- **Pull Requests:** PR title and description can be in **en-US** or **pt-BR**.
+
+
+## License
+
+MIT License. See LICENSE for details.
