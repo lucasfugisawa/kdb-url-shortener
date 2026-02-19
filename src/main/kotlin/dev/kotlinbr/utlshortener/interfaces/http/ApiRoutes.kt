@@ -28,18 +28,19 @@ import java.time.OffsetDateTime
  */
 fun Application.configureApiRoutes() {
     val logger = LoggerFactory.getLogger("dev.kotlinbr.utlshortener.interfaces.http.ApiRoutes")
+    val linksRepository = LinksRepository()
+
     routing {
         route("/api/v1") {
             get("/{slug}") {
-                val slug = call.parameters["slug"] ?: throw SlugNotFoundException("Slug é obrigatório.")
+                val slug = call.parameters["slug"] ?: throw SlugNotFoundException("Slug is required.")
 
                 val link =
                     try {
-                        val linksRepository = LinksRepository()
                         linksRepository.findBySlug(slug)
                     } catch (e: Exception) {
                         logger.warn(
-                            "Erro ao buscar slug {}: {}. Provavelmente banco não inicializado.",
+                            "Error fetching slug {}: {}. Database probably not initialized.",
                             slug,
                             e.message,
                         )
@@ -51,42 +52,40 @@ fun Application.configureApiRoutes() {
                 val reachedMaxClicks = link?.maxClicks != null && link.clicksCount >= link.maxClicks
 
                 if (link == null) {
-                    throw SlugNotFoundException("Slug $slug não encontrado.")
+                    throw SlugNotFoundException("Slug $slug not found.")
                 }
 
                 if (!link.isActive || isExpired || reachedMaxClicks) {
                     logger.info(
-                        "Redirect falhou para slug: {}. Motivo: {}",
+                        "Redirect failed for slug: {}. Reason: {}",
                         slug,
                         if (!link.isActive) {
-                            "inativo"
+                            "inactive"
                         } else if (isExpired) {
-                            "expirado por tempo"
+                            "expired by time"
                         } else {
-                            "expirado por cliques (${link.clicksCount}/${link.maxClicks})"
+                            "expired by clicks (${link.clicksCount}/${link.maxClicks})"
                         },
                     )
-                    throw LinkExpiredException("O link para o slug $slug expirou ou está inativo.")
+                    throw LinkExpiredException("The link for slug $slug has expired or is inactive.")
                 }
 
                 logger.info("Redirecting slug {} to {}", slug, link.targetUrl)
                 try {
-                    val linksRepository = LinksRepository()
                     linksRepository.incrementClicks(slug)
                 } catch (e: Exception) {
-                    logger.error("Erro ao incrementar cliques para slug {}: {}", slug, e.message)
+                    logger.error("Error incrementing clicks for slug {}: {}", slug, e.message)
                 }
                 call.respondRedirect(link.targetUrl)
             }
             get("/{slug}/stats") {
-                val slug = call.parameters["slug"] ?: throw SlugNotFoundException("Slug é obrigatório.")
-                val linksRepository = LinksRepository()
-                val link = linksRepository.findBySlug(slug) ?: throw SlugNotFoundException("Link não encontrado")
+                val slug = call.parameters["slug"] ?: throw SlugNotFoundException("Slug is required.")
+                val link = linksRepository.findBySlug(slug) ?: throw SlugNotFoundException("Link not found")
 
                 call.respond(StatsResponse(slug = slug, clicks = link.clicksCount))
             }
             get("/links") {
-                val links = LinksRepository().findAll()
+                val links = linksRepository.findAll()
                 val response = links.map { it.toResponse() }
                 call.respond(response)
             }
@@ -100,7 +99,6 @@ fun Application.configureApiRoutes() {
                         allowLocalhost = config.flags.allowLocalhost,
                     )
 
-                val linksRepository = LinksRepository()
                 val slugGenerator =
                     SlugGenerator(
                         repo = linksRepository,
@@ -113,7 +111,7 @@ fun Application.configureApiRoutes() {
                     try {
                         shortenCreate.expiresAt?.let { OffsetDateTime.parse(it) }
                     } catch (e: Exception) {
-                        throw BadRequestException("Formato de data inválido.")
+                        throw BadRequestException("Invalid date format.")
                     }
 
                 val link =

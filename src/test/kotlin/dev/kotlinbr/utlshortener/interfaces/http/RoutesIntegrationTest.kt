@@ -80,7 +80,10 @@ class RoutesIntegrationTest {
     fun `api GET links returns empty array on empty DB`() =
         testApplication {
             setDbProps()
-            application { module() }
+            application {
+                module()
+                transaction { LinksTable.deleteAll() }
+            }
             val res = client.get("/api/v1/links")
             assertEquals(HttpStatusCode.OK, res.status)
             val ct = res.headers[HttpHeaders.ContentType].orEmpty()
@@ -183,7 +186,7 @@ class RoutesIntegrationTest {
         }
 
     @Test
-    fun `api GET slug returns 404 when link is inactive`() =
+    fun `api GET slug returns 410 when link is inactive`() =
         testApplication {
             setDbProps()
             val slug = "inactive"
@@ -196,11 +199,11 @@ class RoutesIntegrationTest {
             }
 
             val res = client.get("/api/v1/$slug")
-            assertEquals(HttpStatusCode.NotFound, res.status)
+            assertEquals(HttpStatusCode.Gone, res.status)
         }
 
     @Test
-    fun `api GET slug returns 404 when link is expired`() =
+    fun `api GET slug returns 410 when link is expired`() =
         testApplication {
             setDbProps()
             val slug = "expired"
@@ -214,11 +217,11 @@ class RoutesIntegrationTest {
             }
 
             val res = client.get("/api/v1/$slug")
-            assertEquals(HttpStatusCode.NotFound, res.status)
+            assertEquals(HttpStatusCode.Gone, res.status)
         }
 
     @Test
-    fun `api GET slug returns 404 when link reached maxClicks`() =
+    fun `api GET slug returns 410 when link reached maxClicks`() =
         testApplication {
             setDbProps()
             val slug = "maxclicks"
@@ -237,7 +240,7 @@ class RoutesIntegrationTest {
             }
 
             val res = client.get("/api/v1/$slug")
-            assertEquals(HttpStatusCode.NotFound, res.status)
+            assertEquals(HttpStatusCode.Gone, res.status)
         }
 
     @Test

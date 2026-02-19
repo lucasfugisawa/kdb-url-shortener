@@ -18,6 +18,8 @@ import io.ktor.server.routing.routing
  * Frontend endpoint(s).
  */
 fun Application.configureFrontendRoutes() {
+    val linksRepository = LinksRepository()
+
     intercept(ApplicationCallPipeline.Plugins) {
         val uri = call.request.uri
         if (uri.startsWith("/api/v1/")) return@intercept
@@ -28,7 +30,6 @@ fun Application.configureFrontendRoutes() {
             !path.contains(".") &&
             path.matches(Regex("^[a-zA-Z0-9]{3,15}$"))
         ) {
-            val linksRepository = LinksRepository()
             val exists =
                 try {
                     linksRepository.existsBySlug(path)

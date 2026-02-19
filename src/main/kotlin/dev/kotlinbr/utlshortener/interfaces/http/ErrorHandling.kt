@@ -36,7 +36,7 @@ fun Application.configureErrorHandling() {
             call.respond(HttpStatusCode.NotFound, ErrorResponse("SLUG_NOT_FOUND", cause.message ?: "Slug not found"))
         }
         exception<LinkExpiredException> { call, cause ->
-            call.respond(HttpStatusCode.NotFound, ErrorResponse("SLUG_NOT_FOUND", cause.message ?: "Link expired"))
+            call.respond(HttpStatusCode.Gone, ErrorResponse("LINK_EXPIRED", cause.message ?: "Link expired"))
         }
         exception<BadRequestException> { call, cause ->
             call.respond(
@@ -50,7 +50,7 @@ fun Application.configureErrorHandling() {
         exception<NotFoundException> { call, cause ->
             call.respond(
                 HttpStatusCode.NotFound,
-                ErrorResponse("SLUG_NOT_FOUND", cause.message ?: "Resource not found"),
+                ErrorResponse("NOT_FOUND", cause.message ?: "Resource not found"),
             )
         }
         exception<Throwable> { call, cause ->

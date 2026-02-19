@@ -44,11 +44,11 @@ object UrlValidator {
         var normalized = url.trim()
 
         if (normalized.length > MAX_URL_LENGTH) {
-            throw UrlInvalidException("URL muito longa. Máximo de $MAX_URL_LENGTH caracteres.")
+            throw UrlInvalidException("URL too long. Maximum of $MAX_URL_LENGTH characters.")
         }
 
         if (normalized.isEmpty()) {
-            throw UrlInvalidException("URL não pode estar vazia.")
+            throw UrlInvalidException("URL cannot be empty.")
         }
 
         // If it starts with www. without scheme, prefix with https://
@@ -60,19 +60,19 @@ object UrlValidator {
             try {
                 URI(normalized)
             } catch (e: URISyntaxException) {
-                throw UrlInvalidException("URL inválida: ${e.message}")
+                throw UrlInvalidException("Invalid URL: ${e.message}")
             }
 
         val scheme = uri.scheme?.lowercase()
         if (scheme == null || scheme !in VALID_SCHEMES) {
-            throw UrlInvalidException("Esquema inválido. Use http:// ou https://")
+            throw UrlInvalidException("Invalid scheme. Use http:// or https://")
         }
 
-        val host = uri.host?.lowercase() ?: throw UrlInvalidException("Host inválido.")
+        val host = uri.host?.lowercase() ?: throw UrlInvalidException("Invalid host.")
 
         if (!allowLocalhost) {
             if (host in LOCAL_HOSTS || LOCAL_IP_RANGES.any { host.startsWith(it) }) {
-                throw UrlInvalidException("URLs locais não são permitidas.")
+                throw UrlInvalidException("Local URLs are not allowed.")
             }
         }
 
@@ -80,7 +80,7 @@ object UrlValidator {
         if (!host.contains(".") || host.substringAfterLast(".").isEmpty()) {
             // Exception for localhost if allowed, but we already handled host in LOCAL_HOSTS
             if (!allowLocalhost || host != "localhost") {
-                throw UrlInvalidException("Domínio deve ter um TLD plausível.")
+                throw UrlInvalidException("Domain must have a plausible TLD.")
             }
         }
 
