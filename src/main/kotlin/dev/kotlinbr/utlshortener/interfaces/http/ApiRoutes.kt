@@ -94,10 +94,6 @@ fun Application.configureApiRoutes() {
                 val config = call.application.attributes[AppConfigKey]
                 val shortenCreate = call.receive<ShortenRequest>()
 
-                if (shortenCreate.expiresAt != null && shortenCreate.maxClicks != null) {
-                    throw BadRequestException("expiresAt e maxClicks são mutuamente exclusivos.")
-                }
-
                 val url =
                     UrlValidator.validateAndNormalize(
                         shortenCreate.url,
