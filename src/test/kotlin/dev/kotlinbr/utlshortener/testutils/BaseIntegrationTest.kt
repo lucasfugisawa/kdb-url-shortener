@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.koin.core.context.stopKoin
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -30,7 +28,6 @@ import java.sql.DriverManager
 @Testcontainers
 @TestInstance(Lifecycle.PER_CLASS)
 open class BaseIntegrationTest {
-    protected val logger: Logger = LoggerFactory.getLogger(BaseIntegrationTest::class.java)
 
     companion object {
         @JvmStatic
@@ -97,15 +94,6 @@ open class BaseIntegrationTest {
             cleanupIntervalMinutes = cleanupIntervalMinutes,
             slug = SlugConfig(length = slugLength, maxRetries = slugMaxRetries),
         )
-
-    protected fun initDatabase(
-        runMigrations: Boolean = true,
-        allowLocalhost: Boolean = false,
-    ): AppConfig {
-        val cfg = createAppConfig(runMigrations, allowLocalhost)
-        DatabaseFactory.init(cfg)
-        return cfg
-    }
 
     // -- Schema-scoped helpers (shared by integration tests) --
     protected fun ensureSchemaExists(schema: String) {
