@@ -1,5 +1,6 @@
 package dev.kotlinbr.utlshortener.interfaces.http
 
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -7,6 +8,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -35,8 +37,17 @@ fun Application.configureErrorHandling() {
         exception<SlugNotFoundException> { call, cause ->
             call.respond(HttpStatusCode.NotFound, ErrorResponse("SLUG_NOT_FOUND", cause.message ?: "Slug not found"))
         }
-        exception<LinkExpiredException> { call, cause ->
-            call.respond(HttpStatusCode.Gone, ErrorResponse("LINK_EXPIRED", cause.message ?: "Link expired"))
+        exception<LinkExpiredException> { call, _ ->
+            val content =
+                javaClass.classLoader
+                    .getResourceAsStream("public/404.html")
+                    ?.bufferedReader()
+                    ?.readText()
+            if (content != null) {
+                call.respondText(content, ContentType.Text.Html, HttpStatusCode.NotFound)
+            } else {
+                call.respond(HttpStatusCode.NotFound, ErrorResponse("NOT_FOUND", "Link expired and 404 page not found"))
+            }
         }
         exception<BadRequestException> { call, cause ->
             call.respond(

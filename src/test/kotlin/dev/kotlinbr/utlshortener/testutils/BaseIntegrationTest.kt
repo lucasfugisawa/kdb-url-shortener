@@ -28,7 +28,6 @@ import java.sql.DriverManager
 @Testcontainers
 @TestInstance(Lifecycle.PER_CLASS)
 open class BaseIntegrationTest {
-
     companion object {
         @JvmStatic
         @Container
