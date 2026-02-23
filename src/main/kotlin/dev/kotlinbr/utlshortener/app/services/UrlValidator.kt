@@ -41,41 +41,72 @@ object UrlValidator {
         url: String,
         allowLocalhost: Boolean = false,
     ): String {
-        var normalized = url.trim()
+        val normalized = preprocessUrl(url)
+        validateUrlLength(normalized)
+        validateUrlNotEmpty(normalized)
 
-        if (normalized.length > MAX_URL_LENGTH) {
+        val uri = parseUri(normalized)
+        validateScheme(uri)
+        val host = validateHost(uri)
+
+        validateLocalHost(host, allowLocalhost)
+        validateTld(host, allowLocalhost)
+
+        return normalized
+    }
+
+    private fun preprocessUrl(url: String): String {
+        val trimmed = url.trim()
+        return if (trimmed.startsWith("www.", ignoreCase = true)) {
+            "https://$trimmed"
+        } else {
+            trimmed
+        }
+    }
+
+    private fun validateUrlLength(url: String) {
+        if (url.length > MAX_URL_LENGTH) {
             throw UrlInvalidException("URL too long. Maximum of $MAX_URL_LENGTH characters.")
         }
+    }
 
-        if (normalized.isEmpty()) {
+    private fun validateUrlNotEmpty(url: String) {
+        if (url.isEmpty()) {
             throw UrlInvalidException("URL cannot be empty.")
         }
+    }
 
-        // If it starts with www. without scheme, prefix with https://
-        if (normalized.startsWith("www.", ignoreCase = true)) {
-            normalized = "https://$normalized"
+    private fun parseUri(url: String): URI =
+        try {
+            URI(url)
+        } catch (e: URISyntaxException) {
+            throw UrlInvalidException("Invalid URL: ${e.message}", e)
         }
 
-        val uri =
-            try {
-                URI(normalized)
-            } catch (e: URISyntaxException) {
-                throw UrlInvalidException("Invalid URL: ${e.message}")
-            }
-
+    private fun validateScheme(uri: URI) {
         val scheme = uri.scheme?.lowercase()
         if (scheme == null || scheme !in VALID_SCHEMES) {
             throw UrlInvalidException("Invalid scheme. Use http:// or https://")
         }
+    }
 
-        val host = uri.host?.lowercase() ?: throw UrlInvalidException("Invalid host.")
+    private fun validateHost(uri: URI): String = uri.host?.lowercase() ?: throw UrlInvalidException("Invalid host.")
 
+    private fun validateLocalHost(
+        host: String,
+        allowLocalhost: Boolean,
+    ) {
         if (!allowLocalhost) {
             if (host in LOCAL_HOSTS || LOCAL_IP_RANGES.any { host.startsWith(it) }) {
                 throw UrlInvalidException("Local URLs are not allowed.")
             }
         }
+    }
 
+    private fun validateTld(
+        host: String,
+        allowLocalhost: Boolean,
+    ) {
         // Simple TLD check: must have at least one dot and something after it
         if (!host.contains(".") || host.substringAfterLast(".").isEmpty()) {
             // Exception for localhost if allowed, but we already handled host in LOCAL_HOSTS
@@ -83,7 +114,5 @@ object UrlValidator {
                 throw UrlInvalidException("Domain must have a plausible TLD.")
             }
         }
-
-        return normalized
     }
 }

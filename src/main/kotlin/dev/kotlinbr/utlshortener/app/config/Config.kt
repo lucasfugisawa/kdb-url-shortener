@@ -7,6 +7,9 @@ import io.ktor.server.application.Application
 const val DEFAULT_SERVER_PORT: Int = 8080
 const val DEFAULT_DB_POOL_MAX: Int = 10
 
+const val DEFAULT_SLUG_LENGTH: Int = 7
+const val DEFAULT_SLUG_MAX_RETRIES: Int = 5
+
 data class DbConfig(
     val driver: String,
     val url: String,
@@ -137,8 +140,12 @@ fun loadAppConfig(application: Application): AppConfig {
 
     val slugCfg =
         SlugConfig(
-            length = sysOrEnv("SLUG_LENGTH")?.toIntOrNull() ?: getInt("app.slug.length", 7),
-            maxRetries = sysOrEnv("SLUG_MAX_RETRIES")?.toIntOrNull() ?: getInt("app.slug.maxRetries", 5),
+            length =
+                sysOrEnv("SLUG_LENGTH")?.toIntOrNull()
+                    ?: getInt("app.slug.length", DEFAULT_SLUG_LENGTH),
+            maxRetries =
+                sysOrEnv("SLUG_MAX_RETRIES")?.toIntOrNull()
+                    ?: getInt("app.slug.maxRetries", DEFAULT_SLUG_MAX_RETRIES),
         )
 
     return AppConfig(

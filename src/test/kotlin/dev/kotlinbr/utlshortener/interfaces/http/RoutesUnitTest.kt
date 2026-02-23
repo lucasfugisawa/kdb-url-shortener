@@ -89,8 +89,9 @@ class RoutesUnitTest {
             System.setProperty("APP_RUN_MIGRATIONS", "false")
             application { module() }
             val res = client.get("/api/v1/no-such-route")
+            val body = res.bodyAsText()
             assertEquals(HttpStatusCode.NotFound, res.status)
-            assertTrue(res.bodyAsText().contains("\"code\":\"SLUG_NOT_FOUND\""))
+            assertTrue(body.contains("\"code\":\"SLUG_NOT_FOUND\""))
         }
 
     @Test

@@ -1,6 +1,7 @@
 package dev.kotlinbr.utlshortener.app.services
 
 import dev.kotlinbr.utlshortener.infrastructure.repository.LinksRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -22,6 +23,8 @@ class CleanupJob(
             while (isActive) {
                 try {
                     runCleanup()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     logger.error("Error during cleanup job execution", e)
                 }

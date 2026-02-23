@@ -19,7 +19,8 @@ data class ErrorResponse(
 
 class UrlInvalidException(
     message: String,
-) : RuntimeException(message)
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)
 
 class SlugNotFoundException(
     message: String,
@@ -50,11 +51,12 @@ fun Application.configureErrorHandling() {
             }
         }
         exception<BadRequestException> { call, cause ->
+            val message = cause.cause?.message ?: cause.message ?: "Validation error"
             call.respond(
                 HttpStatusCode.BadRequest,
                 ErrorResponse(
                     "VALIDATION_ERROR",
-                    cause.message ?: "Validation error",
+                    message,
                 ),
             )
         }
