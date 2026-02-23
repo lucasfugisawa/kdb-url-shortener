@@ -81,7 +81,7 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
                 shortenResponse.bodyAsText().substringAfter("\"slug\":\"").substringBefore("\"")
 
             val response = client.get("/api/v1/$slug")
-            assertEquals(HttpStatusCode.NotFound, response.status)
+            assertEquals(HttpStatusCode.Gone, response.status)
         }
 
     @Test
@@ -122,6 +122,6 @@ class MultipleExpirationCriteriaTest : BaseIntegrationTest() {
 
             // Second click - Should fail
             val response2 = client.get("/api/v1/$slug")
-            assertEquals(HttpStatusCode.NotFound, response2.status)
+            assertEquals(HttpStatusCode.Gone, response2.status)
         }
 }

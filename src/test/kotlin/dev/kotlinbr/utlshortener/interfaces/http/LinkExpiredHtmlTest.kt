@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 
 class LinkExpiredHtmlTest : BaseIntegrationTest() {
     @Test
-    fun `GET slug should return 404 html when link is expired`() =
+    fun `GET slug should return 410 html when link is expired`() =
         testApplication {
             val config = initDatabaseInSchema("link_expired_html")
             System.setProperty("DB_URL", config.db.url)
@@ -52,14 +52,10 @@ class LinkExpiredHtmlTest : BaseIntegrationTest() {
             // Try to access it via top-level route
             val response = client.get("/$slug")
 
-            // Currently it returns Gone (410) and JSON.
-            // The requirement is to return 404.html.
-            // We expect it to return OK (200) with HTML content, or maybe 404 (NotFound) with HTML content.
-            // Usually, 404.html is served with 404 status.
-
-            assertEquals(HttpStatusCode.NotFound, response.status)
+            // Currently it returns Gone (410) and HTML.
+            assertEquals(HttpStatusCode.Gone, response.status)
             val body = response.bodyAsText()
             assertTrue(body.contains("<!DOCTYPE html>"), "Response should be HTML")
-            assertTrue(body.contains("Page Not Found - 404"), "Response should be the 404 page")
+            assertTrue(body.contains("Page Not Found - 404"), "Response should be the 404 page content")
         }
 }

@@ -5,7 +5,7 @@ val junitVersion = "5.13.4"
 val mockkVersion = "1.13.17"
 val testcontainersPostgresVersion = "1.21.4"
 val flywayVersion = "12.0.2"
-val exposedVersion = "0.61.0"
+val exposedVersion = "1.0.0"
 val hikariVersion = "7.0.2"
 val postgresDriverVersion = "42.7.10"
 val logstashEncoderVersion = "9.0"
@@ -91,9 +91,9 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.postgresql:postgresql:$postgresDriverVersion")
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-core:0.61.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.61.0")
 
     // --- Test dependencies ---
     testImplementation("io.ktor:ktor-server-test-host")

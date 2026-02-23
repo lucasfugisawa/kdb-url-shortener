@@ -44,9 +44,9 @@ fun Application.configureErrorHandling() {
                     ?.bufferedReader()
                     ?.readText()
             if (content != null) {
-                call.respondText(content, ContentType.Text.Html, HttpStatusCode.NotFound)
+                call.respondText(content, ContentType.Text.Html, HttpStatusCode.Gone)
             } else {
-                call.respond(HttpStatusCode.NotFound, ErrorResponse("NOT_FOUND", "Link expired and 404 page not found"))
+                call.respond(HttpStatusCode.Gone, ErrorResponse("GONE", "Link expired or inactive"))
             }
         }
         exception<BadRequestException> { call, cause ->

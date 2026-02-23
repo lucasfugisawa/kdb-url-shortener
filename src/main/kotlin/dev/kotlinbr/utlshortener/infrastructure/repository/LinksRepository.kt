@@ -5,7 +5,6 @@ import dev.kotlinbr.utlshortener.infrastructure.db.tables.LinksTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.plus
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
@@ -34,7 +33,7 @@ class LinksRepository {
         transaction {
             LinksTable
                 .selectAll()
-                .andWhere { LinksTable.slug eq slug }
+                .where { LinksTable.slug eq slug }
                 .singleOrNull()
                 ?.toDomain()
         }
@@ -43,7 +42,7 @@ class LinksRepository {
         transaction {
             LinksTable
                 .selectAll()
-                .andWhere { LinksTable.slug eq slug }
+                .where { LinksTable.slug eq slug }
                 .limit(1)
                 .any()
         }
